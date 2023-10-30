@@ -23,10 +23,9 @@ static bool keys[SDL_NUM_SCANCODES] = { false };
 #define MAX_CHECKERBOARD_INDEX ((CHECKERBOARD_HEIGHT*CHECKERBOARD_WIDTH + CHECKERBOARD_WIDTH)*4)
 uint8_t checkerboard[CHECKERBOARD_BYTES];
 
-const int WINDOW_WIDTH  = 512;
-const int WINDOW_HEIGHT = 512;
-const int RENDER_WIDTH =  512;
-const int RENDER_HEIGHT = 512;
+const int WINDOW_WIDTH  = 1024;
+const int WINDOW_HEIGHT = 768;
+
 
 class Line {
     public:
@@ -60,105 +59,6 @@ void initCheckerboardTexture() {
         }
     }
     printf("max tex index: %d\n", MAX_CHECKERBOARD_INDEX);
-}
-
-// Frontfaces are defined to be Counter-Clockwise.
-// Input of triangle's vertices are in a y-down system.
-static inline void rasterizeTri(SDL_Renderer * renderer, Tri triWithW, Tri tri) {
-    int minX = (int)glm::min(glm::min(tri.p0.x, tri.p1.x), tri.p2.x);
-    int maxX = (int)glm::max(glm::max(tri.p0.x, tri.p1.x), tri.p2.x);
-    int minY = (int)glm::min(glm::min(tri.p0.y, tri.p1.y), tri.p2.y);
-    int maxY = (int)glm::max(glm::max(tri.p0.y, tri.p1.y), tri.p2.y);
-    
-    // Clip to screen boundaries
-    if (minX < 0) minX             = 0;
-    if (maxX > RENDER_WIDTH) maxX  = RENDER_WIDTH;
-    if (minY < 0) minY             = 0;
-    if (maxY > RENDER_HEIGHT) maxY = RENDER_HEIGHT;
-
-    glm::vec4 v0 = tri.p1 - tri.p0;
-    glm::vec4 v1 = tri.p2 - tri.p1;
-    glm::vec4 v2 = tri.p0 - tri.p2;
-    glm::vec4 u = v0;
-    glm::vec4 v = -v2;
-    float recipW0 = 1.0f/triWithW.p0.w;
-    float recipW1 = 1.0f/triWithW.p1.w;
-    float recipW2 = 1.0f/triWithW.p2.w;
-    float recipAreaParallelogram = 1.0f / (u.x*(v.y) - (u.y)*v.x);
-
-    float C0 = -v0.x*tri.p0.y + v0.y*tri.p0.x;
-    float C1 = -v1.x*tri.p1.y + v1.y*tri.p1.x;
-    float C2 = -v2.x*tri.p2.y + v2.y*tri.p2.x;
-
-    float Cy0 = C0 + v0.x*minY - v0.y*minX;
-    float Cy1 = C1 + v1.x*minY - v1.y*minX;
-    float Cy2 = C2 + v2.x*minY - v2.y*minX;
-
-    if (recipAreaParallelogram <= 0) { // Face culling
-        for (int y=minY; y < maxY; y++) {
-            float Cx0 = Cy0;
-            float Cx1 = Cy1;
-            float Cx2 = Cy2;
-            for (int x=minX; x < maxX; x++) {
-                // As y is flipped (top->bottom) we check for <= instead of
-                // >= !
-                if (Cx0 <= 0 && Cx1 <= 0 && Cx2 <= 0) {
-                    float s = Cx2 * recipAreaParallelogram;
-                    float t = Cx0 * recipAreaParallelogram;
-
-                    float recipW = (1.0f-s-t)*recipW0 + s*recipW1 + t*recipW2;
-                    float oneOverRecipW = 1.0f / recipW;
-
-                    glm::vec3 p0Color = (1.0f-s-t) * tri.c0 * recipW0;
-                    glm::vec3 p1Color = s*tri.c1 * recipW1;
-                    glm::vec3 p2Color = t*tri.c2 * recipW2;
-                    glm::vec2 p0Tex = (1.0f-s-t) * tri.t0 * recipW0;
-                    glm::vec2 p1Tex = s*tri.t1 * recipW1;
-                    glm::vec2 p2Tex = t*tri.t2 * recipW2;
-                    glm::vec3 finalColor = (p0Color + p1Color + p2Color)*oneOverRecipW;
-                    uint8_t cR = finalColor.x*255;
-                    uint8_t cG = finalColor.y*255;
-                    uint8_t cB = finalColor.z*255;
-                    glm::vec2 finalTexCoords = (p0Tex + p1Tex + p2Tex)*oneOverRecipW;
-                    int uTexSampleX = CHECKERBOARD_WIDTH*finalTexCoords.x;
-                    int uTexSampleY = CHECKERBOARD_HEIGHT*finalTexCoords.y;
-                    int texIndex = CHECKERBOARD_CHANNELS*(uTexSampleY*CHECKERBOARD_WIDTH + uTexSampleX);
-                    if (texIndex > MAX_CHECKERBOARD_INDEX) {
-                        printf("tex index: %d\n", texIndex);
-                    }
-                    uint8_t texR = checkerboard[texIndex + 0];
-                    uint8_t texG = checkerboard[texIndex + 1];
-                    uint8_t texB = checkerboard[texIndex + 2];
-                    uint8_t texA = checkerboard[texIndex + 3];
-                    // // printf("r: %f, g: %f, b: %f\n", finalColor.x, finalColor.y, finalColor.z);
-
-                    uint8_t mixR = glm::max((cR + texR), 255);
-                    uint8_t mixG = glm::max((cG + texG), 255);
-                    uint8_t mixB = glm::max((cB + texB), 255);
-
-                    // SDL_SetRenderDrawColor(renderer, finalColor.x*255, finalColor.y*255, finalColor.z*255, SDL_ALPHA_OPAQUE);
-                    SDL_SetRenderDrawColor(renderer, mixR, mixG, mixB, SDL_ALPHA_OPAQUE);
-                    SDL_RenderDrawPoint(renderer, x, y);
-                }
-
-                Cx0 -= v0.y;
-                Cx1 -= v1.y;
-                Cx2 -= v2.y;
-            }
-
-            Cy0 += v0.x;
-            Cy1 += v1.x;
-            Cy2 += v2.x;
-        }
-    }
-
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_Rect triBoundaries = {minX, minY, maxX-minX, maxY-minY};
-    // SDL_RenderDrawRect(renderer, &triBoundaries);
-
-    SDL_Point points[] = { {tri.p0.x, tri.p0.y}, {tri.p1.x, tri.p1.y}, {tri.p2.x, tri.p2.y}, {tri.p0.x, tri.p0.y} };
-    SDL_SetRenderDrawColor(renderer, 255, 245, 0, SDL_ALPHA_OPAQUE);
-    SDL_RenderDrawLines(renderer, points, 4);
 }
 
 static inline Tri applyMatToTri(glm::mat4 mat, Tri tri) {
@@ -296,6 +196,7 @@ int main (int argc, char ** argv)
     }
     printf("Loaded image %s, width(x): %d, height(y): %d, channels(n):%d\n", imgName, x, y, n);
     int stride = n * 8; // We assume we load 8bit/channel pictures
+    float aspect = (float)x / (float)y;
 
     initCheckerboardTexture();
 
@@ -331,7 +232,7 @@ int main (int argc, char ** argv)
         renderer, 
         SDL_PIXELFORMAT_RGB24,
         SDL_TEXTUREACCESS_TARGET, 
-        RENDER_WIDTH, RENDER_HEIGHT);
+        x, y);
 
     uint32_t format;
     SDL_QueryTexture(renderTexture,
@@ -340,8 +241,8 @@ int main (int argc, char ** argv)
     printf("Pixel fomat: %s\n", SDL_GetPixelFormatName(format));
 
     // Copy image data into the texture
-    SDL_Rect imgDstRect = { 0, 0, RENDER_WIDTH, RENDER_HEIGHT };
-    SDL_UpdateTexture(renderTexture, NULL, imgData, n*x);
+    SDL_Rect renderRect = { 0, 0, x, y };
+    SDL_UpdateTexture(renderTexture, &renderRect, imgData, n*x);
 
     // Check that the window was successfully created
     if (window == NULL) {
@@ -379,24 +280,30 @@ int main (int argc, char ** argv)
         //SDL_SetRenderDrawColor(renderer, 100, 100, 100, SDL_ALPHA_OPAQUE);
         //SDL_RenderClear(renderer);
 
-
-        // Transform from Worldspace to Viewspace
-        // TODO: The viewing mat is janky at the moment because (I think) there is no clipping yet!
-        // glm::mat4 viewMat = glm::lookAt(glm::vec3(0, -15, 3.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-        glm::mat4 viewMat = glm::lookAt(camera.m_Pos, camera.m_Center, camera.m_Up);
-
-        // Transform to Clipspace using projective transformation
-        // TODO: Be careful with the FOV. There is no clipping yet. A narrow FOV moves the near clipping plane
-        //       farther away from the cam. The image may appear upside down!
-        int windowWidth, windowHeight;
-        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-        glm::mat4 perspProjMat = glm::perspective(45.0f, (float)windowWidth/(float)windowHeight, 0.1f, 2000.0f);
-
-
         SDL_SetRenderDrawColor(renderer, 255, 10, 90, SDL_ALPHA_OPAQUE);
 
+        // Fit image to window size
+
+        int windowWidth, windowHeight;
+        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+        float windowAspect = (float)windowWidth / (float)windowHeight;
+
+        SDL_Rect dstRect = { 0 };
+        if (aspect > windowAspect) { // horizontal letterbox
+            dstRect.w = windowWidth;
+            dstRect.h = windowWidth/aspect;
+        }
+        else { // vertical letterbox
+            dstRect.w = windowHeight/aspect;
+            dstRect.h = windowHeight;
+        }
+        dstRect.x = (windowWidth - dstRect.w) / 2.0;
+        dstRect.y = (windowHeight - dstRect.h) / 2.0;
+
+        // Blit the render texture (= the image) to the screen
+
         SDL_SetRenderTarget(renderer, NULL);
-        SDL_RenderCopy(renderer, renderTexture, NULL, NULL); 
+        SDL_RenderCopy(renderer, renderTexture, &renderRect, &dstRect);
 
         SDL_RenderPresent(renderer);
 
