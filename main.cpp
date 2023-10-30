@@ -269,6 +269,9 @@ int main (int argc, char ** argv)
             if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
                 shouldClose = true;
             }
+            if (event.key.keysym.scancode == SDL_SCANCODE_F) {
+                SDL_SetWindowSize(window, x, y);
+            }
             updateKeys(event);
         }
 
