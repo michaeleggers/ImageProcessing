@@ -195,13 +195,12 @@ int main (int argc, char ** argv)
         return -1;
     }
     printf("Loaded image %s, width(x): %d, height(y): %d, channels(n):%d\n", imgName, x, y, n);
-    int stride = n * 8; // We assume we load 8bit/channel pictures
+    int stride = n * 3; // We assume we load 8bit/channel pictures
     float aspect = (float)x / (float)y;
 
     initCheckerboardTexture();
 
     SDL_Window *window;                    // Declare a pointer
-
     SDL_Init(SDL_INIT_EVERYTHING);              // Initialize SDL2
 
     // Create an application window with the following settings:
@@ -230,15 +229,15 @@ int main (int argc, char ** argv)
     }
     SDL_Texture *renderTexture = SDL_CreateTexture(
         renderer, 
-        SDL_PIXELFORMAT_RGB24,
+        pixelFormat,
         SDL_TEXTUREACCESS_TARGET, 
         x, y);
-
     uint32_t format;
     SDL_QueryTexture(renderTexture,
         &format, NULL,
         NULL, NULL);
-    printf("Pixel fomat: %s\n", SDL_GetPixelFormatName(format));
+    printf("Texture Pixel fomat: %s\n", SDL_GetPixelFormatName(format));
+
 
     // Copy image data into the texture
     SDL_Rect renderRect = { 0, 0, x, y };
@@ -294,7 +293,7 @@ int main (int argc, char ** argv)
             dstRect.h = windowWidth/aspect;
         }
         else { // vertical letterbox
-            dstRect.w = windowHeight/aspect;
+            dstRect.w = windowHeight*aspect;
             dstRect.h = windowHeight;
         }
         dstRect.x = (windowWidth - dstRect.w) / 2.0;
