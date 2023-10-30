@@ -10,6 +10,9 @@
 
 #include "camera.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 static bool keys[SDL_NUM_SCANCODES] = { false };
 
 #define CHECKERBOARD_WIDTH    64
@@ -20,10 +23,10 @@ static bool keys[SDL_NUM_SCANCODES] = { false };
 #define MAX_CHECKERBOARD_INDEX ((CHECKERBOARD_HEIGHT*CHECKERBOARD_WIDTH + CHECKERBOARD_WIDTH)*4)
 uint8_t checkerboard[CHECKERBOARD_BYTES];
 
-const int WINDOW_WIDTH  = 1920;
-const int WINDOW_HEIGHT = 1080;
-const int RENDER_WIDTH = (1920);
-const int RENDER_HEIGHT = (1080);
+const int WINDOW_WIDTH  = 800;
+const int WINDOW_HEIGHT = 600;
+const int RENDER_WIDTH =  800;
+const int RENDER_HEIGHT = 600;
 
 class Line {
     public:
@@ -276,9 +279,22 @@ void updateCamera(Camera& camera) {
 
 int main (int argc, char ** argv) 
 {
-    time_t t;
-    srand((unsigned) time(&t));
-    
+
+    // Load image of which to compute DFT
+    if (argc < 2) {
+        printf("Usage:\n dft <image-file>\n");
+        return -1;
+    }
+    char* imgName = argv[1];
+    printf("Loading image: %s\n", imgName);
+
+    int x,y,n;
+    unsigned char *data = stbi_load(imgName, &x, &y, &n, 0);
+    if (!data) {
+        printf("Failed to load %s! Abort!\n", imgName);
+        return -1;
+    }
+
     initCheckerboardTexture();
 
     SDL_Window *window;                    // Declare a pointer
@@ -287,7 +303,7 @@ int main (int argc, char ** argv)
 
     // Create an application window with the following settings:
     window = SDL_CreateWindow(
-        "Very cool SDL2 Triangle Rasterizer",                  // window title
+        "DFT",                  // window title
         SDL_WINDOWPOS_UNDEFINED,           // initial x position
         SDL_WINDOWPOS_UNDEFINED,           // initial y position
         WINDOW_WIDTH,                               // width, in pixels
@@ -323,7 +339,6 @@ int main (int argc, char ** argv)
     // Main loop
     SDL_Event event;
     bool shouldClose = 0;
-    uint64_t trisRendered = 0;
     float accumTime = 0.0f;
     while (!shouldClose) {
 
@@ -346,28 +361,6 @@ int main (int argc, char ** argv)
         SDL_SetRenderDrawColor(renderer, 100, 100, 100, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(renderer);
 
-        // Setup a test triangle for rasterization in Worldspace
-        glm::vec4 p0 = glm::vec4(-10, 10, -1, 1.0f);
-        glm::vec4 p1 = glm::vec4(-10, -10, -1, 1.0f);
-        glm::vec4 p2 = glm::vec4(10, -10, -1, 1.0f);
-        glm::vec3 c0 = glm::vec3(1, 0, 0);
-        glm::vec3 c1 = glm::vec3(0, 1, 0);
-        glm::vec3 c2 = glm::vec3(0, 0, 1);
-        glm::vec2 t0 = glm::vec2(0.0, 0.0);
-        glm::vec2 t1 = glm::vec2(0.0, 1.0);
-        glm::vec2 t2 = glm::vec2(1.0, 1.0);
-        Tri tri = { p0, p1, p2, c0, c1, c2, t0, t1, t2 };
-
-        glm::vec4 p02 = glm::vec4(10, 10, -1, 1.0f);
-        glm::vec4 p12 = glm::vec4(-10, 10, -1, 1.0f);
-        glm::vec4 p22 = glm::vec4(10, -10, -1, 1.0f);
-        glm::vec3 c02 = glm::vec3(1, 0, 0);
-        glm::vec3 c12 = glm::vec3(0, 1, 0);
-        glm::vec3 c22 = glm::vec3(0, 0, 1);
-        glm::vec2 t02 = glm::vec2(1.0, 0.0);
-        glm::vec2 t12 = glm::vec2(0.0, 0.0);
-        glm::vec2 t22 = glm::vec2(1.0, 1.0);
-        Tri tri2 = { p02, p12, p22, c02, c12, c22, t02, t12, t22 };
 
         // Transform from Worldspace to Viewspace
         // TODO: The viewing mat is janky at the moment because (I think) there is no clipping yet!
@@ -381,25 +374,8 @@ int main (int argc, char ** argv)
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         glm::mat4 perspProjMat = glm::perspective(45.0f, (float)windowWidth/(float)windowHeight, 0.1f, 2000.0f);
 
-        // The actual transformation in one go
-        Tri clipspaceTri = applyMatToTri(perspProjMat * viewMat, tri);
-        Tri clipspaceTri2 = applyMatToTri(perspProjMat * viewMat, tri2);
-
-        // Perspective divide -> Normalized Clip Space (Normalized Device Coordinates)
-        Tri clipspaceTriBeforeDivW = clipspaceTri;
-        Tri clipspaceTriBeforeDivW2 = clipspaceTri2;
-        applyPerspDivide(clipspaceTri);
-        applyPerspDivide(clipspaceTri2);
-
-        // Transform into Window Coordinates
-        // TODO: Make the viewport transform function adheres to SDL's y Top->Down system
-        applyViewportTransformation(clipspaceTri, 0, RENDER_HEIGHT, RENDER_WIDTH, -RENDER_HEIGHT);
-        applyViewportTransformation(clipspaceTri2, 0, RENDER_HEIGHT, RENDER_WIDTH, -RENDER_HEIGHT);
 
         SDL_SetRenderDrawColor(renderer, 255, 10, 90, SDL_ALPHA_OPAQUE);
-        rasterizeTri(renderer, clipspaceTriBeforeDivW, clipspaceTri);
-        // rasterizeTri(renderer, clipspaceTriBeforeDivW2, clipspaceTri2);
-        trisRendered++;
 
         SDL_SetRenderTarget(renderer, NULL);
         SDL_RenderCopy(renderer, renderTexture, NULL, NULL); 
@@ -427,7 +403,6 @@ int main (int argc, char ** argv)
     // Clean up
     SDL_Quit();
 
-    printf("Tris rendered: %llu\n", trisRendered);
     return 0;
 
 }

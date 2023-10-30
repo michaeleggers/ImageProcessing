@@ -33,6 +33,7 @@ add_executable(DFT
 	main.cpp
 	camera.h
     camera.cpp
+    stb_image.h
 )
 
 target_include_directories(DFT
