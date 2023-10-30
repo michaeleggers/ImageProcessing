@@ -23,10 +23,10 @@ static bool keys[SDL_NUM_SCANCODES] = { false };
 #define MAX_CHECKERBOARD_INDEX ((CHECKERBOARD_HEIGHT*CHECKERBOARD_WIDTH + CHECKERBOARD_WIDTH)*4)
 uint8_t checkerboard[CHECKERBOARD_BYTES];
 
-const int WINDOW_WIDTH  = 800;
-const int WINDOW_HEIGHT = 600;
-const int RENDER_WIDTH =  800;
-const int RENDER_HEIGHT = 600;
+const int WINDOW_WIDTH  = 512;
+const int WINDOW_HEIGHT = 512;
+const int RENDER_WIDTH =  512;
+const int RENDER_HEIGHT = 512;
 
 class Line {
     public:
@@ -289,11 +289,13 @@ int main (int argc, char ** argv)
     printf("Loading image: %s\n", imgName);
 
     int x,y,n;
-    unsigned char *data = stbi_load(imgName, &x, &y, &n, 0);
-    if (!data) {
+    unsigned char *imgData = stbi_load(imgName, &x, &y, &n, 0);
+    if (!imgData) {
         printf("Failed to load %s! Abort!\n", imgName);
         return -1;
     }
+    printf("Loaded image %s, width(x): %d, height(y): %d, channels(n):%d\n", imgName, x, y, n);
+    int stride = n * 8; // We assume we load 8bit/channel pictures
 
     initCheckerboardTexture();
 
@@ -316,11 +318,30 @@ int main (int argc, char ** argv)
         printf("Failed to init renderer. Bye!\n");
         return 1;
     }
+
+    SDL_PixelFormatEnum pixelFormat = n == 3 ? SDL_PIXELFORMAT_RGB24 : SDL_PIXELFORMAT_RGBA8888;
+
+    if (pixelFormat == SDL_PIXELFORMAT_RGB24) {
+        printf("Pixelformat is: SDL_PIXELFORMAT_RGB24\n");
+    }
+    else if (pixelFormat == SDL_PIXELFORMAT_RGBA8888) {
+        printf("Pixelformat is: SDL_PIXELFORMAT_RGBA8888\n");
+    }
     SDL_Texture *renderTexture = SDL_CreateTexture(
         renderer, 
-        SDL_PIXELFORMAT_RGBA8888,
+        SDL_PIXELFORMAT_RGB24,
         SDL_TEXTUREACCESS_TARGET, 
         RENDER_WIDTH, RENDER_HEIGHT);
+
+    uint32_t format;
+    SDL_QueryTexture(renderTexture,
+        &format, NULL,
+        NULL, NULL);
+    printf("Pixel fomat: %s\n", SDL_GetPixelFormatName(format));
+
+    // Copy image data into the texture
+    SDL_Rect imgDstRect = { 0, 0, RENDER_WIDTH, RENDER_HEIGHT };
+    SDL_UpdateTexture(renderTexture, NULL, imgData, n*x);
 
     // Check that the window was successfully created
     if (window == NULL) {
@@ -330,9 +351,6 @@ int main (int argc, char ** argv)
     }
 
     SDL_ShowWindow(window);
-
-    // Test line
-    Line line = Line(glm::vec2(10, 10), glm::vec2(600, 600));
 
     Camera camera = Camera(glm::vec3(0, 0, 20));
 
@@ -358,8 +376,8 @@ int main (int argc, char ** argv)
 
 
         SDL_SetRenderTarget(renderer, renderTexture);
-        SDL_SetRenderDrawColor(renderer, 100, 100, 100, SDL_ALPHA_OPAQUE);
-        SDL_RenderClear(renderer);
+        //SDL_SetRenderDrawColor(renderer, 100, 100, 100, SDL_ALPHA_OPAQUE);
+        //SDL_RenderClear(renderer);
 
 
         // Transform from Worldspace to Viewspace
