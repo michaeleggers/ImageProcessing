@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include <cmath>
+#include <complex>
+
 #include <SDL2/SDL.h>
 
 #define GLM_FORCE_RADIANS
@@ -13,7 +16,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+using namespace std::complex_literals;
+
 static bool keys[SDL_NUM_SCANCODES] = { false };
+
+#define PI                      3.14159265359
 
 #define CHECKERBOARD_WIDTH    64
 #define CHECKERBOARD_HEIGHT   64
@@ -177,6 +184,30 @@ void updateCamera(Camera& camera) {
     }
 }
 
+// NOTE:
+// Assumptions: 
+// - Input is grayscale, 3 channels, 8 bit / channel. All channels have same luminance value
+void ComputeDFT(unsigned char* in_grayscaleImg, unsigned char* out, int width, int height) {
+    for (int m = 0; m < height; m++) {
+        for (int n = 0; n < width; n++) {
+            std::complex<double> sum(0.0, 0.0);
+            for (int k = 0; k < height; k++) {
+                for (int l = 0; l < width; l++) {
+                    unsigned char* pixel = &in_grayscaleImg[3 * (k * width + l)];
+                    float fLuminance = (float)(*pixel) / 255.0;
+                    //*out = std::complex<double>(fLuminance) * std::exp(1i * PI);
+                    double f = ( (double)(k * m) / height) + ( (double)(l * n) / width);
+                    std::complex<double> cFreq = std::complex<double>(fLuminance) * std::exp(-1i * 2.0 * PI * f);
+                    sum += cFreq;
+                }
+            }
+            double magnitudeSpectrum = std::abs(sum);
+            //magnitudeSpectrum = std::log(magnitudeSpectrum + 1);
+            memset(out + 3 * (m * width + n), (unsigned char)(magnitudeSpectrum), 3);
+        }
+    }
+}
+
 int main (int argc, char ** argv) 
 {
 
@@ -210,10 +241,15 @@ int main (int argc, char ** argv)
             float grayR = 0.3 * red;
             float grayG = 0.59 * green;
             float grayB = 0.11 * blue;
-            float gray = 0.3 * red + 0.59 * green + 0.11 * blue;            
+            float gray = 0.3 * red + 0.59 * green + 0.11 * blue;
+            
             memset(imgDataGrayscale + 3 * (col * x + row), (unsigned char)(gray * 255.0), 3);
         }
     }
+
+    // Compute DFT
+    unsigned char* imgDFT = (unsigned char*)malloc(x * y * n);
+    ComputeDFT(imgDataGrayscale, imgDFT, x, y);
 
     initCheckerboardTexture();
 
@@ -258,7 +294,7 @@ int main (int argc, char ** argv)
 
     // Copy image data into the texture
     SDL_Rect renderRect = { 0, 0, x, y };
-    SDL_UpdateTexture(renderTexture, &renderRect, imgDataGrayscale, n*x);
+    SDL_UpdateTexture(renderTexture, &renderRect, imgDFT, n*x);
 
     // Check that the window was successfully created
     if (window == NULL) {
