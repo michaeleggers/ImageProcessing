@@ -198,6 +198,23 @@ int main (int argc, char ** argv)
     int stride = n * 3; // We assume we load 8bit/channel pictures
     float aspect = (float)x / (float)y;
 
+    // Create grayscale version
+    unsigned char* imgDataGrayscale = (unsigned char*)malloc(x * y * n);
+    unsigned char* pixel = imgData;
+    for (int col = 0; col < y; col++) {
+        for (int row = 0; row < x; row++) {
+            float red = (float)(*pixel++)/255.0;
+            float green = (float)(*pixel++) / 255.0;
+            float blue = (float)(*pixel++) / 255.0;
+
+            float grayR = 0.3 * red;
+            float grayG = 0.59 * green;
+            float grayB = 0.11 * blue;
+            float gray = 0.3 * red + 0.59 * green + 0.11 * blue;            
+            memset(imgDataGrayscale + 3 * (col * x + row), (unsigned char)(gray * 255.0), 3);
+        }
+    }
+
     initCheckerboardTexture();
 
     SDL_Window *window;                    // Declare a pointer
@@ -241,7 +258,7 @@ int main (int argc, char ** argv)
 
     // Copy image data into the texture
     SDL_Rect renderRect = { 0, 0, x, y };
-    SDL_UpdateTexture(renderTexture, &renderRect, imgData, n*x);
+    SDL_UpdateTexture(renderTexture, &renderRect, imgDataGrayscale, n*x);
 
     // Check that the window was successfully created
     if (window == NULL) {
