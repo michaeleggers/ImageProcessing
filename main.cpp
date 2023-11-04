@@ -36,26 +36,6 @@ const int WINDOW_WIDTH  = 1024;
 const int WINDOW_HEIGHT = 768;
 
 
-class Line {
-    public:
-    Line(glm::vec2 a, glm::vec2 b) {
-        m_a = a;
-        m_b = b;
-    }
-    glm::vec2 m_a;
-    glm::vec2 m_b;
-
-    void draw(SDL_Renderer * renderer) {
-        SDL_RenderDrawLine(renderer, m_a.x, m_a.y, m_b.x, m_b.y);
-    }
-};
-
-struct Tri {
-    glm::vec4 p0, p1, p2; // position
-    glm::vec3 c0, c1, c2; // color
-    glm::vec2 t0, t1, t2; // texture
-};
-
 void initCheckerboardTexture() {
     for (size_t y=0; y < CHECKERBOARD_HEIGHT; y++) {
         for (size_t x=0; x < CHECKERBOARD_WIDTH; x++) {
@@ -68,36 +48,6 @@ void initCheckerboardTexture() {
         }
     }
     printf("max tex index: %d\n", MAX_CHECKERBOARD_INDEX);
-}
-
-static inline Tri applyMatToTri(glm::mat4 mat, Tri tri) {
-    Tri result = tri;
-    result.p0 = mat * tri.p0;
-    result.p1 = mat * tri.p1;
-    result.p2 = mat * tri.p2;
-    
-    return result;
-}
-
-static inline void applyPerspDivide(Tri& tri) {
-    tri.p0 /= tri.p0.w;
-    tri.p1 /= tri.p1.w;
-    tri.p2 /= tri.p2.w;
-}
-
-static inline void applyViewportTransformation(Tri& tri, int x, int y, int width, int height) {
-    tri.p0.x = (tri.p0.x + 1) * (width / 2.0f) + x;
-    tri.p0.y = (tri.p0.y + 1) * (height / 2.0f) + y;
-    tri.p1.x = (tri.p1.x + 1) * (width / 2.0f) + x;
-    tri.p1.y = (tri.p1.y + 1) * (height / 2.0f) + y;
-    tri.p2.x = (tri.p2.x + 1) * (width / 2.0f) + x;
-    tri.p2.y = (tri.p2.y + 1) * (height / 2.0f) + y;
-}
-
-static inline float randBetween(float min, float max) {
-    float randValue = (float)rand()/(float)RAND_MAX;
-    float range = max - min;
-    return range/1.0f * randValue + min;
 }
 
 void updateKeys(SDL_Event& e) {
@@ -159,33 +109,6 @@ void updateKeys(SDL_Event& e) {
     }
 }
 
-void updateCamera(Camera& camera) {
-    if (keys[SDL_SCANCODE_UP]) {
-        camera.RotateAroundSide(.005f);
-    }
-    if (keys[SDL_SCANCODE_DOWN]) {
-        camera.RotateAroundSide(-.005f);
-    }
-    if (keys[SDL_SCANCODE_LEFT]) {
-        camera.RotateAroundUp(.005f);        
-    }      
-    if (keys[SDL_SCANCODE_RIGHT]) {
-        camera.RotateAroundUp(-.005f);
-    }
-    if (keys[SDL_SCANCODE_W]) {
-        camera.MoveForward(.5f);
-    }
-    if (keys[SDL_SCANCODE_S]) {
-        camera.MoveForward(-.5f);
-    }
-    if (keys[SDL_SCANCODE_A]) {
-        camera.MoveSide(.5f);
-    }
-    if (keys[SDL_SCANCODE_D]) {
-        camera.MoveSide(-.5f);
-    }
-}
-
 // NOTE:
 // Assumptions: 
 // - Input is grayscale, 3 channels, 8 bit / channel. All channels have same luminance value
@@ -214,8 +137,6 @@ void ComputeDFT(unsigned char* in_grayscaleImg, unsigned char* out, int width, i
             outPixel[0] = magnitudeSpectrum;
             outPixel[1] = magnitudeSpectrum;
             outPixel[2] = magnitudeSpectrum;
-
-            //memset(outPixel, magnitudeSpectrum, 3*sizeof(double));
         }
     }
 
@@ -234,8 +155,6 @@ void ComputeDFT(unsigned char* in_grayscaleImg, unsigned char* out, int width, i
             outPixel[0] = (unsigned char)magnitude;
             outPixel[1] = (unsigned char)magnitude;
             outPixel[2] = (unsigned char)magnitude;
-
-            //memset(out + 3 * (i * width + j), (unsigned char)magnitude, 3);
         }
     }
     free(tmp);
@@ -337,8 +256,7 @@ int main (int argc, char ** argv)
     }
 
     SDL_ShowWindow(window);
-
-    Camera camera = Camera(glm::vec3(0, 0, 20));
+   
 
     // Main loop
     SDL_Event event;
@@ -360,8 +278,6 @@ int main (int argc, char ** argv)
             }
             updateKeys(event);
         }
-
-        updateCamera(camera);
 
 
         SDL_SetRenderTarget(renderer, renderTexture);
@@ -409,6 +325,8 @@ int main (int argc, char ** argv)
     }
 
     // SDL_Delay(3000);  // Pause execution for 3000 milliseconds, for example
+
+    stbi_image_free(imgData);
 
     // Close and destroy the window
     SDL_DestroyWindow(window);
