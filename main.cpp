@@ -21,6 +21,7 @@ using namespace std::complex_literals;
 static bool keys[SDL_NUM_SCANCODES] = { false };
 
 #define PI                      3.14159265359
+#define EPSILON                 0.00001
 
 #define CHECKERBOARD_WIDTH    64
 #define CHECKERBOARD_HEIGHT   64
@@ -29,6 +30,7 @@ static bool keys[SDL_NUM_SCANCODES] = { false };
 #define CHECKERBOARD_BYTES    (CHECKERBOARD_SIZE * CHECKERBOARD_CHANNELS)
 #define MAX_CHECKERBOARD_INDEX ((CHECKERBOARD_HEIGHT*CHECKERBOARD_WIDTH + CHECKERBOARD_WIDTH)*4)
 uint8_t checkerboard[CHECKERBOARD_BYTES];
+
 
 const int WINDOW_WIDTH  = 1024;
 const int WINDOW_HEIGHT = 768;
@@ -188,6 +190,8 @@ void updateCamera(Camera& camera) {
 // Assumptions: 
 // - Input is grayscale, 3 channels, 8 bit / channel. All channels have same luminance value
 void ComputeDFT(unsigned char* in_grayscaleImg, unsigned char* out, int width, int height) {
+    double highestMagnitude = 0.0;
+    double* tmp = (double*)malloc(3 * width * height * sizeof(double));
     for (int m = 0; m < height; m++) {
         for (int n = 0; n < width; n++) {
             std::complex<double> sum(0.0, 0.0);
@@ -202,10 +206,39 @@ void ComputeDFT(unsigned char* in_grayscaleImg, unsigned char* out, int width, i
                 }
             }
             double magnitudeSpectrum = std::abs(sum);
-            //magnitudeSpectrum = std::log(magnitudeSpectrum + 1);
-            memset(out + 3 * (m * width + n), (unsigned char)(magnitudeSpectrum), 3);
+            magnitudeSpectrum = std::log(magnitudeSpectrum + 1);
+            if (magnitudeSpectrum > highestMagnitude) {
+                highestMagnitude = magnitudeSpectrum;
+            }
+            double* outPixel = tmp + 3 * (m * width + n);
+            outPixel[0] = magnitudeSpectrum;
+            outPixel[1] = magnitudeSpectrum;
+            outPixel[2] = magnitudeSpectrum;
+
+            //memset(outPixel, magnitudeSpectrum, 3*sizeof(double));
         }
     }
+
+    // Saveguard for division by 0
+
+    if (highestMagnitude < EPSILON) highestMagnitude = 1;
+
+    // Fill the output
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            double magnitude = tmp[3 * (i * width + j)];
+            magnitude /= highestMagnitude;
+            magnitude *= 255.0;
+            unsigned char* outPixel = out + 3 * (i * width + j);
+            outPixel[0] = (unsigned char)magnitude;
+            outPixel[1] = (unsigned char)magnitude;
+            outPixel[2] = (unsigned char)magnitude;
+
+            //memset(out + 3 * (i * width + j), (unsigned char)magnitude, 3);
+        }
+    }
+    free(tmp);
 }
 
 int main (int argc, char ** argv) 
