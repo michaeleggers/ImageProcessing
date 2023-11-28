@@ -7,15 +7,20 @@
 
 #include <glm/glm.hpp>
 
-struct Vertex {
-	glm::vec3 pos;
-	glm::vec3 color;
-	glm::vec2 uv;
+#include "render_common.h"
+
+static const Rect rectGeoVerts[] = {
+	{ glm::vec3(-0.5, 0.5, 0.0) },
+	{ glm::vec3(0.5, 0.5, 0.0) },
+	{ glm::vec3(0.5, -0.5, 0.0) },
+	{ glm::vec3(-0.5, -0.5, 0.0) }
 };
 
-struct Rect {
-	glm::vec2 v1, v2, v3, v4;
+static const uint32_t rectGeoIndices[] = {
+	0, 1, 2, // upper right tri
+	2, 3, 0  // bottome left tri
 };
+
 
 class Shader {
 public:

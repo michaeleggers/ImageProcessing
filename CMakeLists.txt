@@ -51,6 +51,9 @@ add_executable(Morphing
     camera.cpp
 	render.h
 	render.cpp
+	render_common.h
+	batch.h
+	batch.cpp
 	common.cpp
 	common.h
     stb_image.h

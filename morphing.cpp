@@ -19,6 +19,7 @@
 
 #include "camera.h"
 #include "render.h"
+#include "batch.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -232,11 +233,7 @@ int main(int argc, char** argv)
     float accumTime = 0.0f;
     while (!shouldClose) {
 
-
-
         Uint32 startTime = SDL_GetTicks();
-
-
 
         // Set MouseState for this frame
 
