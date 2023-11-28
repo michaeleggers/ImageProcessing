@@ -17,7 +17,53 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+struct MouseState {
+    int x, y;
+    int oldX, oldY;
+    int dX, dY;
+    bool leftButtonDown;
+    bool rightButtonDown;
+    bool leftButtonWentUp;
+    bool rightButtonWentUp;
+    bool leftButtonPressed;
+    bool rightButtonPressed;
+};
+
+
 static bool keys[SDL_NUM_SCANCODES] = { false };
+static MouseState mouseState;
+
+bool LeftMouseButtonWentUp() {
+    return mouseState.leftButtonWentUp;
+}
+
+bool RightMouseButtonWentUp() {
+    return mouseState.rightButtonWentUp;
+}
+
+bool LeftMouseButtonDown() {
+    return mouseState.leftButtonDown;
+}
+
+bool RightMouseButtonDown() {
+    return mouseState.rightButtonDown;
+}
+
+int MouseX() {
+    return mouseState.x;
+}
+
+int MouseY() {
+    return mouseState.y;
+}
+
+bool LeftMouseButtonPressed() {
+    return mouseState.leftButtonPressed;
+}
+
+bool RightMouseButtonPressed() {
+    return mouseState.rightButtonPressed;
+}
 
 #define PI                      3.14159265359
 #define EPSILON                 0.00001
@@ -33,7 +79,6 @@ uint8_t checkerboard[CHECKERBOARD_BYTES];
 
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
-
 
 void initCheckerboardTexture() {
     for (size_t y = 0; y < CHECKERBOARD_HEIGHT; y++) {
@@ -109,6 +154,7 @@ void updateKeys(SDL_Event& e) {
 }
 
 
+
 int main(int argc, char** argv)
 {
     SDL_Window* window;                    
@@ -167,10 +213,50 @@ int main(int argc, char** argv)
 
         Uint32 startTime = SDL_GetTicks();
 
+        // Set MouseState for this frame
+
+        SDL_GetMouseState(&mouseState.x, &mouseState.y);
+        mouseState.oldX = mouseState.x;
+        mouseState.oldY = mouseState.y;
+        mouseState.leftButtonDown = false;
+        mouseState.rightButtonDown = false;
+        mouseState.leftButtonWentUp = false;
+        mouseState.rightButtonWentUp = false;
+
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 shouldClose = true;
             }
+
+            else if (event.type == SDL_MOUSEMOTION) {
+            }
+            else if (event.type == SDL_MOUSEBUTTONUP) {
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    mouseState.leftButtonPressed = false;
+                    mouseState.leftButtonDown = false;
+                    mouseState.leftButtonWentUp = true;
+                }
+                if (event.button.button == SDL_BUTTON_RIGHT) {
+                    mouseState.rightButtonPressed = false;
+                    mouseState.rightButtonDown = false;
+                    mouseState.rightButtonWentUp = true;
+                }
+            }
+            else if (event.type == SDL_MOUSEBUTTONDOWN) {
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    mouseState.leftButtonPressed = true;
+                    mouseState.leftButtonDown = true;                    
+                }
+                if (event.button.button == SDL_BUTTON_RIGHT) {
+                    mouseState.rightButtonPressed = true;
+                    mouseState.rightButtonDown = true;                    
+                }
+            }
+            else if (event.type == SDL_MOUSEMOTION) {
+                mouseState.x = event.motion.x;
+                mouseState.y = event.motion.y;
+            }
+
             if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
                 shouldClose = true;
             }
@@ -184,7 +270,32 @@ int main(int argc, char** argv)
         int windowWidth, windowHeight;
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         float windowAspect = (float)windowWidth / (float)windowHeight;
+        
+        // Test mouse input
 
+        if (LeftMouseButtonDown()) {
+            printf("left mb down\n");
+        }
+        if (RightMouseButtonDown()) {
+            printf("right mb down\n");
+        }
+        if (LeftMouseButtonWentUp()) {
+            printf("left mb went up\n");
+        }
+        if (RightMouseButtonWentUp()) {
+            printf("right mb went up\n");
+        }
+        if (LeftMouseButtonPressed()) {
+            printf("left mb is pressed\n");
+        }
+        if (RightMouseButtonPressed()) {
+            printf("right mb is pressed\n");
+        }
+        char cpMousePos[256];
+        sprintf(cpMousePos, "MousePos: %d, %d", MouseX(), MouseY());
+        SDL_SetWindowTitle(window, cpMousePos);
+        
+        
         glClearColor(0.2f, 0.4f, 0.7f, 1.0f); // Nice blue :)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -199,7 +310,7 @@ int main(int argc, char** argv)
         float FPS = 1.0f / timePassedSeconds;
         accumTime += timePassedSeconds;
         if (accumTime >= 1.0f) {
-            printf("FPS: %f\n", FPS);
+            //printf("FPS: %f\n", FPS);
             accumTime = 0.0f;
         }   
 
