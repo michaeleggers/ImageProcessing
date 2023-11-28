@@ -30,7 +30,7 @@ add_subdirectory(dependencies/SDL2.28.4)
 # )
 	
 add_executable(DFT
-	main.cpp
+	dft.cpp
 	camera.h
     camera.cpp
     stb_image.h
@@ -41,6 +41,24 @@ target_include_directories(DFT
 )
 
 target_link_libraries(DFT PUBLIC
+    PUBLIC SDL2
+    PUBLIC SDL2main
+)
+
+add_executable(Morphing
+	morphing.cpp
+	camera.h
+    camera.cpp
+    stb_image.h
+	dependencies/glad/src/glad.c
+)
+
+target_include_directories(Morphing
+    PUBLIC dependencies
+	PUBLIC dependencies/glad/include
+)
+
+target_link_libraries(Morphing PUBLIC
     PUBLIC SDL2
     PUBLIC SDL2main
 )
