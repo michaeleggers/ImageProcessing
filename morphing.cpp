@@ -217,6 +217,14 @@ int main(int argc, char** argv)
     ImGui_ImplSDL2_InitForOpenGL(window, sdl_gl_Context);
     ImGui_ImplOpenGL3_Init();
 
+    // Load Shaders
+    Shader imageShader;
+    if (!imageShader.Load("../shaders/basic.vert", "../shaders/basic.frag")) {
+        SDL_Log("Could not load shaders!\n");
+        exit(-1);
+    }
+    imageShader.Activate();
+
     // Main loop
     
     SDL_Event event;

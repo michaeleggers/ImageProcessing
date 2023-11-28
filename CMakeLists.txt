@@ -55,6 +55,9 @@ add_executable(Morphing
 	common.h
     stb_image.h
 
+	shaders/basic.vert
+	shaders/basic.frag
+
 	dependencies/imgui/imgui.h
 	dependencies/imgui/imconfig.h
 	dependencies/imgui/imgui_internal.h

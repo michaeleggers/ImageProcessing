@@ -39,7 +39,7 @@ void Shader::Activate() {
 bool Shader::CompileShader(const std::string& fileName, GLenum shaderType, GLuint& outShader) {
 	ATP_File shaderCode;
 	if (atp_read_file(fileName.c_str(), &shaderCode) != ATP_SUCCESS) {
-		SDL_Log("Fuck!\n");
+		SDL_Log("Could not read file: %s!\n", fileName.c_str());
 		return false;
 	}
 
