@@ -49,13 +49,40 @@ add_executable(Morphing
 	morphing.cpp
 	camera.h
     camera.cpp
+	render.h
+	render.cpp
+	common.cpp
+	common.h
     stb_image.h
+
+	dependencies/imgui/imgui.h
+	dependencies/imgui/imconfig.h
+	dependencies/imgui/imgui_internal.h
+	dependencies/imgui/imstb_rectpack.h
+	dependencies/imgui/imstb_textedit.h
+	dependencies/imgui/imstb_truetype.h
+
+	dependencies/imgui/misc/cpp/imgui_stdlib.h
+	dependencies/imgui/misc/cpp/imgui_stdlib.cpp
+
+	dependencies/imgui/imgui.cpp
+	dependencies/imgui/imgui_draw.cpp
+	dependencies/imgui/imgui_tables.cpp
+	dependencies/imgui/imgui_widgets.cpp
+	dependencies/imgui/imgui_demo.cpp
+
+	dependencies/imgui/backends/imgui_impl_opengl3.cpp
+	dependencies/imgui/backends/imgui_impl_opengl3.h
+	dependencies/imgui/backends/imgui_impl_sdl2.cpp
+	dependencies/imgui/backends/imgui_impl_sdl2.h
+
 	dependencies/glad/src/glad.c
 )
 
 target_include_directories(Morphing
     PUBLIC dependencies
 	PUBLIC dependencies/glad/include
+	PUBLIC dependencies/imgui
 )
 
 target_link_libraries(Morphing PUBLIC

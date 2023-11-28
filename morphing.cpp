@@ -4,15 +4,21 @@
 
 #include <cmath>
 
+//#include <SDL2/SDL.h>
+//#include <SDL.h>
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
 
+#include "imgui.h"
+#include <imgui/backends/imgui_impl_sdl2.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
 
 #define GLM_FORCE_RADIANS
 #include "dependencies/glm/glm.hpp"
 #include "dependencies/glm/ext.hpp"
 
 #include "camera.h"
+#include "render.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -177,7 +183,7 @@ int main(int argc, char** argv)
         SDL_WINDOWPOS_UNDEFINED,           
         WINDOW_WIDTH,                      
         WINDOW_HEIGHT,                     
-        SDL_WINDOW_OPENGL               
+        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
     );
 
     SDL_GLContext sdl_gl_Context = SDL_GL_CreateContext(window);
@@ -204,6 +210,13 @@ int main(int argc, char** argv)
     SDL_ShowWindow(window);
 
 
+    // Setup Imgui
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui_ImplSDL2_InitForOpenGL(window, sdl_gl_Context);
+    ImGui_ImplOpenGL3_Init();
+
     // Main loop
     
     SDL_Event event;
@@ -211,7 +224,11 @@ int main(int argc, char** argv)
     float accumTime = 0.0f;
     while (!shouldClose) {
 
+
+
         Uint32 startTime = SDL_GetTicks();
+
+
 
         // Set MouseState for this frame
 
@@ -224,6 +241,8 @@ int main(int argc, char** argv)
         mouseState.rightButtonWentUp = false;
 
         while (SDL_PollEvent(&event)) {
+            ImGui_ImplSDL2_ProcessEvent(&event);
+
             if (event.type == SDL_QUIT) {
                 shouldClose = true;
             }
@@ -266,6 +285,11 @@ int main(int argc, char** argv)
             updateKeys(event);
         }
 
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+        ImGui::ShowDemoWindow();
+
 
         int windowWidth, windowHeight;
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
@@ -301,7 +325,9 @@ int main(int argc, char** argv)
 
         // TODO: Draw stuff
 
-        
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         SDL_GL_SwapWindow(window);
 
         Uint32 endTime = SDL_GetTicks();
@@ -313,8 +339,13 @@ int main(int argc, char** argv)
             //printf("FPS: %f\n", FPS);
             accumTime = 0.0f;
         }   
-
     }
+
+    // Deinit ImGui
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
 
     // Close and destroy the window
     SDL_DestroyWindow(window);
