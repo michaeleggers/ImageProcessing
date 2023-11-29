@@ -21,6 +21,7 @@
 #include "camera.h"
 #include "render.h"
 #include "batch.h"
+#include "common.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -165,6 +166,8 @@ void updateKeys(SDL_Event& e) {
 
 int main(int argc, char** argv)
 {
+    std::string exePath = com_GetExePath();
+
     SDL_Window* window;                    
     SDL_Init(SDL_INIT_EVERYTHING);         
 
@@ -221,30 +224,36 @@ int main(int argc, char** argv)
     // Load Shaders
     
     Shader imageShader;
-    if (!imageShader.Load("../shaders/basic.vert", "../shaders/basic.frag")) {
+    if (!imageShader.Load(exePath + "../../shaders/basic.vert", exePath + "../../shaders/basic.frag")) {
+        SDL_Log("Could not load shaders!\n");
+        exit(-1);
+    }   
+    Shader finalShader;
+    if (!finalShader.Load(exePath + "../../shaders/final.vert", exePath + "../../shaders/final.frag")) {
         SDL_Log("Could not load shaders!\n");
         exit(-1);
     }
-    imageShader.Activate();
+
+
 
     // Start a new batch and add a triangle
 
     Batch batch(1024, 3 * 1024);
     std::vector<Vertex> vertices = {
-        {glm::vec3(-0.5, 0.5, 0.0), glm::vec3(1.0, 0.0, 0.0), glm::vec2(0)},
-        {glm::vec3( 0.5, 0.5, 0.0), glm::vec3(0.0, 1.0, 0.0), glm::vec2(0)},
-        {glm::vec3( 0.5, -0.5, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec2(0)},
-        {glm::vec3(-0.5, -0.5, 0.0), glm::vec3(0.0, 1.0, 1.0), glm::vec2(0)}
+        {glm::vec3(-0.5, 0.5, 0.0), glm::vec3(1.0, 0.0, 0.0),  glm::vec2(0.0, 1.0)},
+        {glm::vec3( 0.5, 0.5, 0.0), glm::vec3(0.0, 1.0, 0.0),  glm::vec2(1.0, 1.0)},
+        {glm::vec3( 0.5, -0.5, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec2(1.0, 0.0)},
+        {glm::vec3(-0.5, -0.5, 0.0), glm::vec3(0.0, 1.0, 1.0), glm::vec2(0.0, 0.0)}
     };
     std::vector<uint32_t> indices = {
         0, 1, 2,
         2, 3, 0
     };
     std::vector<Vertex> vertices2 = {
-        {glm::vec3(-0.3, 0.7, 0.0), glm::vec3(1.0, 0.0, 0.0), glm::vec2(0)},
-        {glm::vec3(0.7, 0.7, 0.0), glm::vec3(0.0, 1.0, 0.0), glm::vec2(0)},
-        {glm::vec3(0.7, -0.3, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec2(0)},
-        {glm::vec3(-0.3, -0.3, 0.0), glm::vec3(0.0, 1.0, 1.0), glm::vec2(0)}
+        {glm::vec3(-0.3, 0.7, 0.0), glm::vec3(1.0, 0.0, 0.0),  glm::vec2(0.0, 1.0)},
+        {glm::vec3(0.7, 0.7, 0.0), glm::vec3(0.0, 1.0, 0.0),   glm::vec2(1.0, 1.0)},
+        {glm::vec3(0.7, -0.3, 0.0), glm::vec3(0.0, 0.0, 1.0),  glm::vec2(1.0, 0.0)},
+        {glm::vec3(-0.3, -0.3, 0.0), glm::vec3(0.0, 1.0, 1.0), glm::vec2(0.0, 0.0)}
     };
     std::vector<uint32_t> indices2 = { // TODO: Simplify this. Maybe don't access batches directly.
         4, 5, 6,
@@ -252,6 +261,41 @@ int main(int argc, char** argv)
     };
     batch.Add(&vertices[0], vertices.size(), &indices[0], indices.size());
     batch.Add(&vertices2[0], vertices2.size(), &indices2[0], indices2.size());
+
+    // Batch to have a single quad in NDCs which displays the framebuffer texture
+
+    Batch finalBatch(256, 3 * 256);
+    std::vector<Vertex> ndcVerts = {
+        {glm::vec3(-1.0,  1.0, 0.0), glm::vec3(1.0, 0.0, 0.0),  glm::vec2(0.0, 1.0)},
+        {glm::vec3( 1.0,  1.0, 0.0), glm::vec3(1.0, 0.0, 0.0),  glm::vec2(1.0, 1.0)},
+        {glm::vec3( 1.0, -1.0, 0.0), glm::vec3(1.0, 0.0, 0.0),  glm::vec2(1.0, 0.0)},
+        {glm::vec3(-1.0, -1.0, 0.0), glm::vec3(1.0, 0.0, 0.0),  glm::vec2(0.0, 0.0)},
+    };
+    std::vector<uint32_t> ndcIndices = {
+        0, 1, 2,
+        2, 3, 0
+    };
+    finalBatch.Add(ndcVerts.data(), ndcVerts.size(), ndcIndices.data(), ndcIndices.size());
+
+    // Create a FBO (yay!)
+    GLuint fbo;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    // Framebuffer texture
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    // Attach texture to fbo 
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+    // Check if fbo is OK and unbind
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        SDL_Log("Failed to create OpenGL Framebuffer object!\n");
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // Some OpenGL global settings
 
@@ -330,6 +374,9 @@ int main(int argc, char** argv)
         int windowWidth, windowHeight;
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         float windowAspect = (float)windowWidth / (float)windowHeight;
+
+        // Tell opengl about window size to make correct transform into screenspace
+        glViewport(0, 0, windowWidth, windowHeight);
         
         // Test mouse input
 
@@ -354,15 +401,28 @@ int main(int argc, char** argv)
         char cpMousePos[256];
         sprintf(cpMousePos, "MousePos: %d, %d", MouseX(), MouseY());
         SDL_SetWindowTitle(window, cpMousePos);
-        
-        
-        glClearColor(0.2f, 0.4f, 0.7f, 1.0f); // Nice blue :)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // TODO: Draw stuff
+        // Draw stuff
 
+        // First pass
+
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);     
+        imageShader.Activate();
         batch.Bind();
         glDrawElements(GL_TRIANGLES, batch.IndexCount(), GL_UNSIGNED_INT, nullptr);
+        
+        // Second pass
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClearColor(0.2f, 0.4f, 0.7f, 1.0f); // Nice blue :)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        finalShader.Activate();
+        finalBatch.Bind();
+        glDrawElements(GL_TRIANGLES, finalBatch.IndexCount(), GL_UNSIGNED_INT, nullptr);
+
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -379,6 +439,11 @@ int main(int argc, char** argv)
             accumTime = 0.0f;
         }   
     }
+
+    // Kill OpenGL resources
+
+    glDeleteFramebuffers(1, &fbo);
+    batch.Kill();
 
     // Deinit ImGui
 

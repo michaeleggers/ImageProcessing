@@ -32,9 +32,7 @@ Batch::Batch(uint32_t numVerts, uint32_t numIndices)
 }
 
 Batch::~Batch() {
-	glDeleteBuffers(1, &m_VertexBuffer);
-	glDeleteBuffers(1, &m_IndexBuffer);
-	glDeleteVertexArrays(1, &m_VertexArray);
+
 }
 
 void Batch::Add(Vertex* vertices, const uint32_t numVerts, uint32_t* indices, const uint32_t numIndices)
@@ -53,4 +51,11 @@ void Batch::Add(Vertex* vertices, const uint32_t numVerts, uint32_t* indices, co
 void Batch::Bind()
 {
 	glBindVertexArray(m_VertexArray);
+}
+
+void Batch::Kill()
+{
+	glDeleteBuffers(1, &m_VertexBuffer);
+	glDeleteBuffers(1, &m_IndexBuffer);
+	glDeleteVertexArrays(1, &m_VertexArray);
 }

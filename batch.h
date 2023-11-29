@@ -15,6 +15,7 @@ public:
 
 	void Add(Vertex* vertices, const uint32_t numVerts, uint32_t* indices, const uint32_t numIndices);
 	void Bind();
+	void Kill();
 
 	uint32_t VertCount() const {
 		return m_VertOffsetIndex;
@@ -22,7 +23,6 @@ public:
 	uint32_t IndexCount() const {
 		return m_IndexOffsetIndex;
 	}
-
 
 
 private:
