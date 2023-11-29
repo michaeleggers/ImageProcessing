@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include <cmath>
+#include <vector>
 
 //#include <SDL2/SDL.h>
 //#include <SDL.h>
@@ -210,7 +211,6 @@ int main(int argc, char** argv)
 
     SDL_ShowWindow(window);
 
-
     // Setup Imgui
 
     IMGUI_CHECKVERSION();
@@ -219,12 +219,32 @@ int main(int argc, char** argv)
     ImGui_ImplOpenGL3_Init();
 
     // Load Shaders
+    
     Shader imageShader;
     if (!imageShader.Load("../shaders/basic.vert", "../shaders/basic.frag")) {
         SDL_Log("Could not load shaders!\n");
         exit(-1);
     }
     imageShader.Activate();
+
+    // Start a new batch and add a triangle
+
+    Batch batch(1024, 3 * 1024);
+    std::vector<Vertex> vertices = {
+        {glm::vec3(-0.5, 0.5, 0.0), glm::vec3(1.0, 0.0, 0.0), glm::vec2(0)},
+        {glm::vec3( 0.5, 0.5, 0.0), glm::vec3(0.0, 1.0, 0.0), glm::vec2(0)},
+        {glm::vec3( 0.5, -0.5, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec2(0)},
+        {glm::vec3(-0.5, -0.5, 0.0), glm::vec3(0.0, 1.0, 1.0), glm::vec2(0)}
+    };
+    std::vector<uint32_t> indices = {
+        0, 1, 2,
+        2, 3, 0
+    };
+    batch.Add(&vertices[0], vertices.size(), &indices[0], indices.size());
+
+    // Some OpenGL global settings
+
+    glFrontFace(GL_CW); // front faces are in clockwise order
 
     // Main loop
     
@@ -329,6 +349,9 @@ int main(int argc, char** argv)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // TODO: Draw stuff
+
+        batch.Bind();
+        glDrawElements(GL_TRIANGLES, batch.IndexCount(), GL_UNSIGNED_INT, nullptr);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
