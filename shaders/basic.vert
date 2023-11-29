@@ -9,6 +9,7 @@ out vec2 UV;
 
 uniform mat4 u_ModelMat;
 uniform mat4 u_ViewProjMat;
+uniform mat4 u_Ortho;
 
 void main()
 {

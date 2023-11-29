@@ -9,6 +9,7 @@ uniform sampler2D u_Texture;
 uniform uint      u_FrameNo;
 uniform ivec2     u_FrameWidthHeight;
 
+
 void main()
 {
 	vec4 textureColor = texture(u_Texture, UV);

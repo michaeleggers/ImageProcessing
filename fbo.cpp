@@ -43,6 +43,9 @@ void Framebuffer::Unbind()
 
 void Framebuffer::Resize(int width, int height)
 {
+    m_Width = width;
+    m_Height = height;
+
     Bind();
     glGenTextures(1, &m_Texture);
     glBindTexture(GL_TEXTURE_2D, m_Texture);

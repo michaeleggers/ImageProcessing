@@ -34,6 +34,11 @@ void Shader::Activate() {
 	glUseProgram(m_ShaderProgram);
 }
 
+GLuint Shader::Program() const
+{
+	return m_ShaderProgram;
+}
+
 // Internal
 
 bool Shader::CompileShader(const std::string& fileName, GLenum shaderType, GLuint& outShader) {

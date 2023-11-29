@@ -32,6 +32,7 @@ public:
 	bool Load(const std::string& vertName, const std::string& fragName);
 	void Unload();
 	void Activate();
+	GLuint Program() const;
 
 private:
 	bool CompileShader(const std::string& fileName, GLenum shaderType, GLuint& outShader);
