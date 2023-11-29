@@ -51,6 +51,8 @@ add_executable(Morphing
     camera.cpp
 	shader.h
 	shader.cpp
+	fbo.h
+	fbo.cpp
 	render_common.h
 	batch.h
 	batch.cpp

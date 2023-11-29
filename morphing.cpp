@@ -20,6 +20,7 @@
 
 #include "camera.h"
 #include "shader.h"
+#include "fbo.h"
 #include "batch.h"
 #include "common.h"
 
@@ -275,25 +276,8 @@ int main(int argc, char** argv)
     };
     finalBatch.Add(ndcVerts.data(), ndcVerts.size(), ndcIndices.data(), ndcIndices.size());
 
-    // Create a FBO (yay!)
-    GLuint fbo;
-    glGenFramebuffers(1, &fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    // Framebuffer texture
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    // Attach texture to fbo 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
-    // Check if fbo is OK and unbind
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        SDL_Log("Failed to create OpenGL Framebuffer object!\n");
-    }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // Create Framebuffer that will be rendered to and displayed in a imgui frame
+    Framebuffer fbo(900, 900);
 
     // Some OpenGL global settings
 
@@ -304,9 +288,14 @@ int main(int argc, char** argv)
     SDL_Event event;
     bool shouldClose = 0;
     float accumTime = 0.0f;
+    bool windowSizeHasChanged = false;
     while (!shouldClose) {
 
         Uint32 startTime = SDL_GetTicks();
+
+        // Reset window state
+
+        windowSizeHasChanged = false;
 
         // Set MouseState for this frame
 
@@ -323,6 +312,12 @@ int main(int argc, char** argv)
 
             if (event.type == SDL_QUIT) {
                 shouldClose = true;
+            }
+
+            if (event.type == SDL_WINDOWEVENT) {
+                if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                    windowSizeHasChanged = true;
+                }
             }
 
             else if (event.type == SDL_MOUSEMOTION) {
@@ -402,11 +397,22 @@ int main(int argc, char** argv)
 
         ImGui::Begin("My window");
 
+        float imguiWindowWidth  = ImGui::GetContentRegionAvail().x;
+        float imguiWindowHeight = ImGui::GetContentRegionAvail().y;
+        float imguiWindowPosX = ImGui::GetCursorScreenPos().x;
+        float imguiWindowPosY = ImGui::GetCursorScreenPos().y;
+        
+        
+        float mousePosImGuiWindowX = ImGui::GetMousePos().x - imguiWindowPosX;
+        float mousePosImGuiWindowY = ImGui::GetMousePos().y - imguiWindowPosY;
+        
+        printf("Mouse pos imgui window: %f, %f\n", mousePosImGuiWindowX, mousePosImGuiWindowY);
+        fbo.Resize(imguiWindowWidth, imguiWindowWidth);
         ImVec2 pos = ImGui::GetCursorScreenPos();
         ImGui::GetWindowDrawList()->AddImage(
-            (void*)texture,
+            (void*)fbo.Texture(),
             ImVec2(pos.x, pos.y),
-            ImVec2(pos.x + 400, pos.y + 400),
+            ImVec2(pos.x + imguiWindowWidth, pos.y + imguiWindowHeight),
             ImVec2(0, 0),
             ImVec2(1, 1)
         );
@@ -415,14 +421,14 @@ int main(int argc, char** argv)
 
         // First pass
 
-        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-        glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+        fbo.Bind();        
+        glViewport(0, 0, imguiWindowWidth, imguiWindowHeight);
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);     
         imageShader.Activate();
         batch.Bind();
         glDrawElements(GL_TRIANGLES, batch.IndexCount(), GL_UNSIGNED_INT, nullptr);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        fbo.Unbind();
         
         // Second pass
 
@@ -454,8 +460,8 @@ int main(int argc, char** argv)
 
     // Kill OpenGL resources
 
-    glDeleteFramebuffers(1, &fbo);
     batch.Kill();
+    finalBatch.Kill();
 
     // Deinit ImGui
 
@@ -470,5 +476,4 @@ int main(int argc, char** argv)
     SDL_Quit();
 
     return 0;
-
 }
