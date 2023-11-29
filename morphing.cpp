@@ -240,7 +240,18 @@ int main(int argc, char** argv)
         0, 1, 2,
         2, 3, 0
     };
+    std::vector<Vertex> vertices2 = {
+        {glm::vec3(-0.3, 0.7, 0.0), glm::vec3(1.0, 0.0, 0.0), glm::vec2(0)},
+        {glm::vec3(0.7, 0.7, 0.0), glm::vec3(0.0, 1.0, 0.0), glm::vec2(0)},
+        {glm::vec3(0.7, -0.3, 0.0), glm::vec3(0.0, 0.0, 1.0), glm::vec2(0)},
+        {glm::vec3(-0.3, -0.3, 0.0), glm::vec3(0.0, 1.0, 1.0), glm::vec2(0)}
+    };
+    std::vector<uint32_t> indices2 = { // TODO: Simplify this. Maybe don't access batches directly.
+        4, 5, 6,
+        6, 7, 4
+    };
     batch.Add(&vertices[0], vertices.size(), &indices[0], indices.size());
+    batch.Add(&vertices2[0], vertices2.size(), &indices2[0], indices2.size());
 
     // Some OpenGL global settings
 
