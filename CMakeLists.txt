@@ -49,8 +49,8 @@ add_executable(Morphing
 	morphing.cpp
 	camera.h
     camera.cpp
-	render.h
-	render.cpp
+	shader.h
+	shader.cpp
 	render_common.h
 	batch.h
 	batch.cpp

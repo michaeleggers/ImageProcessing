@@ -19,7 +19,7 @@
 #include "dependencies/glm/ext.hpp"
 
 #include "camera.h"
-#include "render.h"
+#include "shader.h"
 #include "batch.h"
 #include "common.h"
 
@@ -219,7 +219,7 @@ int main(int argc, char** argv)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui_ImplSDL2_InitForOpenGL(window, sdl_gl_Context);
-    ImGui_ImplOpenGL3_Init();
+    ImGui_ImplOpenGL3_Init("#version 330");
 
     // Load Shaders
     
@@ -233,8 +233,6 @@ int main(int argc, char** argv)
         SDL_Log("Could not load shaders!\n");
         exit(-1);
     }
-
-
 
     // Start a new batch and add a triangle
 
@@ -285,7 +283,7 @@ int main(int argc, char** argv)
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -370,13 +368,9 @@ int main(int argc, char** argv)
         ImGui::NewFrame();
         ImGui::ShowDemoWindow();
 
-
         int windowWidth, windowHeight;
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         float windowAspect = (float)windowWidth / (float)windowHeight;
-
-        // Tell opengl about window size to make correct transform into screenspace
-        glViewport(0, 0, windowWidth, windowHeight);
         
         // Test mouse input
 
@@ -404,24 +398,42 @@ int main(int argc, char** argv)
 
         // Draw stuff
 
+        // Own imgui window we render the fbo into
+
+        ImGui::Begin("My window");
+
+        ImVec2 pos = ImGui::GetCursorScreenPos();
+        ImGui::GetWindowDrawList()->AddImage(
+            (void*)texture,
+            ImVec2(pos.x, pos.y),
+            ImVec2(pos.x + 400, pos.y + 400),
+            ImVec2(0, 0),
+            ImVec2(1, 1)
+        );
+
+        ImGui::End();
+
         // First pass
 
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);     
         imageShader.Activate();
         batch.Bind();
         glDrawElements(GL_TRIANGLES, batch.IndexCount(), GL_UNSIGNED_INT, nullptr);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         
         // Second pass
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        // Tell opengl about window size to make correct transform into screenspace
+        glViewport(0, 0, windowWidth, windowHeight);
         glClearColor(0.2f, 0.4f, 0.7f, 1.0f); // Nice blue :)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        finalShader.Activate();
-        finalBatch.Bind();
-        glDrawElements(GL_TRIANGLES, finalBatch.IndexCount(), GL_UNSIGNED_INT, nullptr);
+        //glBindTexture(GL_TEXTURE_2D, texture);
+        //finalShader.Activate();
+        //finalBatch.Bind();
+        //glDrawElements(GL_TRIANGLES, finalBatch.IndexCount(), GL_UNSIGNED_INT, nullptr);
 
 
         ImGui::Render();
