@@ -7,9 +7,12 @@
 #include "batch.h"
 #include "fbo.h"
 #include "shader.h" 
+#include "image.h"
 
-void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Batch& batch)
+void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& image, Batch& batch)
 {
+    // Setup Window to put the framebuffer into
+
     ImGui::Begin(title);
 
     float imguiWindowWidth = ImGui::GetContentRegionAvail().x;
@@ -47,6 +50,15 @@ void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Batch& batc
 
     ImGui::End();
 
+
+    // Draw into the framebuffer
+
+    // TODO:
+    // 1.) bind a quad with the images dimension.
+    // 2.) bind texture
+    // 3.) render
+    // 4.) Bind batch and render (will be the lines later)
+
     fbo.Bind();
     glViewport(0, 0, 640, 480);
     //glm::mat4 ortho = glm::ortho(0.0f, 500.0f, 0.0f, 500.0f, 0.1f, 100.0f);
@@ -54,6 +66,7 @@ void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Batch& batc
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     shader.Activate();
+    glBindTexture(GL_TEXTURE_2D, fbo.Texture());
     batch.Bind();
     //GLint orthoMatrixLocation = glGetUniformLocation(imageShader.Program(), "u_Ortho");
     //glUniformMatrix4fv(orthoMatrixLocation, 1, GL_FALSE, glm::value_ptr(ortho));

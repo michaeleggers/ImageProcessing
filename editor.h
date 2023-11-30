@@ -6,7 +6,9 @@
 #include "batch.h"
 #include "shader.h"
 #include "fbo.h"
+#include "image.h"
 
-void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Batch& batch);
+void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& image, Batch& batch);
 
 #endif
+

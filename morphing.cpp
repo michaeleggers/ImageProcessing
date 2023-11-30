@@ -243,7 +243,7 @@ int main(int argc, char** argv)
 
         // Own imgui window we render the fbo into
 
-        ShowWindow("Source", fbo, imageShader, batch);
+        ShowWindow("Source", fbo, imageShader, sourceImage, batch);
 
         
         // Second pass
