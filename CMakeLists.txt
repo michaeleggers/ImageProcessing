@@ -49,6 +49,8 @@ add_executable(Morphing
 	morphing.cpp
 	camera.h
     camera.cpp
+	input.h
+	input.cpp
 	shader.h
 	shader.cpp
 	fbo.h
