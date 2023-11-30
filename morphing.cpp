@@ -25,6 +25,7 @@
 #include "batch.h"
 #include "common.h"
 #include "editor.h"
+#include "image.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -172,6 +173,9 @@ int main(int argc, char** argv)
 
     // Create Framebuffer that will be rendered to and displayed in a imgui frame
     Framebuffer fbo(640, 480);
+
+    // Load image that will be presented in imgui window
+    Image sourceImage(exePath + "../../assets/lena_full.jpg");
 
     // Some OpenGL global settings
 

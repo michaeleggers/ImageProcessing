@@ -47,6 +47,8 @@ target_link_libraries(DFT PUBLIC
 
 add_executable(Morphing
 	morphing.cpp
+	image.h
+	image.cpp
 	camera.h
     camera.cpp
 	input.h
