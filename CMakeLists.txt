@@ -55,6 +55,8 @@ add_executable(Morphing
 	shader.cpp
 	fbo.h
 	fbo.cpp
+	editor.h
+	editor.cpp
 	render_common.h
 	batch.h
 	batch.cpp
