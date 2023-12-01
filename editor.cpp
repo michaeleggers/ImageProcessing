@@ -8,12 +8,22 @@
 #include "fbo.h"
 #include "shader.h" 
 #include "image.h"
+#include "input.h"
 
 void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& image, Batch& batch)
 {
     // Setup Window to put the framebuffer into
 
     ImGui::Begin(title);
+
+    // Do not drag the window when left clicking and dragging
+
+    if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
+        ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = false;
+    }       
+    else {
+        ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
+    }
 
     float imguiWindowWidth = ImGui::GetContentRegionAvail().x;
     float imguiWindowHeight = ImGui::GetContentRegionAvail().y;
@@ -41,7 +51,7 @@ void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& imag
     float posOffsetX = (imguiWindowWidth - newWidth) / 2.0f;
     float posOffsetY = (imguiWindowHeight - newHeight) / 2.0f;
     ImGui::GetWindowDrawList()->AddImage(
-        (void*)fbo.Texture(),
+        (void*)fbo.GetTexture().GetHandle(),
         ImVec2(pos.x + posOffsetX, pos.y + posOffsetY),
         ImVec2(pos.x + newWidth + posOffsetX, pos.y + newHeight + posOffsetY),
         ImVec2(0, 0),
@@ -66,7 +76,7 @@ void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& imag
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     shader.Activate();
-    glBindTexture(GL_TEXTURE_2D, fbo.Texture());
+    glBindTexture(GL_TEXTURE_2D, fbo.GetTexture().GetHandle());
     batch.Bind();
     //GLint orthoMatrixLocation = glGetUniformLocation(imageShader.Program(), "u_Ortho");
     //glUniformMatrix4fv(orthoMatrixLocation, 1, GL_FALSE, glm::value_ptr(ortho));

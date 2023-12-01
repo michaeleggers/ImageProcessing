@@ -3,6 +3,8 @@
 
 #include <glad/glad.h>
 
+#include "texture.h"
+
 class Framebuffer {
 
 public:
@@ -12,13 +14,13 @@ public:
 	void Bind();
 	void Unbind();
 	void Resize(int width, int height);
-	GLuint Texture() const;
+	Texture& GetTexture();
 
 private:
-	GLuint m_FBO;
-	GLuint m_Texture;
-	int m_Width;
-	int m_Height;
+	GLuint	m_FBO;
+	Texture m_Texture;
+	int		m_Width;
+	int		m_Height;
 };
 
 #endif

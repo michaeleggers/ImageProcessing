@@ -55,6 +55,8 @@ add_executable(Morphing
 	input.cpp
 	shader.h
 	shader.cpp
+	texture.h
+	texture.cpp
 	fbo.h
 	fbo.cpp
 	editor.h
