@@ -33,6 +33,7 @@ Framebuffer::Framebuffer(int width, int height)
 
 Framebuffer::~Framebuffer()
 {
+    m_Texture.Destroy();
     glDeleteFramebuffers(1, &m_FBO);
 }
 

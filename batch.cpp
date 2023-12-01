@@ -31,6 +31,19 @@ Batch::Batch(uint32_t numVerts, uint32_t numIndices)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(uint32_t), nullptr, GL_STATIC_DRAW);
 }
 
+Batch::Batch()
+{
+	m_NumVerts = 0;
+	m_NumIndices = 0;
+
+	m_VertOffsetIndex = 0;
+	m_IndexOffsetIndex = 0;
+	
+	m_VertexBuffer = 0;
+	m_IndexBuffer = 0;
+	m_VertexArray = 0;
+}
+
 Batch::~Batch() {
 
 }

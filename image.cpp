@@ -2,6 +2,8 @@
 
 #include <SDL2/SDL.h>
 
+#include "texture.h"
+
 #include "stb_image.h"
 
 Image::Image(std::string filePath)
@@ -15,11 +17,18 @@ Image::Image(std::string filePath)
 	m_Width = x;
 	m_Height = y;
 	m_Channels = n;
+	m_Texture = Texture(m_Data, m_Width, m_Height);
 }
 
 Image::~Image()
 {
 	stbi_image_free(m_Data);
+	m_Texture.Destroy();
+}
+
+Texture& Image::GetTexture()
+{
+	return m_Texture;
 }
 
 

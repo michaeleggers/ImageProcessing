@@ -26,6 +26,7 @@
 #include "common.h"
 #include "editor.h"
 #include "image.h"
+#include "static_geometry.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -110,6 +111,9 @@ int main(int argc, char** argv)
 
     SDL_ShowWindow(window);
 
+    // Static geometry
+    InitStaticGeometry();
+
     // Setup Imgui
 
     IMGUI_CHECKVERSION();
@@ -156,26 +160,12 @@ int main(int argc, char** argv)
     batch.Add(&vertices[0], vertices.size(), &indices[0], indices.size());
     batch.Add(&vertices2[0], vertices2.size(), &indices2[0], indices2.size());
 
-    // Batch to have a single quad in NDCs which displays the framebuffer texture
-
-    Batch finalBatch(256, 3 * 256);
-    std::vector<Vertex> ndcVerts = {
-        {glm::vec3(-1.0,  1.0, 0.0), glm::vec3(1.0, 0.0, 0.0),  glm::vec2(0.0, 1.0)},
-        {glm::vec3( 1.0,  1.0, 0.0), glm::vec3(1.0, 0.0, 0.0),  glm::vec2(1.0, 1.0)},
-        {glm::vec3( 1.0, -1.0, 0.0), glm::vec3(1.0, 0.0, 0.0),  glm::vec2(1.0, 0.0)},
-        {glm::vec3(-1.0, -1.0, 0.0), glm::vec3(1.0, 0.0, 0.0),  glm::vec2(0.0, 0.0)},
-    };
-    std::vector<uint32_t> ndcIndices = {
-        0, 1, 2,
-        2, 3, 0
-    };
-    finalBatch.Add(ndcVerts.data(), ndcVerts.size(), ndcIndices.data(), ndcIndices.size());
-
-    // Create Framebuffer that will be rendered to and displayed in a imgui frame
-    Framebuffer fbo(640, 480);
 
     // Load image that will be presented in imgui window
     Image sourceImage(exePath + "../../assets/lena_full.jpg");
+
+    // Create Framebuffer that will be rendered to and displayed in a imgui frame
+    Framebuffer fbo(sourceImage.m_Width, sourceImage.m_Height);
 
     // Some OpenGL global settings
 
@@ -277,7 +267,7 @@ int main(int argc, char** argv)
     // Kill OpenGL resources
 
     batch.Kill();
-    finalBatch.Kill();
+    DestroyStaticGeometry();
 
     // Deinit ImGui
 

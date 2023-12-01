@@ -9,6 +9,7 @@
 #include "shader.h" 
 #include "image.h"
 #include "input.h"
+#include "static_geometry.h"
 
 void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& image, Batch& batch)
 {
@@ -36,7 +37,7 @@ void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& imag
     //fbo.Resize(imguiWindowWidth, imguiWindowWidth);
     ImVec2 pos = ImGui::GetCursorScreenPos();
     float aspect = 0.0f;
-    float srcAspect = 640.0f / 480.0f;
+    float srcAspect = (float)fbo.m_Width / (float)fbo.m_Height;
     float dstAspect = imguiWindowWidth / imguiWindowHeight;
     float newWidth = 0.0f;
     float newHeight = 0.0f;
@@ -64,23 +65,37 @@ void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& imag
     // Draw into the framebuffer
 
     // TODO:
-    // 1.) bind a quad with the images dimension.
-    // 2.) bind texture
-    // 3.) render
-    // 4.) Bind batch and render (will be the lines later)
-
     fbo.Bind();
-    glViewport(0, 0, 640, 480);
-    //glm::mat4 ortho = glm::ortho(0.0f, 500.0f, 0.0f, 500.0f, 0.1f, 100.0f);
-    //glm::mat4 ortho = glm::perspective(glm::radians(90.0f), imguiWindowWidth / imguiWindowHeight, 0.1f, 100.0f);
+
+    glViewport(0, 0, fbo.m_Width, fbo.m_Height);
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+    // 1.) bind a quad with the images dimension.
+    Batch& unitQuadBatch = GetUnitQuadBatch();    
+    unitQuadBatch.Bind();
+    // 2.) bind texture
+    image.GetTexture().Bind();
+    // 3.) render
     shader.Activate();
-    glBindTexture(GL_TEXTURE_2D, fbo.GetTexture().GetHandle());
-    batch.Bind();
-    //GLint orthoMatrixLocation = glGetUniformLocation(imageShader.Program(), "u_Ortho");
-    //glUniformMatrix4fv(orthoMatrixLocation, 1, GL_FALSE, glm::value_ptr(ortho));
-    glDrawElements(GL_TRIANGLES, batch.IndexCount(), GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, unitQuadBatch.IndexCount(), GL_UNSIGNED_INT, nullptr);
+
     fbo.Unbind();
+
+    
+    // 4.) Bind batch and render (will be the lines later)
+
+    //fbo.Bind();
+    //glViewport(0, 0, fbo.m_Width, fbo.m_Height);
+    ////glm::mat4 ortho = glm::ortho(0.0f, 500.0f, 0.0f, 500.0f, 0.1f, 100.0f);
+    ////glm::mat4 ortho = glm::perspective(glm::radians(90.0f), imguiWindowWidth / imguiWindowHeight, 0.1f, 100.0f);
+    //glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+    //glClear(GL_COLOR_BUFFER_BIT);
+    //shader.Activate();
+    //glBindTexture(GL_TEXTURE_2D, fbo.GetTexture().GetHandle());
+    //batch.Bind();
+    ////GLint orthoMatrixLocation = glGetUniformLocation(imageShader.Program(), "u_Ortho");
+    ////glUniformMatrix4fv(orthoMatrixLocation, 1, GL_FALSE, glm::value_ptr(ortho));
+    //glDrawElements(GL_TRIANGLES, batch.IndexCount(), GL_UNSIGNED_INT, nullptr);
+    //fbo.Unbind();
 }
 

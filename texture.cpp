@@ -29,6 +29,16 @@ Texture::~Texture()
     // Destroy(); // TODO: Copy ctor in fbo ctor won't work
 }
 
+void Texture::Bind()
+{
+    glBindTexture(GL_TEXTURE_2D, m_Texture);
+}
+
+void Texture::Unbind()
+{
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void Texture::Destroy()
 {
     glDeleteTextures(1, &m_Texture);

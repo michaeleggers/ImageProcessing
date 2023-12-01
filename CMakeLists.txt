@@ -66,6 +66,8 @@ add_executable(Morphing
 	batch.cpp
 	common.cpp
 	common.h
+	static_geometry.h
+	static_geometry.cpp
     stb_image.h
 
 	shaders/basic.vert

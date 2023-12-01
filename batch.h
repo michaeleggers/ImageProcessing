@@ -11,6 +11,7 @@
 class Batch {
 public:
 	Batch(uint32_t numVerts, uint32_t numIndices);
+	Batch();
 	~Batch();
 
 	void Add(Vertex* vertices, const uint32_t numVerts, uint32_t* indices, const uint32_t numIndices);

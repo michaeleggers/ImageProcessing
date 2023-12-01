@@ -16,11 +16,11 @@ public:
 	void Resize(int width, int height);
 	Texture& GetTexture();
 
+	int		m_Width;
+	int		m_Height;
 private:
 	GLuint	m_FBO;
 	Texture m_Texture;
-	int		m_Width;
-	int		m_Height;
 };
 
 #endif
