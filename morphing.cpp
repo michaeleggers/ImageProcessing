@@ -203,7 +203,7 @@ int main(int argc, char** argv)
         // Own imgui window we render the fbo into
 
         ShowWindow("Source", sourceFBO, imageShader, sourceImage, batch);
-        //ShowWindow("Destination", destFBO, imageShader, destImage, batch);
+        ShowWindow("Destination", destFBO, imageShader, destImage, batch);
 
         
         // Second pass
