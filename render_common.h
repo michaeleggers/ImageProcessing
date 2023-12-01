@@ -20,6 +20,7 @@ struct Rect {
 struct Line {
 	Vertex a, b;
 	ImVec2 absA, absB;
+	ImVec2 buttonSize;
 };
 
 #endif

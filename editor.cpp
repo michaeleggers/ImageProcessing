@@ -101,13 +101,19 @@ void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& imag
         ImVec2(1, 1)
     );
 
+    ImGui::SetCursorPos(ImGui::GetWindowPos());
+
     // Convert mouse button coords to picture coords
+
+    ImVec2 mousePosFUCK = ImGui::GetWindowPos();
+    //printf("mousePos: %f, %f\n", mousePosFUCK.x, mousePosFUCK.y);
 
     float imageWidth = (float)image.m_Width;
     float imageHeight = (float)image.m_Height;
     if (editorState == ED_IDLE) {            
         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
             ImVec2 mousePos = ImGui::GetMousePos();
+            printf("mousePos: %f, %f\n", mousePos.x, mousePos.y);
             editorMouseInfo.pos1 = mousePos;
             ImVec2 pictureCoords = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
             printf("mouse %f, %f:\n", pictureCoords.x, pictureCoords.y);
@@ -123,10 +129,13 @@ void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& imag
             editorState = ED_PLACE_DEST_LINE;
             ImVec2 pictureCoordsA = MousePosToImageCoords(editorMouseInfo.pos1, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
             ImVec2 pictureCoordsB = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
+            ImVec2 mousePosInButtonA = ImVec2(editorMouseInfo.pos1.x - buttonMin.x, editorMouseInfo.pos1.y - buttonMin.y);
+            ImVec2 mousePosInButtonB = ImVec2(mousePos.x - buttonMin.x, mousePos.y - buttonMin.y);
+
             lines.push_back({
                     {glm::vec3(pictureCoordsA.x, pictureCoordsA.y, 0.0f), glm::vec3(0), glm::vec2(0)},
                     {glm::vec3(pictureCoordsB.x, pictureCoordsB.y, 0.0f), glm::vec3(0), glm::vec2(0)},
-                    editorMouseInfo.pos1, mousePos
+                    mousePosInButtonA, mousePosInButtonB, buttonSize
                 }
             );
             printf("Lines: \n");
@@ -136,10 +145,22 @@ void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& imag
             editorState = ED_IDLE;
         }
     }
+    
+
+    pos = ImGui::GetCursorScreenPos();
+
 
     for (auto& line : lines) {     
         ImVec2 absCoordsA = line.absA;
-        ImVec2 absCoordsB = line.absB;
+        ImVec2 absCoordsB = line.absB;        
+        absCoordsA.x *= buttonSize.x / line.buttonSize.x;
+        absCoordsA.y *= buttonSize.y / line.buttonSize.y;
+        absCoordsB.x *= buttonSize.x / line.buttonSize.x;
+        absCoordsB.y *= buttonSize.y / line.buttonSize.y;
+        absCoordsA.x += buttonMin.x;
+        absCoordsA.y += buttonMin.y;
+        absCoordsB.x += buttonMin.x;
+        absCoordsB.y += buttonMin.y;
         drawList->AddLine(absCoordsA, absCoordsB,
             ImGui::GetColorU32(ImVec4(255, 255, 255, 255)),
             2.0);
