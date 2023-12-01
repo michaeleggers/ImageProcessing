@@ -17,6 +17,9 @@ void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& imag
 
     ImGui::Begin(title);
 
+    //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    //ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+
     // Do not drag the window when left clicking and dragging
 
     if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
@@ -32,6 +35,16 @@ void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& imag
     float imguiWindowPosY = ImGui::GetCursorScreenPos().y;
     float mousePosImGuiWindowX = ImGui::GetMousePos().x - imguiWindowPosX;
     float mousePosImGuiWindowY = ImGui::GetMousePos().y - imguiWindowPosY;
+    ImVec2 mousePosInWindow = ImVec2(mousePosImGuiWindowX, mousePosImGuiWindowY);
+
+    // safe guard for potential div by 0
+
+    if (imguiWindowWidth <= 0) {
+        imguiWindowWidth = 1.0;
+    }
+    if (imguiWindowHeight <= 0) {
+        imguiWindowHeight = 1.0;
+    }
 
     //printf("Mouse pos imgui window: %f, %f\n", mousePosImGuiWindowX, mousePosImGuiWindowY);
     //fbo.Resize(imguiWindowWidth, imguiWindowWidth);
@@ -51,13 +64,51 @@ void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& imag
     }
     float posOffsetX = (imguiWindowWidth - newWidth) / 2.0f;
     float posOffsetY = (imguiWindowHeight - newHeight) / 2.0f;
-    ImGui::GetWindowDrawList()->AddImage(
-        (void*)fbo.GetTexture().GetHandle(),
-        ImVec2(pos.x + posOffsetX, pos.y + posOffsetY),
-        ImVec2(pos.x + newWidth + posOffsetX, pos.y + newHeight + posOffsetY),
+    ImVec2 topLeft = ImVec2(pos.x + posOffsetX, pos.y + posOffsetY);
+    ImVec2 bottomRight = ImVec2(pos.x + newWidth + posOffsetX, pos.y + newHeight + posOffsetY);
+    //ImGui::GetWindowDrawList()->AddImage(
+    //    (void*)fbo.GetTexture().GetHandle(),
+    //    topLeft,
+    //    bottomRight,
+    //    ImVec2(0, 0),
+    //    ImVec2(1, 1)
+    //);
+    //ImGui::Image((void*)(intptr_t)fbo.GetTexture().GetHandle(), ImVec2(image.m_Width, image.m_Height));
+    
+    //pos = ImGui::GetCursorScreenPos();
+    ImVec2 windowSize = ImGui::GetContentRegionAvail();
+    ImVec2 buttonSize(newWidth, newHeight); // Size of the invisible button
+    ImVec2 buttonPosition(ImGui::GetCursorPosX() + posOffsetX, ImGui::GetCursorPosY() + posOffsetY); // Position of the button
+    //printf("button pos y: %f\n", posOffsetY);
+    //ImVec2 buttonPosition = ImVec2((windowSize.x - buttonSize.x) * 0.5f, (windowSize.y - buttonSize.y) * 0.5f);
+    // Render the invisible button
+    ImGui::SetCursorPos(buttonPosition);
+    ImGui::InvisibleButton("##canvas", buttonSize,
+        ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight |
+        ImGuiButtonFlags_MouseButtonMiddle);
+
+    ImVec2 buttonMin = ImGui::GetItemRectMin();
+    ImVec2 buttonMax = ImGui::GetItemRectMax();
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+    drawList->AddImage(
+            (void*)fbo.GetTexture().GetHandle(),
+        buttonMin,
+        buttonMax,
         ImVec2(0, 0),
         ImVec2(1, 1)
     );
+
+    if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+        printf("ImGui suuuucks!\n");
+    }
+    
+    if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsWindowHovered()) {
+        ImGui::GetWindowDrawList()->AddLine(ImGui::GetMousePos(), bottomRight, ImGui::GetColorU32(ImVec4(255, 255, 255, 255)), 1.0);
+    }
+    
+    //ImGui::PopStyleVar(2); // Pop both WindowPadding and ItemSpacing
+
 
     ImGui::End();
 

@@ -162,8 +162,8 @@ int main(int argc, char** argv)
 
 
     // Load image that will be presented in imgui window
-    Image sourceImage(exePath + "../../assets/lena_full.jpg");
-    Image destImage(exePath + "../../assets/lena_std_small.tga");
+    Image sourceImage(exePath + "../../assets/baboon.bmp");
+    Image destImage(exePath + "../../assets/girlface.bmp");
 
     // Create Framebuffer that will be rendered to and displayed in a imgui frame
     Framebuffer sourceFBO(sourceImage.m_Width, sourceImage.m_Height);
@@ -194,39 +194,6 @@ int main(int argc, char** argv)
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         float windowAspect = (float)windowWidth / (float)windowHeight;
         
-
-        // Test Keyboard input
-
-        if (KeyDown(SDL_SCANCODE_UP)) {
-            printf("up key down\n");
-        }
-        if (KeyReleased(SDL_SCANCODE_W)) {
-            printf("w key went up\n");
-        }
-        if (KeyPressed(SDL_SCANCODE_RIGHT)) {
-            printf("d key is pressed\n");
-        }
-
-        // Test mouse input
-
-        if (LeftMouseButtonDown()) {
-            printf("left mb down\n");
-        }
-        if (RightMouseButtonDown()) {
-            printf("right mb down\n");
-        }
-        if (LeftMouseButtonWentUp()) {
-            printf("left mb went up\n");
-        }
-        if (RightMouseButtonWentUp()) {
-            printf("right mb went up\n");
-        }
-        if (LeftMouseButtonPressed()) {
-            printf("left mb is pressed\n");
-        }
-        if (RightMouseButtonPressed()) {
-            printf("right mb is pressed\n");
-        }
         char cpMousePos[256];
         sprintf(cpMousePos, "MousePos: %d, %d", MouseX(), MouseY());
         SDL_SetWindowTitle(window, cpMousePos);
@@ -236,7 +203,7 @@ int main(int argc, char** argv)
         // Own imgui window we render the fbo into
 
         ShowWindow("Source", sourceFBO, imageShader, sourceImage, batch);
-        ShowWindow("Destination", destFBO, imageShader, destImage, batch);
+        //ShowWindow("Destination", destFBO, imageShader, destImage, batch);
 
         
         // Second pass
