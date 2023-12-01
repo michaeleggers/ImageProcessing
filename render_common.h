@@ -5,6 +5,8 @@
 #include "dependencies/glm/glm.hpp"
 #include "dependencies/glm/ext.hpp"
 
+#include "imgui.h"
+
 struct Vertex {
 	glm::vec3 pos;
 	glm::vec3 color;
@@ -17,6 +19,7 @@ struct Rect {
 
 struct Line {
 	Vertex a, b;
+	ImVec2 absA, absB;
 };
 
 #endif

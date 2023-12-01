@@ -14,7 +14,21 @@
 #include "static_geometry.h"
 #include "render_common.h"
 
-void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& image, Batch& batch, std::vector<Line> lines)
+static EditorState      editorState;
+static EditorMouseState editorMouseState;
+static EditorMouseInfo  editorMouseInfo;
+
+static ImVec2 MousePosToImageCoords(ImVec2 mousePos, ImVec2 widgetMins, ImVec2 widgetSize, ImVec2 imageSize) {
+    ImVec2 mousePosInButton = ImVec2(mousePos.x - widgetMins.x, mousePos.y - widgetMins.y);
+    ImVec2 pictureCoords = ImVec2(
+        imageSize.x * (mousePosInButton.x / widgetSize.x),
+        imageSize.y * (mousePosInButton.y / widgetSize.y)
+    );
+    
+    return pictureCoords;
+}
+
+void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& image, Batch& batch, std::vector<Line>& lines)
 {
     // Setup Window to put the framebuffer into
 
@@ -87,9 +101,50 @@ void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& imag
         ImVec2(1, 1)
     );
 
-    if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-        printf("ImGui suuuucks!\n");
+    // Convert mouse button coords to picture coords
+
+    float imageWidth = (float)image.m_Width;
+    float imageHeight = (float)image.m_Height;
+    if (editorState == ED_IDLE) {            
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+            ImVec2 mousePos = ImGui::GetMousePos();
+            editorMouseInfo.pos1 = mousePos;
+            ImVec2 pictureCoords = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
+            printf("mouse %f, %f:\n", pictureCoords.x, pictureCoords.y);
+            editorState = ED_PLACE_SOURCE_LINE;
+        }
     }
+    else if (editorState == ED_PLACE_SOURCE_LINE) {
+        ImVec2 mousePos = ImGui::GetMousePos();
+        drawList->AddLine(editorMouseInfo.pos1, mousePos, 
+            ImGui::GetColorU32(ImVec4(255, 250, 0, 255)), 
+            5.0);
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+            editorState = ED_PLACE_DEST_LINE;
+            ImVec2 pictureCoordsA = MousePosToImageCoords(editorMouseInfo.pos1, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
+            ImVec2 pictureCoordsB = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
+            lines.push_back({
+                    {glm::vec3(pictureCoordsA.x, pictureCoordsA.y, 0.0f), glm::vec3(0), glm::vec2(0)},
+                    {glm::vec3(pictureCoordsB.x, pictureCoordsB.y, 0.0f), glm::vec3(0), glm::vec2(0)},
+                    editorMouseInfo.pos1, mousePos
+                }
+            );
+            printf("Lines: \n");
+            for (auto& line : lines) {
+                printf("(%f, %f) -> (%f, %f)\n", line.a.pos.x, line.a.pos.y, line.b.pos.x, line.b.pos.y);                
+            }
+            editorState = ED_IDLE;
+        }
+    }
+
+    for (auto& line : lines) {     
+        ImVec2 absCoordsA = line.absA;
+        ImVec2 absCoordsB = line.absB;
+        drawList->AddLine(absCoordsA, absCoordsB,
+            ImGui::GetColorU32(ImVec4(255, 255, 255, 255)),
+            2.0);
+    }
+    
     
     
     //ImGui::PopStyleVar(2); // Pop both WindowPadding and ItemSpacing
