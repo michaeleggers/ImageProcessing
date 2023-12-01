@@ -1,5 +1,9 @@
 #include "texture.h"
 
+#include <stdio.h>
+
+#include <glad/glad.h>
+
 Texture::Texture()
 {
     m_Width = 0;
@@ -21,8 +25,8 @@ Texture::Texture(unsigned char* data, uint32_t width, uint32_t height)
 }
 
 Texture::~Texture()
-{
-    Destroy();
+{ 
+    // Destroy(); // TODO: Copy ctor in fbo ctor won't work
 }
 
 void Texture::Destroy()
