@@ -15,4 +15,8 @@ struct Rect {
 	Vertex v1, v2, v3, v4;
 };
 
+struct Line {
+	Vertex a, b;
+};
+
 #endif

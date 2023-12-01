@@ -1,5 +1,7 @@
 #include "editor.h"
 
+#include <vector>
+
 #include <glad/glad.h>
 
 #include "imgui.h"
@@ -10,8 +12,9 @@
 #include "image.h"
 #include "input.h"
 #include "static_geometry.h"
+#include "render_common.h"
 
-void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& image, Batch& batch)
+void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& image, Batch& batch, std::vector<Line> lines)
 {
     // Setup Window to put the framebuffer into
 

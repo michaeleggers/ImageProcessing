@@ -136,29 +136,30 @@ int main(int argc, char** argv)
 
     // Start a new batch and add a triangle
 
-    Batch batch(1024, 3 * 1024);
-    std::vector<Vertex> vertices = {
-        {glm::vec3(-0.5, 0.5, 1.0), glm::vec3(1.0, 0.0, 0.0),  glm::vec2(0.0, 1.0)},
-        {glm::vec3( 0.5, 0.5, 1.0), glm::vec3(0.0, 1.0, 0.0),  glm::vec2(1.0, 1.0)},
-        {glm::vec3( 0.5, -0.5, 1.0), glm::vec3(0.0, 0.0, 1.0), glm::vec2(1.0, 0.0)},
-        {glm::vec3(-0.5, -0.5, 1.0), glm::vec3(0.0, 1.0, 1.0), glm::vec2(0.0, 0.0)}
-    };
-    std::vector<uint32_t> indices = {
-        0, 1, 2,
-        2, 3, 0
-    };
-    std::vector<Vertex> vertices2 = {
-        {glm::vec3(-0.3, 0.7, 1.0), glm::vec3(1.0, 0.0, 0.0),  glm::vec2(0.0, 1.0)},
-        {glm::vec3(0.7, 0.7, 1.0), glm::vec3(0.0, 1.0, 0.0),   glm::vec2(1.0, 1.0)},
-        {glm::vec3(0.7, -0.3, 1.0), glm::vec3(0.0, 0.0, 1.0),  glm::vec2(1.0, 0.0)},
-        {glm::vec3(-0.3, -0.3, 1.0), glm::vec3(0.0, 1.0, 1.0), glm::vec2(0.0, 0.0)}
-    };
-    std::vector<uint32_t> indices2 = { // TODO: Simplify this. Maybe don't access batches directly.
-        4, 5, 6,
-        6, 7, 4
-    };
-    batch.Add(&vertices[0], vertices.size(), &indices[0], indices.size());
-    batch.Add(&vertices2[0], vertices2.size(), &indices2[0], indices2.size());
+    Batch sourceBatch(1024, 3 * 1024);
+    Batch destBatch(1024, 3 * 1024);
+    //std::vector<Vertex> vertices = {
+    //    {glm::vec3(-0.5, 0.5, 1.0), glm::vec3(1.0, 0.0, 0.0),  glm::vec2(0.0, 1.0)},
+    //    {glm::vec3( 0.5, 0.5, 1.0), glm::vec3(0.0, 1.0, 0.0),  glm::vec2(1.0, 1.0)},
+    //    {glm::vec3( 0.5, -0.5, 1.0), glm::vec3(0.0, 0.0, 1.0), glm::vec2(1.0, 0.0)},
+    //    {glm::vec3(-0.5, -0.5, 1.0), glm::vec3(0.0, 1.0, 1.0), glm::vec2(0.0, 0.0)}
+    //};
+    //std::vector<uint32_t> indices = {
+    //    0, 1, 2,
+    //    2, 3, 0
+    //};
+    //std::vector<Vertex> vertices2 = {
+    //    {glm::vec3(-0.3, 0.7, 1.0), glm::vec3(1.0, 0.0, 0.0),  glm::vec2(0.0, 1.0)},
+    //    {glm::vec3(0.7, 0.7, 1.0), glm::vec3(0.0, 1.0, 0.0),   glm::vec2(1.0, 1.0)},
+    //    {glm::vec3(0.7, -0.3, 1.0), glm::vec3(0.0, 0.0, 1.0),  glm::vec2(1.0, 0.0)},
+    //    {glm::vec3(-0.3, -0.3, 1.0), glm::vec3(0.0, 1.0, 1.0), glm::vec2(0.0, 0.0)}
+    //};
+    //std::vector<uint32_t> indices2 = { // TODO: Simplify this. Maybe don't access batches directly.
+    //    4, 5, 6,
+    //    6, 7, 4
+    //};
+    //batch.Add(&vertices[0], vertices.size(), &indices[0], indices.size());
+    //batch.Add(&vertices2[0], vertices2.size(), &indices2[0], indices2.size());
 
 
     // Load image that will be presented in imgui window
@@ -168,6 +169,10 @@ int main(int argc, char** argv)
     // Create Framebuffer that will be rendered to and displayed in a imgui frame
     Framebuffer sourceFBO(sourceImage.m_Width, sourceImage.m_Height);
     Framebuffer destFBO(destImage.m_Width, destImage.m_Height);
+
+    // List of linesegments
+    std::vector<Line> sourceLines;
+    std::vector<Line> destLines;
 
     // Some OpenGL global settings
 
@@ -202,10 +207,9 @@ int main(int argc, char** argv)
 
         // Own imgui window we render the fbo into
 
-        ShowWindow("Source", sourceFBO, imageShader, sourceImage, batch);
-        ShowWindow("Destination", destFBO, imageShader, destImage, batch);
-
-        
+        ShowWindow("Source", sourceFBO, imageShader, sourceImage, sourceBatch, sourceLines);
+        ShowWindow("Destination", destFBO, imageShader, destImage, destBatch, destLines);
+                
         // Second pass
 
         // Tell opengl about window size to make correct transform into screenspace
@@ -216,7 +220,6 @@ int main(int argc, char** argv)
         //finalShader.Activate();
         //finalBatch.Bind();
         //glDrawElements(GL_TRIANGLES, finalBatch.IndexCount(), GL_UNSIGNED_INT, nullptr);
-
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -236,7 +239,8 @@ int main(int argc, char** argv)
 
     // Kill OpenGL resources
 
-    batch.Kill();
+    sourceBatch.Kill();
+    destBatch.Kill();
     DestroyStaticGeometry();
 
     // Deinit ImGui
