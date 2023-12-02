@@ -247,7 +247,91 @@ void ShowWindow(const char* title, Framebuffer& fbo,
     //fbo.Unbind();
 }
 
-void ShowResultWindow(const char* title, Framebuffer& fbo, std::vector<Image>& images) {
+void ShowResultWindow(const char* title, Framebuffer& fbo, Shader& shader, std::vector<Image>& images) {
+
+    ImGui::Begin(title);
+
+    //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    //ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+
+    // Do not drag the window when left clicking and dragging
+
+    if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
+        ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = false;
+    }
+    else {
+        ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
+    }
+
+    float imguiWindowWidth = ImGui::GetContentRegionAvail().x;
+    float imguiWindowHeight = ImGui::GetContentRegionAvail().y;    
+
+    // safe guard for potential div by 0
+
+    if (imguiWindowWidth <= 0) {
+        imguiWindowWidth = 1.0;
+    }
+    if (imguiWindowHeight <= 0) {
+        imguiWindowHeight = 1.0;
+    }
+
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    float aspect = 0.0f;
+    float srcAspect = (float)fbo.m_Width / (float)fbo.m_Height;
+    float dstAspect = imguiWindowWidth / imguiWindowHeight;
+    float newWidth = 0.0f;
+    float newHeight = 0.0f;
+    if (srcAspect > dstAspect) { // horizontal letterbox
+        newWidth = imguiWindowWidth;
+        newHeight = imguiWindowWidth / srcAspect;
+    }
+    else { // vertical letterbox
+        newWidth = imguiWindowHeight * srcAspect;
+        newHeight = imguiWindowHeight;
+    }
+    float posOffsetX = (imguiWindowWidth - newWidth) / 2.0f;
+    float posOffsetY = (imguiWindowHeight - newHeight) / 2.0f;
+
+    ImVec2 buttonSize(newWidth, newHeight); // Size of the invisible button
+    ImVec2 buttonPosition(ImGui::GetCursorPosX() + posOffsetX, ImGui::GetCursorPosY() + posOffsetY); // Position of the button
+
+    // Render the invisible button
+    ImGui::SetCursorPos(buttonPosition);
+    ImGui::InvisibleButton("##resultCanvas", buttonSize,
+        ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight |
+        ImGuiButtonFlags_MouseButtonMiddle);
+
+    ImVec2 buttonMin = ImGui::GetItemRectMin();
+    ImVec2 buttonMax = ImGui::GetItemRectMax();
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+    drawList->AddImage(
+        (void*)fbo.GetTexture().GetHandle(),
+        buttonMin,
+        buttonMax,
+        ImVec2(0, 0),
+        ImVec2(1, 1)
+    );
+
+    ImGui::SetCursorPos(ImGui::GetWindowPos());
+
+    ImGui::End();
+
+    fbo.Bind();
+
+    glViewport(0, 0, fbo.m_Width, fbo.m_Height);
+    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    // 1.) bind a quad with the images dimension.
+    Batch& unitQuadBatch = GetUnitQuadBatch();
+    unitQuadBatch.Bind();
+    // 2.) bind texture
+    images[0].GetTexture().Bind();
+    // 3.) render
+    shader.Activate();
+    glDrawElements(GL_TRIANGLES, unitQuadBatch.IndexCount(), GL_UNSIGNED_INT, nullptr);
+
+    fbo.Unbind();
 
 }
 

@@ -165,15 +165,20 @@ int main(int argc, char** argv)
 
     // Load image that will be presented in imgui window
     Image sourceImage(exePath + "../../assets/lena_std.tga");
-    Image destImage(exePath + "../../assets/girlface.bmp");
+    Image destImage(exePath + "../../assets/lena_std.tga");
 
     // Create Framebuffer that will be rendered to and displayed in a imgui frame
     Framebuffer sourceFBO(sourceImage.m_Width, sourceImage.m_Height);
     Framebuffer destFBO(destImage.m_Width, destImage.m_Height);
+    Framebuffer resultFBO(sourceFBO.m_Width, sourceFBO.m_Height);
 
     // List of linesegments
     std::vector<Line> sourceLines;
     std::vector<Line> destLines;
+
+    // Results
+
+    std::vector<Image> morphedImages;
 
     // Some OpenGL global settings
 
@@ -209,22 +214,22 @@ int main(int argc, char** argv)
         // Own imgui window we render the fbo into
 
         
-        std::vector<Image> morphedImages;
         ShowWindow("Source", sourceFBO, imageShader, sourceImage, sourceBatch, sourceLines, ED_WINDOW_TYPE_SOURCE);
         ShowWindow("Destination", destFBO, imageShader, destImage, destBatch, destLines, ED_WINDOW_TYPE_DEST);
         ImGui::Begin("Control Panel");
         if (ImGui::Button("MAGIC!")) {
             printf("MAGIC!\n");
-            std::vector<Image> morphedImages = BeierNeely(sourceLines, destLines, sourceImage, destImage, 20);
-            // Create an FBO so we can render result into an imgui window
-            Framebuffer resultFBO(sourceFBO.m_Width, sourceFBO.m_Height);
-            ShowResultWindow("Result", resultFBO, morphedImages);
+            morphedImages = BeierNeely(sourceLines, destLines, sourceImage, destImage, 20);
+            // Create an FBO so we can render result into an imgui window            
         }        
+        
+        if (!morphedImages.empty()) {            
+            ShowResultWindow("Result", resultFBO, imageShader, morphedImages);
+        }
 
         ImGui::End();
 
-        
-
+       
         // Second pass
 
         // Tell opengl about window size to make correct transform into screenspace

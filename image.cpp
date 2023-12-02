@@ -32,7 +32,7 @@ Image::Image(uint32_t width, uint32_t height, uint32_t channels)
 Image::~Image()
 {
 	//stbi_image_free(m_Data);  // TODO: We have to check if mem was allocated by stb_image or c-runtime
-	m_Texture.Destroy();
+	//m_Texture.Destroy(); // Assignment operator missing. This kills the texture on Construction and Assignment! TODO: FIX!!!
 }
 
 Texture& Image::GetTexture()

@@ -37,7 +37,7 @@ struct EditorMouseInfo {
 };
 
 void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& image, Batch& batch, std::vector<Line>& lines, EditorWindowType windowType);
-void ShowResultWindow(const char* title, Framebuffer& fbo, std::vector<Image>& images);
+void ShowResultWindow(const char* title, Framebuffer& fbo, Shader& shader, std::vector<Image>& images);
 
 #endif
 
