@@ -207,8 +207,8 @@ int main(int argc, char** argv)
 
         // Own imgui window we render the fbo into
 
-        ShowWindow("Source", sourceFBO, imageShader, sourceImage, sourceBatch, sourceLines);
-        //ShowWindow("Destination", destFBO, imageShader, destImage, destBatch, destLines);
+        ShowWindow("Source", sourceFBO, imageShader, sourceImage, sourceBatch, sourceLines, ED_WINDOW_TYPE_SOURCE);
+        ShowWindow("Destination", destFBO, imageShader, destImage, destBatch, destLines, ED_WINDOW_TYPE_DEST);
                 
         // Second pass
 

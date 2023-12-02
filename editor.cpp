@@ -28,7 +28,8 @@ static ImVec2 MousePosToImageCoords(ImVec2 mousePos, ImVec2 widgetMins, ImVec2 w
     return pictureCoords;
 }
 
-void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& image, Batch& batch, std::vector<Line>& lines)
+void ShowWindow(const char* title, Framebuffer& fbo, 
+    Shader& shader, Image& image, Batch& batch, std::vector<Line>& lines, EditorWindowType windowType)
 {
     // Setup Window to put the framebuffer into
 
@@ -103,48 +104,83 @@ void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& imag
 
     ImGui::SetCursorPos(ImGui::GetWindowPos());
 
-    // Convert mouse button coords to picture coords
-
-    ImVec2 mousePosFUCK = ImGui::GetWindowPos();
-    //printf("mousePos: %f, %f\n", mousePosFUCK.x, mousePosFUCK.y);
+    // Do the editor logic here. This stuff is pretty messy and should be
+    // cleaned up as soon as the program is working!
 
     float imageWidth = (float)image.m_Width;
     float imageHeight = (float)image.m_Height;
-    if (editorState == ED_IDLE) {            
-        if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-            ImVec2 mousePos = ImGui::GetMousePos();
-            printf("mousePos: %f, %f\n", mousePos.x, mousePos.y);
-            editorMouseInfo.pos1 = mousePos;
-            ImVec2 pictureCoords = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
-            printf("mouse %f, %f:\n", pictureCoords.x, pictureCoords.y);
-            editorState = ED_PLACE_SOURCE_LINE;
-        }
-    }
-    else if (editorState == ED_PLACE_SOURCE_LINE) {
-        ImVec2 mousePos = ImGui::GetMousePos();
-        drawList->AddLine(editorMouseInfo.pos1, mousePos, 
-            ImGui::GetColorU32(ImVec4(255, 250, 0, 255)), 
-            5.0);
-        if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-            editorState = ED_PLACE_DEST_LINE;
-            ImVec2 pictureCoordsA = MousePosToImageCoords(editorMouseInfo.pos1, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
-            ImVec2 pictureCoordsB = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
-            ImVec2 mousePosInButtonA = ImVec2(editorMouseInfo.pos1.x - buttonMin.x, editorMouseInfo.pos1.y - buttonMin.y);
-            ImVec2 mousePosInButtonB = ImVec2(mousePos.x - buttonMin.x, mousePos.y - buttonMin.y);
 
-            lines.push_back({
-                    {glm::vec3(pictureCoordsA.x, pictureCoordsA.y, 0.0f), glm::vec3(0), glm::vec2(0)},
-                    {glm::vec3(pictureCoordsB.x, pictureCoordsB.y, 0.0f), glm::vec3(0), glm::vec2(0)},
-                    mousePosInButtonA, mousePosInButtonB, buttonSize
-                }
-            );
-            printf("Lines: \n");
-            for (auto& line : lines) {
-                printf("(%f, %f) -> (%f, %f)\n", line.a.pos.x, line.a.pos.y, line.b.pos.x, line.b.pos.y);                
+    if (windowType == ED_WINDOW_TYPE_SOURCE) {
+        if (editorState == ED_IDLE) {
+            if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+                ImVec2 mousePos = ImGui::GetMousePos();
+                printf("mousePos: %f, %f\n", mousePos.x, mousePos.y);
+                editorMouseInfo.pos1 = mousePos;
+                ImVec2 pictureCoords = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
+                printf("mouse %f, %f:\n", pictureCoords.x, pictureCoords.y);
+                editorState = ED_PLACE_SOURCE_LINE;
             }
-            editorState = ED_IDLE;
+        }
+        else if (editorState == ED_PLACE_SOURCE_LINE) {
+            ImVec2 mousePos = ImGui::GetMousePos();
+            drawList->AddLine(editorMouseInfo.pos1, mousePos,
+                ImGui::GetColorU32(ImVec4(255, 250, 0, 255)),
+                5.0);
+            if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+                ImVec2 pictureCoordsA = MousePosToImageCoords(editorMouseInfo.pos1, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
+                ImVec2 pictureCoordsB = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
+                ImVec2 mousePosInButtonA = ImVec2(editorMouseInfo.pos1.x - buttonMin.x, editorMouseInfo.pos1.y - buttonMin.y);
+                ImVec2 mousePosInButtonB = ImVec2(mousePos.x - buttonMin.x, mousePos.y - buttonMin.y);
+
+                lines.push_back({
+                        {glm::vec3(pictureCoordsA.x, pictureCoordsA.y, 0.0f), glm::vec3(0), glm::vec2(0)},
+                        {glm::vec3(pictureCoordsB.x, pictureCoordsB.y, 0.0f), glm::vec3(0), glm::vec2(0)},
+                        mousePosInButtonA, mousePosInButtonB, buttonSize
+                    }
+                );
+                printf("Lines: \n");
+                for (auto& line : lines) {
+                    printf("(%f, %f) -> (%f, %f)\n", line.a.pos.x, line.a.pos.y, line.b.pos.x, line.b.pos.y);
+                }
+                editorState = ED_PLACE_DEST_LINE_1;
+            }
         }
     }
+    else if (windowType == ED_WINDOW_TYPE_DEST) {
+        if (editorState == ED_PLACE_DEST_LINE_1) {
+            if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+                ImVec2 mousePos = ImGui::GetMousePos();                
+                editorMouseInfo.pos1 = mousePos;
+                ImVec2 pictureCoords = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));                
+                editorState = ED_PLACE_DEST_LINE_2;
+            }
+        }
+        else if (editorState == ED_PLACE_DEST_LINE_2) {
+            ImVec2 mousePos = ImGui::GetMousePos();
+            drawList->AddLine(editorMouseInfo.pos1, mousePos,
+                ImGui::GetColorU32(ImVec4(255, 250, 0, 255)),
+                5.0);
+            if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {                
+                ImVec2 pictureCoordsA = MousePosToImageCoords(editorMouseInfo.pos1, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
+                ImVec2 pictureCoordsB = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
+                ImVec2 mousePosInButtonA = ImVec2(editorMouseInfo.pos1.x - buttonMin.x, editorMouseInfo.pos1.y - buttonMin.y);
+                ImVec2 mousePosInButtonB = ImVec2(mousePos.x - buttonMin.x, mousePos.y - buttonMin.y);
+
+                lines.push_back({
+                        {glm::vec3(pictureCoordsA.x, pictureCoordsA.y, 0.0f), glm::vec3(0), glm::vec2(0)},
+                        {glm::vec3(pictureCoordsB.x, pictureCoordsB.y, 0.0f), glm::vec3(0), glm::vec2(0)},
+                        mousePosInButtonA, mousePosInButtonB, buttonSize
+                    }
+                );
+                printf("Lines: \n");
+                for (auto& line : lines) {
+                    printf("(%f, %f) -> (%f, %f)\n", line.a.pos.x, line.a.pos.y, line.b.pos.x, line.b.pos.y);
+                }
+                editorState = ED_IDLE;
+            }
+        }
+    }
+
     
 
     pos = ImGui::GetCursorScreenPos();

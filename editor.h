@@ -13,11 +13,16 @@
 #include "image.h"
 #include "render_common.h"
 
+enum EditorWindowType {
+	ED_WINDOW_TYPE_SOURCE,
+	ED_WINDOW_TYPE_DEST
+};
 
 enum EditorState {
 	ED_IDLE,	
 	ED_PLACE_SOURCE_LINE,
-	ED_PLACE_DEST_LINE
+	ED_PLACE_DEST_LINE_1,
+	ED_PLACE_DEST_LINE_2
 };
 
 enum EditorMouseState {
@@ -31,7 +36,7 @@ struct EditorMouseInfo {
 	ImVec2 pos2;
 };
 
-void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& image, Batch& batch, std::vector<Line>& lines);
+void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& image, Batch& batch, std::vector<Line>& lines, EditorWindowType windowType);
 
 #endif
 
