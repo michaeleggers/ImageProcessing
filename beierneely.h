@@ -9,7 +9,7 @@
 #include "render_common.h"
 
 std::vector<Image> BeierNeely(
-	std::vector<Line> sourceLines, std::vector<Line> destLines, 
+	std::vector<Line>& sourceLines, std::vector<Line>& destLines, 
 	Image& sourceImage, Image& destImage, 
 	uint32_t iterations);
 

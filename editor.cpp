@@ -247,3 +247,7 @@ void ShowWindow(const char* title, Framebuffer& fbo,
     //fbo.Unbind();
 }
 
+void ShowResultWindow(const char* title, Framebuffer& fbo, std::vector<Image>& images) {
+
+}
+

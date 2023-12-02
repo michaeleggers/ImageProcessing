@@ -27,6 +27,7 @@
 #include "editor.h"
 #include "image.h"
 #include "static_geometry.h"
+#include "beierneely.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -163,7 +164,7 @@ int main(int argc, char** argv)
 
 
     // Load image that will be presented in imgui window
-    Image sourceImage(exePath + "../../assets/zelda2.bmp");
+    Image sourceImage(exePath + "../../assets/lena_std.tga");
     Image destImage(exePath + "../../assets/girlface.bmp");
 
     // Create Framebuffer that will be rendered to and displayed in a imgui frame
@@ -208,13 +209,18 @@ int main(int argc, char** argv)
         // Own imgui window we render the fbo into
 
         
+        std::vector<Image> morphedImages;
         ShowWindow("Source", sourceFBO, imageShader, sourceImage, sourceBatch, sourceLines, ED_WINDOW_TYPE_SOURCE);
         ShowWindow("Destination", destFBO, imageShader, destImage, destBatch, destLines, ED_WINDOW_TYPE_DEST);
         ImGui::Begin("Control Panel");
         if (ImGui::Button("MAGIC!")) {
             printf("MAGIC!\n");
-            //std::vector<Image> morphedImages = BeierNeely(sourceLines, destLines, sourceImage, destImage, 20);
-        }
+            std::vector<Image> morphedImages = BeierNeely(sourceLines, destLines, sourceImage, destImage, 20);
+            // Create an FBO so we can render result into an imgui window
+            Framebuffer resultFBO(sourceFBO.m_Width, sourceFBO.m_Height);
+            ShowResultWindow("Result", resultFBO, morphedImages);
+        }        
+
         ImGui::End();
 
         
