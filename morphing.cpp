@@ -163,7 +163,7 @@ int main(int argc, char** argv)
 
 
     // Load image that will be presented in imgui window
-    Image sourceImage(exePath + "../../assets/baboon.bmp");
+    Image sourceImage(exePath + "../../assets/zelda2.bmp");
     Image destImage(exePath + "../../assets/girlface.bmp");
 
     // Create Framebuffer that will be rendered to and displayed in a imgui frame
@@ -209,7 +209,10 @@ int main(int argc, char** argv)
 
         ShowWindow("Source", sourceFBO, imageShader, sourceImage, sourceBatch, sourceLines, ED_WINDOW_TYPE_SOURCE);
         ShowWindow("Destination", destFBO, imageShader, destImage, destBatch, destLines, ED_WINDOW_TYPE_DEST);
-                
+          
+        // TODO:
+        //std::vector<Image> morphedImages = computeMorphing(sourceLines, destLines, sourceImage, destImage, 20);
+
         // Second pass
 
         // Tell opengl about window size to make correct transform into screenspace
