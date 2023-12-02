@@ -22,7 +22,7 @@ enum EditorState {
 	ED_IDLE,	
 	ED_PLACE_SOURCE_LINE,
 	ED_PLACE_DEST_LINE_1,
-	ED_PLACE_DEST_LINE_2
+	ED_PLACE_DEST_LINE_2	
 };
 
 enum EditorMouseState {

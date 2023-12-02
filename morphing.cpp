@@ -207,11 +207,17 @@ int main(int argc, char** argv)
 
         // Own imgui window we render the fbo into
 
+        
         ShowWindow("Source", sourceFBO, imageShader, sourceImage, sourceBatch, sourceLines, ED_WINDOW_TYPE_SOURCE);
         ShowWindow("Destination", destFBO, imageShader, destImage, destBatch, destLines, ED_WINDOW_TYPE_DEST);
-          
-        // TODO:
-        //std::vector<Image> morphedImages = computeMorphing(sourceLines, destLines, sourceImage, destImage, 20);
+        ImGui::Begin("Control Panel");
+        if (ImGui::Button("MAGIC!")) {
+            printf("MAGIC!\n");
+            //std::vector<Image> morphedImages = BeierNeely(sourceLines, destLines, sourceImage, destImage, 20);
+        }
+        ImGui::End();
+
+        
 
         // Second pass
 
