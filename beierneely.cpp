@@ -43,7 +43,7 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
             for (int x = 0; x < destImage.m_Width; x++) { // Go through all pixels in destImages
                 glm::vec2 X = glm::vec2(x, y);
                 glm::vec2 DSUM = glm::vec2(0.0, 0.0);
-                float weightsum = 0;
+                float weightsum = 0;     
                 for (int i = 0; i < destLines.size(); i++) {
                     Line& destLine = destLines[i];
                     Line& srcLine = sourceLines[i];
@@ -62,22 +62,22 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
                     float dist = Distance(u, v, P, Q, X);
                     float weight = glm::pow(glm::pow(PQlength, p) / (a + dist), b);
                     DSUM += D * weight;
-                    weightsum += weight;
-                }
+                    weightsum += weight;        
+                }                
                 glm::vec2 srcX = X + DSUM / weightsum;
                 if (srcX.x > destImage.m_Height - 1) srcX.x = (destImage.m_Height-1);
                 if (srcX.y > destImage.m_Height - 1) srcX.y = (destImage.m_Height-1);
                 if (srcX.x < 0) srcX.x = 0;
-                if (srcX.y < 0) srcX.y = 0;
-
+                if (srcX.y < 0) srcX.y = 0;                
+                
                 // if (srcX.x < 0 || srcX.y < 0) printf("srcX negative!\n");
-
+                                                
                 glm::ivec3 sourcePixel = sourceImage(srcX.x, srcX.y);
                 glm::ivec3 destPixel = destImage(x, y);
                 unsigned char* newPixel = image.m_Data + (image.m_Channels * (y * image.m_Width + x));
-                newPixel[0] = sourcePixel.r;
-                newPixel[1] = sourcePixel.g;
-                newPixel[2] = sourcePixel.b;
+                newPixel[0] = (1.0f - pct) * sourcePixel.r + pct * destPixel.r;
+                newPixel[1] = (1.0f - pct) * sourcePixel.g + pct * destPixel.g;
+                newPixel[2] = (1.0f - pct) * sourcePixel.b + pct * destPixel.b;
 
             } // ! pixel row
         } // ! pixel col

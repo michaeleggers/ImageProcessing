@@ -165,7 +165,7 @@ int main(int argc, char** argv)
 
     // Load image that will be presented in imgui window
     Image sourceImage(exePath + "../../assets/zelda2_scaled.bmp");
-    Image destImage(exePath + "../../assets/zelda2_scaled.bmp");
+    Image destImage(exePath + "../../assets/girlface.bmp");
 
     // Create Framebuffer that will be rendered to and displayed in a imgui frame
     Framebuffer sourceFBO(sourceImage.m_Width, sourceImage.m_Height);
@@ -212,21 +212,21 @@ int main(int argc, char** argv)
         // Draw stuff
 
         // Own imgui window we render the fbo into
-
         
         ShowWindow("Source", sourceFBO, imageShader, sourceImage, sourceBatch, sourceLines, ED_WINDOW_TYPE_SOURCE);
         ShowWindow("Destination", destFBO, imageShader, destImage, destBatch, destLines, ED_WINDOW_TYPE_DEST);
+        
         ImGui::Begin("Control Panel");
+        static int numIterations = 0;
+        ImGui::SliderInt("Iterations", &numIterations, 1, 100);            
         if (ImGui::Button("MAGIC!")) {
-            printf("MAGIC!\n");
-            morphedImages = BeierNeely(sourceLines, destLines, sourceImage, destImage, 20);
+            morphedImages = BeierNeely(sourceLines, destLines, sourceImage, destImage, numIterations);
             // Create an FBO so we can render result into an imgui window            
         }        
         
         if (!morphedImages.empty()) {            
             ShowResultWindow("Result", resultFBO, imageShader, morphedImages);
         }
-
         ImGui::End();
 
        
