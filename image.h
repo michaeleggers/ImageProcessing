@@ -25,6 +25,8 @@ public:
 		return glm::ivec3(pixel[0], pixel[1], pixel[2]);		
 	}
 
+	static Image Blend(Image& a, Image& b, float pct);
+
 	uint32_t		m_Width, m_Height;
 	uint32_t		m_Channels;
 	unsigned char * m_Data;

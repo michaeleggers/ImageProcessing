@@ -13,5 +13,8 @@ std::vector<Image> BeierNeely(
 	Image& sourceImage, Image& destImage, 
 	uint32_t iterations);
 
+std::vector<Image> BlendImages(std::vector<Image>& a, std::vector<Image>& b);
+
+
 #endif
 

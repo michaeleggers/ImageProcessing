@@ -32,8 +32,8 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
     // constants
 
     float a = 0.01;
-    float b = 1.5;
-    float p = 0.01;
+    float b = 2.5;
+    float p = 0.5;
 
     for (int iter = 0; iter < iterations; iter++) {
         float pct = (float)iter / (float)iterations;
@@ -58,26 +58,34 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
                     float v = glm::dot(PX, Perpendicular(PQ)) / PQlength;
                     glm::vec2 srcPQ = srcQ - srcP;
                     glm::vec2 srcX = srcP + u * srcPQ + (v * Perpendicular(srcPQ) / glm::length(srcPQ));
-                    glm::vec2 D = pct * (srcX - X); // Interpolate here over time!
+                    glm::vec2 D = srcX - X; // Interpolate here over time!
                     float dist = Distance(u, v, P, Q, X);
                     float weight = glm::pow(glm::pow(PQlength, p) / (a + dist), b);
                     DSUM += D * weight;
                     weightsum += weight;        
                 }                
-                glm::vec2 srcX = X + DSUM / weightsum;
+                glm::vec2 srcX = X + pct*DSUM / weightsum;
                 if (srcX.x > destImage.m_Height - 1) srcX.x = (destImage.m_Height-1);
                 if (srcX.y > destImage.m_Height - 1) srcX.y = (destImage.m_Height-1);
                 if (srcX.x < 0) srcX.x = 0;
                 if (srcX.y < 0) srcX.y = 0;                
-                
+
+                glm::vec2 srcXFinal = X + DSUM / weightsum;
+                if (srcXFinal.x > destImage.m_Height - 1) srcXFinal.x = (destImage.m_Height - 1);
+                if (srcXFinal.y > destImage.m_Height - 1) srcXFinal.y = (destImage.m_Height - 1);
+                if (srcXFinal.x < 0) srcXFinal.x = 0;
+                if (srcXFinal.y < 0) srcXFinal.y = 0;
+
                 // if (srcX.x < 0 || srcX.y < 0) printf("srcX negative!\n");
                                                 
                 glm::ivec3 sourcePixel = sourceImage(srcX.x, srcX.y);
+                glm::ivec3 sourcePixelFinal = sourceImage(srcXFinal.x, srcXFinal.y);                
                 glm::ivec3 destPixel = destImage(x, y);
+                
                 unsigned char* newPixel = image.m_Data + (image.m_Channels * (y * image.m_Width + x));
-                newPixel[0] = (1.0f - pct) * sourcePixel.r + pct * destPixel.r;
-                newPixel[1] = (1.0f - pct) * sourcePixel.g + pct * destPixel.g;
-                newPixel[2] = (1.0f - pct) * sourcePixel.b + pct * destPixel.b;
+                newPixel[0] = sourcePixel.r;
+                newPixel[1] = sourcePixel.g;
+                newPixel[2] = sourcePixel.b;
 
             } // ! pixel row
         } // ! pixel col
@@ -87,9 +95,19 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
 
         result.push_back(image);
     }
+   
+    return result;
+}
 
-    
-    
+std::vector<Image> BlendImages(std::vector<Image>& a, std::vector<Image>& b) {
+    std::vector<Image> result;
+    size_t numImages = a.size();    
+    for (int i = 0; i < numImages; i++) {
+        float pct = (float)i / (float)numImages;
+        Image blendedImage = Image::Blend(a[i], b[i], pct);
+        result.push_back(blendedImage);
+    }
+
     return result;
 }
 

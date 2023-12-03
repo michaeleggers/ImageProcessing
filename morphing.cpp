@@ -4,6 +4,8 @@
 
 #include <cmath>
 #include <vector>
+#include <algorithm>
+
 
 //#include <SDL2/SDL.h>
 //#include <SDL.h>
@@ -164,8 +166,8 @@ int main(int argc, char** argv)
 
 
     // Load image that will be presented in imgui window
-    Image sourceImage(exePath + "../../assets/zelda2_scaled.bmp");
-    Image destImage(exePath + "../../assets/girlface.bmp");
+    Image sourceImage(exePath + "../../assets/obiwan.bmp");
+    Image destImage(exePath + "../../assets/obiwan_old.bmp");
 
     // Create Framebuffer that will be rendered to and displayed in a imgui frame
     Framebuffer sourceFBO(sourceImage.m_Width, sourceImage.m_Height);
@@ -178,6 +180,8 @@ int main(int argc, char** argv)
 
     // Results
 
+    std::vector<Image> sourceToDestMorphs;
+    std::vector<Image> destToSourceMorphs;
     std::vector<Image> morphedImages;
 
     // Some OpenGL global settings
@@ -220,8 +224,10 @@ int main(int argc, char** argv)
         static int numIterations = 0;
         ImGui::SliderInt("Iterations", &numIterations, 1, 100);            
         if (ImGui::Button("MAGIC!")) {
-            morphedImages = BeierNeely(sourceLines, destLines, sourceImage, destImage, numIterations);
-            // Create an FBO so we can render result into an imgui window            
+            sourceToDestMorphs = BeierNeely(sourceLines, destLines, sourceImage, destImage, numIterations);
+            destToSourceMorphs = BeierNeely(destLines, sourceLines, destImage, sourceImage, numIterations);
+            std::reverse(destToSourceMorphs.begin(), destToSourceMorphs.end());
+            morphedImages = BlendImages(sourceToDestMorphs, destToSourceMorphs);
         }        
         
         if (!morphedImages.empty()) {            
