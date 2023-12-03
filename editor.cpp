@@ -305,13 +305,15 @@ void ShowResultWindow(const char* title, Framebuffer& fbo, Shader& shader, std::
     ImVec2 buttonMax = ImGui::GetItemRectMax();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
 
-    drawList->AddImage(
-        (void*)fbo.GetTexture().GetHandle(),
-        buttonMin,
-        buttonMax,
-        ImVec2(0, 0),
-        ImVec2(1, 1)
-    );
+    for (Image& image : images) {
+        drawList->AddImage(
+            (void*)fbo.GetTexture().GetHandle(),
+            buttonMin,
+            buttonMax,
+            ImVec2(0, 0),
+            ImVec2(1, 1)
+        );
+    }
 
     ImGui::SetCursorPos(ImGui::GetWindowPos());
 
@@ -325,11 +327,12 @@ void ShowResultWindow(const char* title, Framebuffer& fbo, Shader& shader, std::
     // 1.) bind a quad with the images dimension.
     Batch& unitQuadBatch = GetUnitQuadBatch();
     unitQuadBatch.Bind();
-    // 2.) bind texture
-    images[0].GetTexture().Bind();
-    // 3.) render
     shader.Activate();
-    glDrawElements(GL_TRIANGLES, unitQuadBatch.IndexCount(), GL_UNSIGNED_INT, nullptr);
+    // 2.) bind texture
+    for (Image& image : images) {
+        image.GetTexture().Bind();        
+        glDrawElements(GL_TRIANGLES, unitQuadBatch.IndexCount(), GL_UNSIGNED_INT, nullptr);
+    }
 
     fbo.Unbind();
 
