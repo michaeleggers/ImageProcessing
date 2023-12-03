@@ -31,9 +31,9 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
 
     // constants
 
-    float a = 0.05f;
-    float b = 1.7;
-    float p = 0.0;
+    float a = 0.01;
+    float b = 1.5;
+    float p = 0.01;
 
     Image image(sourceImage.m_Width, sourceImage.m_Height, 3); // TODO: Check for channels and handle correctly
 
@@ -56,24 +56,26 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
                 float v = glm::dot(PX, Perpendicular(PQ)) / PQlength;
                 glm::vec2 srcPQ = srcQ - srcP;
                 glm::vec2 srcX = srcP + u * srcPQ + (v * Perpendicular(srcPQ) / glm::length(srcPQ));
-                glm::vec2 D = srcX - X;
+                glm::vec2 D = 0.5f*(srcX - X); // Interpolate here over time!
                 float dist = Distance(u, v, P, Q, X);
                 float weight = glm::pow( glm::pow(PQlength, p) / (a + dist), b );
                 DSUM += D * weight;
                 weightsum += weight;
             }
             glm::vec2 srcX = X + DSUM / weightsum;
-            if (srcX.x > 511) srcX.x = 511;
-            if (srcX.y > 511) srcX.y = 511;
+            if (srcX.x > destImage.m_Height-1) srcX.x = destImage.m_Height;
+            if (srcX.y > destImage.m_Height-1) srcX.y = destImage.m_Height;
             if (srcX.x < 0) srcX.x = 0;
             if (srcX.y < 0) srcX.y = 0;
 
-            if (srcX.x < 0 || srcX.y < 0) printf("srcX negative!\n");
-            glm::ivec3 destPixel = sourceImage(srcX.x, srcX.y);
+            // if (srcX.x < 0 || srcX.y < 0) printf("srcX negative!\n");
+
+            glm::ivec3 sourcePixel = sourceImage(srcX.x, srcX.y);
+            glm::ivec3 destPixel = destImage(x, y);
             unsigned char * newPixel = image.m_Data + (image.m_Channels*(y * image.m_Width + x));
-            newPixel[0] = destPixel.r;
-            newPixel[1] = destPixel.g;
-            newPixel[2] = destPixel.b;
+            newPixel[0] = 1.0 * sourcePixel.r + 0.0 * destPixel.r;
+            newPixel[1] = 1.0 * sourcePixel.g + 0.0 * destPixel.g;
+            newPixel[2] = 1.0 * sourcePixel.b + 0.0 * destPixel.b;
             
         } // ! pixel row
     } // ! pixel col

@@ -164,8 +164,8 @@ int main(int argc, char** argv)
 
 
     // Load image that will be presented in imgui window
-    Image sourceImage(exePath + "../../assets/lena_std.tga");
-    Image destImage(exePath + "../../assets/lena_std.tga");
+    Image sourceImage(exePath + "../../assets/zelda2_scaled.bmp");
+    Image destImage(exePath + "../../assets/zelda2_scaled.bmp");
 
     // Create Framebuffer that will be rendered to and displayed in a imgui frame
     Framebuffer sourceFBO(sourceImage.m_Width, sourceImage.m_Height);
