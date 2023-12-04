@@ -1,3 +1,21 @@
+
+// IMAGE MORPHING USING BEIER-NEELY ALGORITHM
+// 
+// Known Bugs:
+// 
+// 4.12.2023
+// - non quare images stretch the result image to the right weirdly
+// - if a source line has no matching destination line the program crashes
+// - if source and destination images don't have the same dimensions the program crashes
+//
+// TODOs:
+// - Port to MacOS
+// - Undo/Redo for lineplacement
+// - Save lineset and corresponding images as project 
+// - Change from line-mode to select-mode to change/delete existing linepairs
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -166,8 +184,8 @@ int main(int argc, char** argv)
 
 
     // Load image that will be presented in imgui window
-    Image sourceImage(exePath + "../../assets/obiwan.bmp");
-    Image destImage(exePath + "../../assets/obiwan_old.bmp");
+    Image sourceImage(exePath + "../../assets/guy_squared.bmp");
+    Image destImage(exePath + "../../assets/gal_squared.bmp");
 
     // Create Framebuffer that will be rendered to and displayed in a imgui frame
     Framebuffer sourceFBO(sourceImage.m_Width, sourceImage.m_Height);

@@ -32,8 +32,8 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
     // constants
 
     float a = 0.01;
-    float b = 2.5;
-    float p = 0.5;
+    float b = 1.5;
+    float p = 0.3;
 
     for (int iter = 0; iter < iterations; iter++) {
         float pct = (float)iter / (float)iterations;
