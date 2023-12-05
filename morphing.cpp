@@ -13,6 +13,12 @@
 // - Undo/Redo for lineplacement
 // - Save lineset and corresponding images as project 
 // - Change from line-mode to select-mode to change/delete existing linepairs
+// - Render result images out to disk
+// - At the moment the pixels are interpolated linearly from source-line to dest-line. But
+//   I noticed that this will result in ignoring rotations. So It would be better to actually
+//   interpolate the lines correctly and *then* compute the resulting pixel.
+//   This will be computationally more taxing but could result in better warping and therefore
+//   less noticable blending between source and destination image.
 
 
 
