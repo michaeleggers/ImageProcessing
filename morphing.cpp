@@ -190,8 +190,14 @@ int main(int argc, char** argv)
 
 
     // Load image that will be presented in imgui window
+
+#ifdef WIN32
     Image sourceImage(exePath + "../../assets/guy_squared.bmp");
     Image destImage(exePath + "../../assets/gal_squared.bmp");
+#elif __APPLE__
+    Image sourceImage(exePath + "../assets/guy_squared.bmp");
+    Image destImage(exePath + "../assets/gal_squared.bmp");
+#endif
 
     // Create Framebuffer that will be rendered to and displayed in a imgui frame
     Framebuffer sourceFBO(sourceImage.m_Width, sourceImage.m_Height);

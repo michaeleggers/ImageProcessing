@@ -1,11 +1,63 @@
 #include "common.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
 
+#include <stdint.h>
 #include <string> 
 
 #include "stb_image.h"
+
+#ifdef WIN32
+
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+
+std::string com_GetExePath(void)
+{
+	char out_buffer[256];
+	int  buffer_size = 256;
+	DWORD len = GetModuleFileNameA(NULL, out_buffer, buffer_size);
+	if (!len) {
+		DWORD error = GetLastError();
+		char errorMsgBuf[256];
+		FormatMessage(
+			FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			errorMsgBuf, (sizeof(errorMsgBuf) / sizeof(char)), NULL);
+
+		printf("%s\n", errorMsgBuf);
+	}
+
+	// strip actual name of the .exe
+	char* last = out_buffer + len;
+	while (*last != '\\') {
+		*last-- = '\0';
+	}
+
+	return std::string(out_buffer);
+}
+
+#elif __APPLE__
+
+#include <mach-o/dyld.h>
+
+std::string com_GetExePath(void)
+{
+	char out_buffer[256];
+	uint32_t buffer_size = 256;
+	
+	int error = _NSGetExecutablePath(out_buffer, &u_buffer_size);
+	if (error) {
+		// TOOO: handle error
+	}
+	int len = strlen(out_buffer);
+	char* slash = out_buffer + len + 1;
+	while (len >= 0 && *slash != '/') { slash--; len--; }
+	out_buffer[len + 1] = '\0';
+
+	return std::string(out_buffer);
+}
+
+#endif
 
 
 ATP_Status atp_read_file(char const* filename, ATP_File* out_File) {
@@ -38,27 +90,3 @@ ATP_Status atp_destroy_file(ATP_File* file) {
 	return ATP_ERROR_NO_FILE;
 }
 
-std::string com_GetExePath(void)
-{
-	char out_buffer[256];
-	int  buffer_size = 256;
-	DWORD len = GetModuleFileNameA(NULL, out_buffer, buffer_size);
-	if (!len) {
-		DWORD error = GetLastError();
-		char errorMsgBuf[256];
-		FormatMessage(
-			FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-			NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			errorMsgBuf, (sizeof(errorMsgBuf) / sizeof(char)), NULL);
-
-		printf("%s\n", errorMsgBuf);
-	}
-
-	// strip actual name of the .exe
-	char * last = out_buffer + len;
-	while (*last != '\\') {
-		*last-- = '\0';
-	}
-
-	return std::string(out_buffer);
-}
