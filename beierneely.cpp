@@ -31,20 +31,20 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
 
     // constants
 
-    float a = 0.01;
-    float b = 1.5;
-    float p = 0.3;
+    float a = 0.01f;
+    float b = 1.5f;
+    float p = 0.3f;
 
-    for (int iter = 0; iter < iterations; iter++) {
+    for (size_t iter = 0; iter < iterations; iter++) {
         float pct = (float)iter / (float)iterations;
         Image image(sourceImage.m_Width, sourceImage.m_Height, 3); // TODO: Check for channels and handle correctly
 
-        for (int y = 0; y < destImage.m_Height; y++) {
-            for (int x = 0; x < destImage.m_Width; x++) { // Go through all pixels in destImages
+        for (size_t y = 0; y < destImage.m_Height; y++) {
+            for (size_t x = 0; x < destImage.m_Width; x++) { // Go through all pixels in destImages
                 glm::vec2 X = glm::vec2(x, y);
                 glm::vec2 DSUM = glm::vec2(0.0, 0.0);
                 float weightsum = 0;     
-                for (int i = 0; i < destLines.size(); i++) {
+                for (size_t i = 0; i < destLines.size(); i++) {
                     Line& destLine = destLines[i];
                     Line& srcLine = sourceLines[i];
                     glm::vec2 P = destLine.a.pos;
@@ -65,21 +65,21 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
                     weightsum += weight;        
                 }                
                 glm::vec2 srcX = X + pct*DSUM / weightsum;
-                if (srcX.x > destImage.m_Height - 1) srcX.x = (destImage.m_Height-1);
-                if (srcX.y > destImage.m_Height - 1) srcX.y = (destImage.m_Height-1);
-                if (srcX.x < 0) srcX.x = 0;
-                if (srcX.y < 0) srcX.y = 0;                
+                if ((uint32_t)srcX.x > destImage.m_Height - 1) srcX.x = float(destImage.m_Height - 1);
+                if ((uint32_t)srcX.y > destImage.m_Height - 1) srcX.y = float(destImage.m_Height-1);
+                if ((uint32_t)srcX.x < 0) srcX.x = 0.0f;
+                if ((uint32_t)srcX.y < 0) srcX.y = 0.0f;                
 
                 glm::vec2 srcXFinal = X + DSUM / weightsum;
-                if (srcXFinal.x > destImage.m_Height - 1) srcXFinal.x = (destImage.m_Height - 1);
-                if (srcXFinal.y > destImage.m_Height - 1) srcXFinal.y = (destImage.m_Height - 1);
-                if (srcXFinal.x < 0) srcXFinal.x = 0;
-                if (srcXFinal.y < 0) srcXFinal.y = 0;
+                if ((uint32_t)srcXFinal.x > destImage.m_Height - 1) srcXFinal.x = float(destImage.m_Height - 1);
+                if ((uint32_t)srcXFinal.y > destImage.m_Height - 1) srcXFinal.y = float(destImage.m_Height - 1);
+                if ((uint32_t)srcXFinal.x < 0) srcXFinal.x = 0.0f;
+                if ((uint32_t)srcXFinal.y < 0) srcXFinal.y = 0.0f;
 
                 // if (srcX.x < 0 || srcX.y < 0) printf("srcX negative!\n");
                                                 
-                glm::ivec3 sourcePixel = sourceImage(srcX.x, srcX.y);
-                glm::ivec3 sourcePixelFinal = sourceImage(srcXFinal.x, srcXFinal.y);                
+                glm::ivec3 sourcePixel = sourceImage((size_t)srcX.x, (size_t)srcX.y);
+                glm::ivec3 sourcePixelFinal = sourceImage((size_t)srcXFinal.x, (size_t)srcXFinal.y);
                 glm::ivec3 destPixel = destImage(x, y);
                 
                 unsigned char* newPixel = image.m_Data + (image.m_Channels * (y * image.m_Width + x));
