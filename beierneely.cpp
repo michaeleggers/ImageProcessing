@@ -78,8 +78,8 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
 
                 // if (srcX.x < 0 || srcX.y < 0) printf("srcX negative!\n");
                                                 
-                glm::ivec3 sourcePixel = sourceImage((size_t)srcX.x, (size_t)srcX.y);
-                glm::ivec3 sourcePixelFinal = sourceImage((size_t)srcXFinal.x, (size_t)srcXFinal.y);
+                glm::ivec3 sourcePixel = sourceImage((uint32_t)srcX.x, (uint32_t)srcX.y);
+                glm::ivec3 sourcePixelFinal = sourceImage((uint32_t)srcXFinal.x, (uint32_t)srcXFinal.y);
                 glm::ivec3 destPixel = destImage(x, y);
                 
                 unsigned char* newPixel = image.m_Data + (image.m_Channels * (y * image.m_Width + x));
