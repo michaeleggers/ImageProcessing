@@ -56,96 +56,7 @@ void ShowWindow(const char* title, Framebuffer& fbo,
 
 void ShowResultWindow(const char* title, Framebuffer& fbo, Shader& shader, std::vector<Image>& images) {
 
-    ImGui::Begin(title);
-
-    //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    //ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
-
-    // Do not drag the window when left clicking and dragging
-
-    if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
-        ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = false;
-    }
-    else {
-        ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
-    }
-
-    float imguiWindowWidth = ImGui::GetContentRegionAvail().x;
-    float imguiWindowHeight = ImGui::GetContentRegionAvail().y;    
-
-    // safe guard for potential div by 0
-
-    if (imguiWindowWidth <= 0) {
-        imguiWindowWidth = 1.0;
-    }
-    if (imguiWindowHeight <= 0) {
-        imguiWindowHeight = 1.0;
-    }
-
-    ImVec2 pos = ImGui::GetCursorScreenPos();
-    float aspect = 0.0f;
-    float srcAspect = (float)fbo.m_Width / (float)fbo.m_Height;
-    float dstAspect = imguiWindowWidth / imguiWindowHeight;
-    float newWidth = 0.0f;
-    float newHeight = 0.0f;
-    if (srcAspect > dstAspect) { // horizontal letterbox
-        newWidth = imguiWindowWidth;
-        newHeight = imguiWindowWidth / srcAspect;
-    }
-    else { // vertical letterbox
-        newWidth = imguiWindowHeight * srcAspect;
-        newHeight = imguiWindowHeight;
-    }
-    float posOffsetX = (imguiWindowWidth - newWidth) / 2.0f;
-    float posOffsetY = (imguiWindowHeight - newHeight) / 2.0f;
-
-    ImVec2 buttonSize(newWidth, newHeight); // Size of the invisible button
-    ImVec2 buttonPosition(ImGui::GetCursorPosX() + posOffsetX, ImGui::GetCursorPosY() + posOffsetY); // Position of the button
-
-    // Render the invisible button
-    ImGui::SetCursorPos(buttonPosition);
-    ImGui::InvisibleButton("##resultCanvas", buttonSize,
-        ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight |
-        ImGuiButtonFlags_MouseButtonMiddle);
-
-    ImVec2 buttonMin = ImGui::GetItemRectMin();
-    ImVec2 buttonMax = ImGui::GetItemRectMax();
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-
-    for (int i = 0; i < images.size(); i++) {       
-        drawList->AddImage(
-            (void*)fbo.GetTexture().GetHandle(),
-            buttonMin,
-            buttonMax,
-            ImVec2(0, 0),
-            ImVec2(1, 1)
-        );
-    }
-
-
-    static int imageIndex = 0;
-    ImGui::SliderInt("Image Index", &imageIndex, 0, images.size() - 1);
-
-    //ImGui::SetCursorPos(ImGui::GetWindowPos());
-
-    ImGui::End();
-
-    fbo.Bind();
-
-    glViewport(0, 0, fbo.m_Width, fbo.m_Height);
-    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    // 1.) bind a quad with the images dimension.
-    Batch& unitQuadBatch = GetUnitQuadBatch();
-    unitQuadBatch.Bind();
-    shader.Activate();
-    // 2.) bind texture
     
-    images[imageIndex].GetTexture().Bind();        
-    glDrawElements(GL_TRIANGLES, unitQuadBatch.IndexCount(), GL_UNSIGNED_INT, nullptr);
-    
-
-    fbo.Unbind();
 }
 
 Editor::Editor(Image* sourceImage, Image* destImage)
@@ -164,6 +75,7 @@ Editor::Editor(Image* sourceImage, Image* destImage)
 
     m_NumIterations = 2;
     m_MaxIterations = 100;
+    m_ImageIndex = 0;
 
     // Create Framebuffers for windows
     m_sourceFBO = new Framebuffer(sourceImage->m_Width, sourceImage->m_Height);
@@ -337,10 +249,7 @@ void Editor::ShowWindow(const char* title, Image* image, Framebuffer* fbo, std::
         }
     }
 
-
-
     pos = ImGui::GetCursorScreenPos();
-
 
     for (auto& line : lines) {
         ImVec2 absCoordsA = line.absA;
@@ -384,22 +293,105 @@ void Editor::ShowWindow(const char* title, Image* image, Framebuffer* fbo, std::
 
 void Editor::ShowResultWindow(const char* title)
 {
+    ImGui::Begin(title);
+
+    //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    //ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+
+    // Do not drag the window when left clicking and dragging
+
+    if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
+        ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = false;
+    }
+    else {
+        ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
+    }
+
+    float imguiWindowWidth = ImGui::GetContentRegionAvail().x;
+    float imguiWindowHeight = ImGui::GetContentRegionAvail().y;
+
+    // safe guard for potential div by 0
+
+    if (imguiWindowWidth <= 0) {
+        imguiWindowWidth = 1.0;
+    }
+    if (imguiWindowHeight <= 0) {
+        imguiWindowHeight = 1.0;
+    }
+
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    float aspect = 0.0f;
+    float srcAspect = (float)m_resultFBO->m_Width / (float)m_resultFBO->m_Height;
+    float dstAspect = imguiWindowWidth / imguiWindowHeight;
+    float newWidth = 0.0f;
+    float newHeight = 0.0f;
+    if (srcAspect > dstAspect) { // horizontal letterbox
+        newWidth = imguiWindowWidth;
+        newHeight = imguiWindowWidth / srcAspect;
+    }
+    else { // vertical letterbox
+        newWidth = imguiWindowHeight * srcAspect;
+        newHeight = imguiWindowHeight;
+    }
+    float posOffsetX = (imguiWindowWidth - newWidth) / 2.0f;
+    float posOffsetY = (imguiWindowHeight - newHeight) / 2.0f;
+
+    ImVec2 buttonSize(newWidth, newHeight); // Size of the invisible button
+    ImVec2 buttonPosition(ImGui::GetCursorPosX() + posOffsetX, ImGui::GetCursorPosY() + posOffsetY); // Position of the button
+
+    // Render the invisible button
+    ImGui::SetCursorPos(buttonPosition);
+    ImGui::InvisibleButton("##resultCanvas", buttonSize,
+        ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight |
+        ImGuiButtonFlags_MouseButtonMiddle);
+
+    ImVec2 buttonMin = ImGui::GetItemRectMin();
+    ImVec2 buttonMax = ImGui::GetItemRectMax();
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+    for (int i = 0; i < m_blendedImages.size(); i++) {
+        drawList->AddImage(
+            (void*)m_resultFBO->GetTexture().GetHandle(),
+            buttonMin,
+            buttonMax,
+            ImVec2(0, 0),
+            ImVec2(1, 1)
+        );
+    }
+   
+    ImGui::SliderInt("Image Index", &m_ImageIndex, 0, m_blendedImages.size() - 1);
+
+    //ImGui::SetCursorPos(ImGui::GetWindowPos());
+
+    ImGui::End();
+
+    m_resultFBO->Bind();
+
+    glViewport(0, 0, m_resultFBO->m_Width, m_resultFBO->m_Height);
+    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    // 1.) bind a quad with the images dimension.
+    Batch& unitQuadBatch = GetUnitQuadBatch();
+    unitQuadBatch.Bind();
+    m_imageShader.Activate();
+    // 2.) bind texture
+
+    m_blendedImages[m_ImageIndex].GetTexture().Bind();
+    glDrawElements(GL_TRIANGLES, unitQuadBatch.IndexCount(), GL_UNSIGNED_INT, nullptr);
+
+    m_resultFBO->Unbind();
 }
 
-void Editor::RunEditor()
+void Editor::Run()
 {
     ShowWindow("Source", m_sourceImage, m_sourceFBO, m_sourceLines, ED_WINDOW_TYPE_SOURCE);
     ShowWindow("Destination", m_destImage, m_destFBO, m_destLines, ED_WINDOW_TYPE_DEST);
 
     ImGui::Begin("Control Panel");
-    static int numIterations = 0;
-    static float a = 0.001f;
-    static float b = 3.5f;
-    static float p = 0.0f;
-    ImGui::SliderFloat("a", &a, 0.0f, 2.0f);
-    ImGui::SliderFloat("b", &b, 0.0f, 20.0f);
-    ImGui::SliderFloat("p", &p, 0.0f, 1.0f);
-    ImGui::SliderInt("Iterations", &numIterations, 1, 100);
+    ImGui::SliderFloat("a", &m_A, 0.0f, 2.0f);
+    ImGui::SliderFloat("b", &m_B, 0.0f, 20.0f);
+    ImGui::SliderFloat("p", &m_P, 0.0f, 1.0f);
+    ImGui::SliderInt("Iterations", &m_NumIterations, 1, 100);
     if (ImGui::Button("MAGIC!")) {
         m_sourceToDestMorphs = BeierNeely(m_sourceLines, m_destLines, *m_sourceImage, *m_destImage, m_NumIterations, m_A, m_B, m_P);
         m_destToSourceMorphs = BeierNeely(m_destLines, m_sourceLines, *m_destImage, *m_sourceImage, m_NumIterations, m_A, m_B, m_P);

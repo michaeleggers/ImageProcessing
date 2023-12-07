@@ -44,7 +44,7 @@ public:
 
 	void ShowWindow(const char* title, Image* image, Framebuffer* fbo, std::vector<Line>& lines, EditorWindowType windowType);
 	void ShowResultWindow(const char* title);
-	void RunEditor();
+	void Run();
 
 private:
 	// Hold a reference to source and dest images
@@ -58,6 +58,7 @@ private:
 
 	int m_NumIterations;
 	int m_MaxIterations;
+	int m_ImageIndex;
 	
 	std::vector<Line> m_sourceLines;
 	std::vector<Line> m_destLines;

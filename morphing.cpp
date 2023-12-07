@@ -215,7 +215,7 @@ int main(int argc, char** argv)
 
         // Run the editor
         
-        editor.RunEditor();
+        editor.Run();
 
        
         // Second pass
