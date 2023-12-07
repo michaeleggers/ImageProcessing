@@ -35,16 +35,16 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
     float b = 1.5f;
     float p = 0.3f;
 
-    for (size_t iter = 0; iter < iterations; iter++) {
+    for (uint32_t iter = 0; iter < iterations; iter++) {
         float pct = (float)iter / (float)iterations;
         Image image(sourceImage.m_Width, sourceImage.m_Height, 3); // TODO: Check for channels and handle correctly
 
-        for (size_t y = 0; y < destImage.m_Height; y++) {
-            for (size_t x = 0; x < destImage.m_Width; x++) { // Go through all pixels in destImages
+        for (uint32_t y = 0; y < destImage.m_Height; y++) {
+            for (uint32_t x = 0; x < destImage.m_Width; x++) { // Go through all pixels in destImages
                 glm::vec2 X = glm::vec2(x, y);
                 glm::vec2 DSUM = glm::vec2(0.0, 0.0);
                 float weightsum = 0;     
-                for (size_t i = 0; i < destLines.size(); i++) {
+                for (uint32_t i = 0; i < destLines.size(); i++) {
                     Line& destLine = destLines[i];
                     Line& srcLine = sourceLines[i];
                     glm::vec2 P = destLine.a.pos;
