@@ -185,7 +185,7 @@ int main(int argc, char** argv)
 
     // Create the editor
 
-    Editor editor(&sourceImage, &destImage);
+    Editor editor(sourceImage, destImage);
 
     // Main loop
     

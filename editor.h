@@ -39,17 +39,17 @@ struct EditorMouseInfo {
 
 class Editor {
 public:
-	Editor(Image* sourceImage, Image* destImage);
-	~Editor() {};
+	Editor(Image sourceImage, Image destImage);
+	~Editor();
 
-	void ShowWindow(const char* title, Image* image, Framebuffer* fbo, std::vector<Line>& lines, EditorWindowType windowType);
+	void ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::vector<Line>& lines, EditorWindowType windowType);
 	void ShowResultWindow(const char* title);
 	void Run();
 
 private:
 	// Hold a reference to source and dest images
-	Image* m_sourceImage;
-	Image* m_destImage;
+	Image m_sourceImage;
+	Image m_destImage;
 
 	// Beier-Neely weight parameters
 	float m_A;

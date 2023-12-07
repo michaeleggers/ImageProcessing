@@ -31,12 +31,11 @@ static ImVec2 MousePosToImageCoords(ImVec2 mousePos, ImVec2 widgetMins, ImVec2 w
     return pictureCoords;
 }
 
+
+// NOTE: Keep this as a reference if we want to render own geometry on top of the imgui image FBO
 void ShowWindow(const char* title, Framebuffer& fbo, 
     Shader& shader, Image& image, Batch& batch, std::vector<Line>& lines, EditorWindowType windowType)
 {
- 
-
-    
     // 4.) Bind batch and render (will be the lines later)
 
     //fbo.Bind();
@@ -54,17 +53,12 @@ void ShowWindow(const char* title, Framebuffer& fbo,
     //fbo.Unbind();
 }
 
-void ShowResultWindow(const char* title, Framebuffer& fbo, Shader& shader, std::vector<Image>& images) {
-
-    
-}
-
-Editor::Editor(Image* sourceImage, Image* destImage)
+Editor::Editor(Image sourceImage, Image destImage)
 {
     // TODO: Should we allow source and destination images to be of different size?
     //       If yes, what is the size of the result image?
-    assert(sourceImage->m_Width == destImage->m_Width);
-    assert(sourceImage->m_Height == destImage->m_Height);
+    assert(sourceImage.m_Width == destImage.m_Width);
+    assert(sourceImage.m_Height == destImage.m_Height);
 
     m_sourceImage = sourceImage;
     m_destImage = destImage;
@@ -78,9 +72,9 @@ Editor::Editor(Image* sourceImage, Image* destImage)
     m_ImageIndex = 0;
 
     // Create Framebuffers for windows
-    m_sourceFBO = new Framebuffer(sourceImage->m_Width, sourceImage->m_Height);
-    m_destFBO = new Framebuffer(destImage->m_Width, destImage->m_Height);
-    m_resultFBO = new Framebuffer(sourceImage->m_Width, sourceImage->m_Height);
+    m_sourceFBO = new Framebuffer(sourceImage.m_Width, sourceImage.m_Height);
+    m_destFBO = new Framebuffer(destImage.m_Width, destImage.m_Height);
+    m_resultFBO = new Framebuffer(sourceImage.m_Width, sourceImage.m_Height);
 
     // Shader
     std::string exePath = com_GetExePath();
@@ -97,7 +91,14 @@ Editor::Editor(Image* sourceImage, Image* destImage)
 #endif
 }
 
-void Editor::ShowWindow(const char* title, Image* image, Framebuffer* fbo, std::vector<Line>& lines, EditorWindowType windowType)
+Editor::~Editor()
+{
+    delete m_sourceFBO;
+    delete m_destFBO;
+    delete m_resultFBO;
+}
+
+void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::vector<Line>& lines, EditorWindowType windowType)
 {
     // Setup Window to put the framebuffer into
 
@@ -175,8 +176,8 @@ void Editor::ShowWindow(const char* title, Image* image, Framebuffer* fbo, std::
     // Do the editor logic here. This stuff is pretty messy and should be
     // cleaned up as soon as the program is working!
 
-    float imageWidth = (float)image->m_Width;
-    float imageHeight = (float)image->m_Height;
+    float imageWidth = (float)image.m_Width;
+    float imageHeight = (float)image.m_Height;
 
     if (windowType == ED_WINDOW_TYPE_SOURCE) {
         if (editorState == ED_IDLE) {
@@ -283,7 +284,7 @@ void Editor::ShowWindow(const char* title, Image* image, Framebuffer* fbo, std::
     Batch& unitQuadBatch = GetUnitQuadBatch();
     unitQuadBatch.Bind();
     // 2.) bind texture
-    image->GetTexture().Bind();
+    image.GetTexture().Bind();
     // 3.) render
     m_imageShader.Activate();
     glDrawElements(GL_TRIANGLES, unitQuadBatch.IndexCount(), GL_UNSIGNED_INT, nullptr);
@@ -393,8 +394,8 @@ void Editor::Run()
     ImGui::SliderFloat("p", &m_P, 0.0f, 1.0f);
     ImGui::SliderInt("Iterations", &m_NumIterations, 1, 100);
     if (ImGui::Button("MAGIC!")) {
-        m_sourceToDestMorphs = BeierNeely(m_sourceLines, m_destLines, *m_sourceImage, *m_destImage, m_NumIterations, m_A, m_B, m_P);
-        m_destToSourceMorphs = BeierNeely(m_destLines, m_sourceLines, *m_destImage, *m_sourceImage, m_NumIterations, m_A, m_B, m_P);
+        m_sourceToDestMorphs = BeierNeely(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P);
+        m_destToSourceMorphs = BeierNeely(m_destLines, m_sourceLines, m_destImage, m_sourceImage, m_NumIterations, m_A, m_B, m_P);
         std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end());
         m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);
     }
