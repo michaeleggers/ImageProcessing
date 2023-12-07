@@ -149,23 +149,14 @@ int main(int argc, char** argv)
     ImGui_ImplOpenGL3_Init("#version 330");
 
     // Load Shaders
-    
-    Shader imageShader;
+        
     Shader finalShader;
 #ifdef WIN32
-    if (!imageShader.Load(exePath + "../../shaders/basic.vert", exePath + "../../shaders/basic.frag")) {
-        SDL_Log("Could not load shaders!\n");
-        exit(-1);
-    }
     if (!finalShader.Load(exePath + "../../shaders/final.vert", exePath + "../../shaders/final.frag")) {
         SDL_Log("Could not load shaders!\n");
         exit(-1);
     }
 #elif __APPLE__
-    if (!imageShader.Load(exePath + "/../shaders/basic.vert", exePath + "/../shaders/basic.frag")) {
-        SDL_Log("Could not load shaders!\n");
-        exit(-1);
-    }
     if (!finalShader.Load(exePath + "/../shaders/final.vert", exePath + "/../shaders/final.frag")) {
         SDL_Log("Could not load shaders!\n");
         exit(-1);
@@ -176,59 +167,25 @@ int main(int argc, char** argv)
 
     Batch sourceBatch(1024, 3 * 1024);
     Batch destBatch(1024, 3 * 1024);
-    //std::vector<Vertex> vertices = {
-    //    {glm::vec3(-0.5, 0.5, 1.0), glm::vec3(1.0, 0.0, 0.0),  glm::vec2(0.0, 1.0)},
-    //    {glm::vec3( 0.5, 0.5, 1.0), glm::vec3(0.0, 1.0, 0.0),  glm::vec2(1.0, 1.0)},
-    //    {glm::vec3( 0.5, -0.5, 1.0), glm::vec3(0.0, 0.0, 1.0), glm::vec2(1.0, 0.0)},
-    //    {glm::vec3(-0.5, -0.5, 1.0), glm::vec3(0.0, 1.0, 1.0), glm::vec2(0.0, 0.0)}
-    //};
-    //std::vector<uint32_t> indices = {
-    //    0, 1, 2,
-    //    2, 3, 0
-    //};
-    //std::vector<Vertex> vertices2 = {
-    //    {glm::vec3(-0.3, 0.7, 1.0), glm::vec3(1.0, 0.0, 0.0),  glm::vec2(0.0, 1.0)},
-    //    {glm::vec3(0.7, 0.7, 1.0), glm::vec3(0.0, 1.0, 0.0),   glm::vec2(1.0, 1.0)},
-    //    {glm::vec3(0.7, -0.3, 1.0), glm::vec3(0.0, 0.0, 1.0),  glm::vec2(1.0, 0.0)},
-    //    {glm::vec3(-0.3, -0.3, 1.0), glm::vec3(0.0, 1.0, 1.0), glm::vec2(0.0, 0.0)}
-    //};
-    //std::vector<uint32_t> indices2 = { // TODO: Simplify this. Maybe don't access batches directly.
-    //    4, 5, 6,
-    //    6, 7, 4
-    //};
-    //batch.Add(&vertices[0], vertices.size(), &indices[0], indices.size());
-    //batch.Add(&vertices2[0], vertices2.size(), &indices2[0], indices2.size());
-
 
     // Load image that will be presented in imgui window
 
 #ifdef WIN32
-    Image sourceImage(exePath + "../../assets/guy_squared.bmp");
-    Image destImage(exePath + "../../assets/gal_squared.bmp");
+    Image sourceImage(exePath + "../../assets/guy.bmp");
+    Image destImage(exePath + "../../assets/gal.bmp");
 #elif __APPLE__
     Image sourceImage(exePath + "/../assets/guy_squared.bmp");
     Image destImage(exePath + "/../assets/gal_squared.bmp");
 #endif
 
-    // Create Framebuffer that will be rendered to and displayed in a imgui frame
-    Framebuffer sourceFBO(sourceImage.m_Width, sourceImage.m_Height);
-    Framebuffer destFBO(destImage.m_Width, destImage.m_Height);
-    Framebuffer resultFBO(sourceFBO.m_Width, sourceFBO.m_Height);
-
-    // List of linesegments
-    std::vector<Line> sourceLines;
-    std::vector<Line> destLines;
-
-    // Results
-
-    std::vector<Image> sourceToDestMorphs;
-    std::vector<Image> destToSourceMorphs;
-    std::vector<Image> morphedImages;
-
     // Some OpenGL global settings
 
     glFrontFace(GL_CW); // front faces are in clockwise order
     glCullFace(GL_FALSE);
+
+    // Create the editor
+
+    Editor editor(&sourceImage, &destImage);
 
     // Main loop
     
@@ -256,31 +213,9 @@ int main(int argc, char** argv)
 
         // Draw stuff
 
-        // Own imgui window we render the fbo into
+        // Run the editor
         
-        ShowWindow("Source", sourceFBO, imageShader, sourceImage, sourceBatch, sourceLines, ED_WINDOW_TYPE_SOURCE);
-        ShowWindow("Destination", destFBO, imageShader, destImage, destBatch, destLines, ED_WINDOW_TYPE_DEST);
-        
-        ImGui::Begin("Control Panel");
-        static int numIterations = 0;
-        static float a = 0.001f;
-        static float b = 3.5f;
-        static float p = 0.0f;
-        ImGui::SliderFloat("a", &a, 0.0f, 2.0f);
-        ImGui::SliderFloat("b", &b, 0.0f, 20.0f);
-        ImGui::SliderFloat("p", &p, 0.0f, 1.0f);
-        ImGui::SliderInt("Iterations", &numIterations, 1, 100);            
-        if (ImGui::Button("MAGIC!")) {
-            sourceToDestMorphs = BeierNeely(sourceLines, destLines, sourceImage, destImage, numIterations, a, b, p);
-            destToSourceMorphs = BeierNeely(destLines, sourceLines, destImage, sourceImage, numIterations, a, b, p);
-            std::reverse(destToSourceMorphs.begin(), destToSourceMorphs.end());
-            morphedImages = BlendImages(sourceToDestMorphs, destToSourceMorphs);
-        }        
-        
-        if (!morphedImages.empty()) {            
-            ShowResultWindow("Result", resultFBO, imageShader, morphedImages);
-        }
-        ImGui::End();
+        editor.RunEditor();
 
        
         // Second pass

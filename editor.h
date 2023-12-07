@@ -36,8 +36,45 @@ struct EditorMouseInfo {
 	ImVec2 pos2;
 };
 
-void ShowWindow(const char* title, Framebuffer& fbo, Shader& shader, Image& image, Batch& batch, std::vector<Line>& lines, EditorWindowType windowType);
-void ShowResultWindow(const char* title, Framebuffer& fbo, Shader& shader, std::vector<Image>& images);
+
+class Editor {
+public:
+	Editor(Image* sourceImage, Image* destImage);
+	~Editor() {};
+
+	void ShowWindow(const char* title, Image* image, Framebuffer* fbo, std::vector<Line>& lines, EditorWindowType windowType);
+	void ShowResultWindow(const char* title);
+	void RunEditor();
+
+private:
+	// Hold a reference to source and dest images
+	Image* m_sourceImage;
+	Image* m_destImage;
+
+	// Beier-Neely weight parameters
+	float m_A;
+	float m_B;
+	float m_P;
+
+	int m_NumIterations;
+	int m_MaxIterations;
+	
+	std::vector<Line> m_sourceLines;
+	std::vector<Line> m_destLines;
+
+	// Results
+	std::vector<Image> m_sourceToDestMorphs;
+	std::vector<Image> m_destToSourceMorphs;
+	std::vector<Image> m_blendedImages;
+
+	// Framebuffers for ImGUI windows to render our images into
+	Framebuffer* m_sourceFBO; 
+	Framebuffer* m_destFBO;
+	Framebuffer* m_resultFBO;
+
+	// Shader to render the images
+	Shader m_imageShader;
+};
 
 #endif
 

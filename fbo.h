@@ -8,6 +8,11 @@
 class Framebuffer {
 
 public:
+	Framebuffer() {
+		m_Width = 0;
+		m_Height = 0;
+		m_FBO = 0;
+	};
 	Framebuffer(int width, int height);
 	~Framebuffer();
 
@@ -18,6 +23,7 @@ public:
 
 	int		m_Width;
 	int		m_Height;
+
 private:
 	GLuint	m_FBO;
 	Texture m_Texture;

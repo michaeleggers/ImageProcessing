@@ -13,6 +13,12 @@
 
 class Image {
 public:
+	Image() {
+		m_Width = 0;
+		m_Height = 0;
+		m_Channels = 0;
+		m_Data = nullptr;
+	};
 	Image(std::string filePath);
 	Image(uint32_t width, uint32_t height, uint32_t channels);
 	~Image();
