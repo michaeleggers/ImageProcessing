@@ -25,15 +25,12 @@ static glm::vec2 Perpendicular(glm::vec2& a) {
     return glm::length(a) * perp;
 }
 
-std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>& destLines, Image& sourceImage, Image& destImage, uint32_t iterations)
+std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>& destLines, Image& sourceImage, Image& destImage, uint32_t iterations,
+                               float a, float b, float p)
 {
     std::vector<Image> result;
 
     // constants
-
-    float a = 0.01f;
-    float b = 1.5f;
-    float p = 0.3f;
 
     for (uint32_t iter = 0; iter < iterations; iter++) {
         float pct = (float)iter / (float)iterations;

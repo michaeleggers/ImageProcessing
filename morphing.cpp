@@ -263,10 +263,16 @@ int main(int argc, char** argv)
         
         ImGui::Begin("Control Panel");
         static int numIterations = 0;
+        static float a = 0.001f;
+        static float b = 3.5f;
+        static float p = 0.0f;
+        ImGui::SliderFloat("a", &a, 0.0f, 2.0f);
+        ImGui::SliderFloat("b", &b, 0.0f, 20.0f);
+        ImGui::SliderFloat("p", &p, 0.0f, 1.0f);
         ImGui::SliderInt("Iterations", &numIterations, 1, 100);            
         if (ImGui::Button("MAGIC!")) {
-            sourceToDestMorphs = BeierNeely(sourceLines, destLines, sourceImage, destImage, numIterations);
-            destToSourceMorphs = BeierNeely(destLines, sourceLines, destImage, sourceImage, numIterations);
+            sourceToDestMorphs = BeierNeely(sourceLines, destLines, sourceImage, destImage, numIterations, a, b, p);
+            destToSourceMorphs = BeierNeely(destLines, sourceLines, destImage, sourceImage, numIterations, a, b, p);
             std::reverse(destToSourceMorphs.begin(), destToSourceMorphs.end());
             morphedImages = BlendImages(sourceToDestMorphs, destToSourceMorphs);
         }        

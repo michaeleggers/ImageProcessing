@@ -318,6 +318,7 @@ void ShowResultWindow(const char* title, Framebuffer& fbo, Shader& shader, std::
 
     static int imageIndex = 0;
     ImGui::SliderInt("Image Index", &imageIndex, 0, images.size() - 1);
+
     //ImGui::SetCursorPos(ImGui::GetWindowPos());
 
     ImGui::End();
