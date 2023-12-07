@@ -397,7 +397,7 @@ void Editor::Run()
         m_sourceToDestMorphs = BeierNeely(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P);
         m_destToSourceMorphs = BeierNeely(m_destLines, m_sourceLines, m_destImage, m_sourceImage, m_NumIterations, m_A, m_B, m_P);
         std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end());
-        m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);
+        m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);        
     }
 
     if (!m_blendedImages.empty()) {

@@ -19,6 +19,9 @@
 //   interpolate the lines correctly and *then* compute the resulting pixel.
 //   This will be computationally more taxing but could result in better warping and therefore
 //   less noticable blending between source and destination image.
+//
+// Fixed Bugs:
+// - (12.7.2023) It seems that the sequence is not being fully processed. The last image in the result window still shows parts of the source image
 
 
 
@@ -171,8 +174,8 @@ int main(int argc, char** argv)
     // Load image that will be presented in imgui window
 
 #ifdef WIN32
-    Image sourceImage(exePath + "../../assets/guy.bmp");
-    Image destImage(exePath + "../../assets/gal.bmp");
+    Image sourceImage(exePath + "../../assets/guy_squared.bmp");
+    Image destImage(exePath + "../../assets/gal_squared.bmp");
 #elif __APPLE__
     Image sourceImage(exePath + "/../assets/guy_squared.bmp");
     Image destImage(exePath + "/../assets/gal_squared.bmp");

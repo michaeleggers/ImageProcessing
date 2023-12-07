@@ -32,7 +32,7 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
 
     // constants
 
-    for (uint32_t iter = 0; iter < iterations; iter++) {
+    for (uint32_t iter = 0; iter <= iterations; iter++) {
         float pct = (float)iter / (float)iterations;
         Image image(sourceImage.m_Width, sourceImage.m_Height, 3); // TODO: Check for channels and handle correctly
 
@@ -92,15 +92,15 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
 
         result.push_back(image);
     }
-   
+
     return result;
 }
 
 std::vector<Image> BlendImages(std::vector<Image>& a, std::vector<Image>& b) {
-    std::vector<Image> result;
-    size_t numImages = a.size();    
+    std::vector<Image> result;    
+    size_t numImages = a.size();
     for (int i = 0; i < numImages; i++) {
-        float pct = (float)i / (float)numImages;
+        float pct = (float)i / (float)(numImages-1);
         Image blendedImage = Image::Blend(a[i], b[i], pct);
         result.push_back(blendedImage);
     }
