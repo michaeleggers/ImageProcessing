@@ -45,7 +45,7 @@ std::string com_GetExePath(void)
 	char out_buffer[256];
 	uint32_t buffer_size = 256;
 	
-	int error = _NSGetExecutablePath(out_buffer, &u_buffer_size);
+	int error = _NSGetExecutablePath(out_buffer, &buffer_size);
 	if (error) {
 		// TOOO: handle error
 	}
@@ -62,8 +62,8 @@ std::string com_GetExePath(void)
 
 ATP_Status atp_read_file(char const* filename, ATP_File* out_File) {
 	FILE* file = 0;
-	if (fopen_s(&file, filename, "rb") != 0)
-	{
+	file = fopen(filename, "rb");
+	if (file == 0) {
 		printf("Failed to open file: %s\n", filename);
 		return ATP_ERROR_READ_FILE;
 	}

@@ -151,15 +151,26 @@ int main(int argc, char** argv)
     // Load Shaders
     
     Shader imageShader;
+    Shader finalShader;
+#ifdef WIN32
     if (!imageShader.Load(exePath + "../../shaders/basic.vert", exePath + "../../shaders/basic.frag")) {
         SDL_Log("Could not load shaders!\n");
         exit(-1);
-    }   
-    Shader finalShader;
+    }
     if (!finalShader.Load(exePath + "../../shaders/final.vert", exePath + "../../shaders/final.frag")) {
         SDL_Log("Could not load shaders!\n");
         exit(-1);
     }
+#elif __APPLE__
+    if (!imageShader.Load(exePath + "/../shaders/basic.vert", exePath + "/../shaders/basic.frag")) {
+        SDL_Log("Could not load shaders!\n");
+        exit(-1);
+    }
+    if (!finalShader.Load(exePath + "/../shaders/final.vert", exePath + "/../shaders/final.frag")) {
+        SDL_Log("Could not load shaders!\n");
+        exit(-1);
+    }
+#endif
 
     // Start a new batch and add a triangle
 
@@ -195,8 +206,8 @@ int main(int argc, char** argv)
     Image sourceImage(exePath + "../../assets/guy_squared.bmp");
     Image destImage(exePath + "../../assets/gal_squared.bmp");
 #elif __APPLE__
-    Image sourceImage(exePath + "../assets/guy_squared.bmp");
-    Image destImage(exePath + "../assets/gal_squared.bmp");
+    Image sourceImage(exePath + "/../assets/guy_squared.bmp");
+    Image destImage(exePath + "/../assets/gal_squared.bmp");
 #endif
 
     // Create Framebuffer that will be rendered to and displayed in a imgui frame
