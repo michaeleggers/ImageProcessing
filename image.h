@@ -20,7 +20,7 @@ public:
 	Texture& GetTexture();
 	void CreateTexture();
 
-	const glm::ivec3& operator()(size_t x, size_t y) {
+	const glm::ivec3 operator()(uint32_t x, uint32_t y) {
 		unsigned char* pixel = m_Data + ((y * m_Width + x) * m_Channels);
 		return glm::ivec3(pixel[0], pixel[1], pixel[2]);		
 	}
