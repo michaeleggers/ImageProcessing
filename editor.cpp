@@ -30,9 +30,10 @@ static ImVec2 MousePosToImageCoords(ImVec2 mousePos, ImVec2 widgetMins, ImVec2 w
 
 
 // NOTE: Keep this as a reference if we want to render own geometry on top of the imgui image FBO
-void ShowWindow(const char* title, Framebuffer& fbo, 
-    Shader& shader, Image& image, Batch& batch, std::vector<Line>& lines, EditorWindowType windowType)
-{
+// 
+//void ShowWindow(const char* title, Framebuffer& fbo, 
+//    Shader& shader, Image& image, Batch& batch, std::vector<Line>& lines, EditorWindowType windowType)
+//{
     // 4.) Bind batch and render (will be the lines later)
 
     //fbo.Bind();
@@ -48,7 +49,7 @@ void ShowWindow(const char* title, Framebuffer& fbo,
     ////glUniformMatrix4fv(orthoMatrixLocation, 1, GL_FALSE, glm::value_ptr(ortho));
     //glDrawElements(GL_TRIANGLES, batch.IndexCount(), GL_UNSIGNED_INT, nullptr);
     //fbo.Unbind();
-}
+//}
 
 Editor::Editor(Image sourceImage, Image destImage)
 {
@@ -119,11 +120,6 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
 
     float imguiWindowWidth = ImGui::GetContentRegionAvail().x;
     float imguiWindowHeight = ImGui::GetContentRegionAvail().y;
-    float imguiWindowPosX = ImGui::GetCursorScreenPos().x;
-    float imguiWindowPosY = ImGui::GetCursorScreenPos().y;
-    float mousePosImGuiWindowX = ImGui::GetMousePos().x - imguiWindowPosX;
-    float mousePosImGuiWindowY = ImGui::GetMousePos().y - imguiWindowPosY;
-    ImVec2 mousePosInWindow = ImVec2(mousePosImGuiWindowX, mousePosImGuiWindowY);
 
     // safe guard for potential div by 0
 
@@ -134,8 +130,7 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
         imguiWindowHeight = 1.0;
     }
 
-    ImVec2 pos = ImGui::GetCursorScreenPos();
-    float aspect = 0.0f;
+    ImVec2 pos = ImGui::GetCursorScreenPos();    
     float srcAspect = (float)fbo->m_Width / (float)fbo->m_Height;
     float dstAspect = imguiWindowWidth / imguiWindowHeight;
     float newWidth = 0.0f;
@@ -321,8 +316,7 @@ void Editor::ShowResultWindow(const char* title)
         imguiWindowHeight = 1.0;
     }
 
-    ImVec2 pos = ImGui::GetCursorScreenPos();
-    float aspect = 0.0f;
+    ImVec2 pos = ImGui::GetCursorScreenPos();    
     float srcAspect = (float)m_resultFBO->m_Width / (float)m_resultFBO->m_Height;
     float dstAspect = imguiWindowWidth / imguiWindowHeight;
     float newWidth = 0.0f;

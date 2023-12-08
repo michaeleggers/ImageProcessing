@@ -189,6 +189,7 @@ int main(int argc, char** argv)
     // Create the editor
 
     Editor editor(sourceImage, destImage);
+    Editor editor2(destImage, sourceImage);
 
     // Main loop
     
@@ -218,9 +219,8 @@ int main(int argc, char** argv)
 
         // Run the editor
         
-        editor.Run();
+        editor.Run();        
 
-       
         // Second pass
 
         // Tell opengl about window size to make correct transform into screenspace
