@@ -104,8 +104,7 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
 {
     // Setup Window to put the framebuffer into
 
-    ImGui::Begin(title);
-
+    ImGui::Begin(title);    
     //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     //ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 
@@ -380,6 +379,11 @@ void Editor::ShowResultWindow(const char* title)
 
 void Editor::Run()
 {
+    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+
+    ImGui::Begin("Editor");    
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
     ShowWindow("Source", m_sourceImage, m_sourceFBO, m_sourceLines, ED_WINDOW_TYPE_SOURCE);
     ShowWindow("Destination", m_destImage, m_destFBO, m_destLines, ED_WINDOW_TYPE_DEST);
 
@@ -399,4 +403,6 @@ void Editor::Run()
         ShowResultWindow("Result");
     }
     ImGui::End();
+
+    ImGui::End(); // Editor
 }
