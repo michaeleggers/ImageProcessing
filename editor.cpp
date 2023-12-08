@@ -17,9 +17,6 @@
 #include "common.h"
 #include "beierneely.h"
 
-static EditorState      editorState;
-static EditorMouseState editorMouseState;
-static EditorMouseInfo  editorMouseInfo;
 
 static ImVec2 MousePosToImageCoords(ImVec2 mousePos, ImVec2 widgetMins, ImVec2 widgetSize, ImVec2 imageSize) {
     ImVec2 mousePosInButton = ImVec2(mousePos.x - widgetMins.x, mousePos.y - widgetMins.y);
@@ -59,6 +56,10 @@ Editor::Editor(Image sourceImage, Image destImage)
     //       If yes, what is the size of the result image?
     assert(sourceImage.m_Width == destImage.m_Width);
     assert(sourceImage.m_Height == destImage.m_Height);
+
+    m_editorState = ED_IDLE;
+    m_editorMouseState = ED_MOUSE_IDLE;
+    m_editorMouseInfo = {ImVec2(0, 0), ImVec2(0, 0)};
 
     m_sourceImage = sourceImage;
     m_destImage = destImage;
@@ -180,25 +181,25 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
     float imageHeight = (float)image.m_Height;
 
     if (windowType == ED_WINDOW_TYPE_SOURCE) {
-        if (editorState == ED_IDLE) {
+        if (m_editorState == ED_IDLE) {
             if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                 ImVec2 mousePos = ImGui::GetMousePos();
                 printf("mousePos: %f, %f\n", mousePos.x, mousePos.y);
-                editorMouseInfo.pos1 = mousePos;
+                m_editorMouseInfo.pos1 = mousePos;
                 ImVec2 pictureCoords = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
                 printf("mouse %f, %f:\n", pictureCoords.x, pictureCoords.y);
-                editorState = ED_PLACE_SOURCE_LINE;
+                m_editorState = ED_PLACE_SOURCE_LINE;
             }
         }
-        else if (editorState == ED_PLACE_SOURCE_LINE) {
+        else if (m_editorState == ED_PLACE_SOURCE_LINE) {
             ImVec2 mousePos = ImGui::GetMousePos();
-            drawList->AddLine(editorMouseInfo.pos1, mousePos,
+            drawList->AddLine(m_editorMouseInfo.pos1, mousePos,
                 ImGui::GetColorU32(ImVec4(255, 250, 0, 255)),
                 5.0);
             if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                ImVec2 pictureCoordsA = MousePosToImageCoords(editorMouseInfo.pos1, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
+                ImVec2 pictureCoordsA = MousePosToImageCoords(m_editorMouseInfo.pos1, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
                 ImVec2 pictureCoordsB = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
-                ImVec2 mousePosInButtonA = ImVec2(editorMouseInfo.pos1.x - buttonMin.x, editorMouseInfo.pos1.y - buttonMin.y);
+                ImVec2 mousePosInButtonA = ImVec2(m_editorMouseInfo.pos1.x - buttonMin.x, m_editorMouseInfo.pos1.y - buttonMin.y);
                 ImVec2 mousePosInButtonB = ImVec2(mousePos.x - buttonMin.x, mousePos.y - buttonMin.y);
 
                 lines.push_back({
@@ -211,28 +212,28 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
                 for (auto& line : lines) {
                     printf("(%f, %f) -> (%f, %f)\n", line.a.pos.x, line.a.pos.y, line.b.pos.x, line.b.pos.y);
                 }
-                editorState = ED_PLACE_DEST_LINE_1;
+                m_editorState = ED_PLACE_DEST_LINE_1;
             }
         }
     }
     else if (windowType == ED_WINDOW_TYPE_DEST) {
-        if (editorState == ED_PLACE_DEST_LINE_1) {
+        if (m_editorState == ED_PLACE_DEST_LINE_1) {
             if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                 ImVec2 mousePos = ImGui::GetMousePos();
-                editorMouseInfo.pos1 = mousePos;
+                m_editorMouseInfo.pos1 = mousePos;
                 ImVec2 pictureCoords = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
-                editorState = ED_PLACE_DEST_LINE_2;
+                m_editorState = ED_PLACE_DEST_LINE_2;
             }
         }
-        else if (editorState == ED_PLACE_DEST_LINE_2) {
+        else if (m_editorState == ED_PLACE_DEST_LINE_2) {
             ImVec2 mousePos = ImGui::GetMousePos();
-            drawList->AddLine(editorMouseInfo.pos1, mousePos,
+            drawList->AddLine(m_editorMouseInfo.pos1, mousePos,
                 ImGui::GetColorU32(ImVec4(255, 250, 0, 255)),
                 5.0);
             if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                ImVec2 pictureCoordsA = MousePosToImageCoords(editorMouseInfo.pos1, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
+                ImVec2 pictureCoordsA = MousePosToImageCoords(m_editorMouseInfo.pos1, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
                 ImVec2 pictureCoordsB = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
-                ImVec2 mousePosInButtonA = ImVec2(editorMouseInfo.pos1.x - buttonMin.x, editorMouseInfo.pos1.y - buttonMin.y);
+                ImVec2 mousePosInButtonA = ImVec2(m_editorMouseInfo.pos1.x - buttonMin.x, m_editorMouseInfo.pos1.y - buttonMin.y);
                 ImVec2 mousePosInButtonB = ImVec2(mousePos.x - buttonMin.x, mousePos.y - buttonMin.y);
 
                 lines.push_back({
@@ -245,7 +246,7 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
                 for (auto& line : lines) {
                     printf("(%f, %f) -> (%f, %f)\n", line.a.pos.x, line.a.pos.y, line.b.pos.x, line.b.pos.y);
                 }
-                editorState = ED_IDLE;
+                m_editorState = ED_IDLE;
             }
         }
     }

@@ -47,6 +47,10 @@ public:
 	void Run();
 
 private:
+	EditorState      m_editorState;
+	EditorMouseState m_editorMouseState;
+	EditorMouseInfo  m_editorMouseInfo;
+
 	// Hold a reference to source and dest images
 	Image m_sourceImage;
 	Image m_destImage;
