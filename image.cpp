@@ -48,8 +48,8 @@ void Image::CreateTexture()
 Image Image::Blend(Image& a, Image& b, float pct)
 {
 	Image result(a.m_Width, a.m_Height, a.m_Channels);
-	for (size_t y = 0; y < a.m_Height; y++) {
-		for (size_t x = 0; x < a.m_Width; x++) {
+	for (uint32_t y = 0; y < a.m_Height; y++) {
+		for (uint32_t x = 0; x < a.m_Width; x++) {
 			glm::ivec3 pixelA = a(x, y);
 			glm::ivec3 pixelB = b(x, y);
 			glm::ivec3 blendedPixel;

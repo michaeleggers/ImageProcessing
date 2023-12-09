@@ -296,6 +296,8 @@ void Editor::ShowResultWindow(const char* title)
 
     // Do not drag the window when left clicking and dragging
 
+    // TODO: This is wrong! This sets global state but we don't want that. For individual input
+    // capture there is something else. google it!
     if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
         ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = false;
     }
@@ -315,7 +317,6 @@ void Editor::ShowResultWindow(const char* title)
         imguiWindowHeight = 1.0;
     }
 
-    ImVec2 pos = ImGui::GetCursorScreenPos();    
     float srcAspect = (float)m_resultFBO->m_Width / (float)m_resultFBO->m_Height;
     float dstAspect = imguiWindowWidth / imguiWindowHeight;
     float newWidth = 0.0f;
@@ -332,53 +333,16 @@ void Editor::ShowResultWindow(const char* title)
     float posOffsetX = (imguiWindowWidth - newWidth) / 2.0f;
     float posOffsetY = (imguiWindowHeight - newHeight) / 2.0f;
 
-    ImVec2 buttonSize(newWidth, newHeight); // Size of the invisible button
-    ImVec2 buttonPosition(ImGui::GetCursorPosX() + posOffsetX, ImGui::GetCursorPosY() + posOffsetY); // Position of the button
+    ImVec2 imageSize(newWidth, newHeight);
+    ImVec2 imagePosition(ImGui::GetCursorPosX() + posOffsetX, ImGui::GetCursorPosY() + posOffsetY);
 
-    // Render the invisible button
-    ImGui::SetCursorPos(buttonPosition);
-    ImGui::InvisibleButton("##resultCanvas", buttonSize,
-        ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight |
-        ImGuiButtonFlags_MouseButtonMiddle);
-
-    ImVec2 buttonMin = ImGui::GetItemRectMin();
-    ImVec2 buttonMax = ImGui::GetItemRectMax();   
-
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-    for (int i = 0; i < m_blendedImages.size(); i++) {
-        drawList->AddImage(
-            (void*)m_resultFBO->GetTexture().GetHandle(),
-            buttonMin,
-            buttonMax,
-            ImVec2(0, 0),
-            ImVec2(1, 1)
-        );
-    }
-   
-    //ImGui::SetCursorPos(ImVec2(buttonPosition.x, buttonPosition.y + buttonMax.y));
-    ImGui::SetCursorPosX(buttonPosition.x);
-    ImGui::PushItemWidth(buttonSize.x);
+    ImGui::SetCursorPos(imagePosition);
+    ImGui::Image((void*)(intptr_t)m_blendedImages[m_ImageIndex].GetTexture().GetHandle(), ImVec2(newWidth, newHeight));
+    ImGui::SetCursorPosX(imagePosition.x);
+    ImGui::PushItemWidth(imageSize.x);
     ImGui::SliderInt("", &m_ImageIndex, 0, m_blendedImages.size() - 1);
 
-    //ImGui::SetCursorPos(ImGui::GetWindowPos());
-
     ImGui::End();
-
-    m_resultFBO->Bind();
-
-    glViewport(0, 0, m_resultFBO->m_Width, m_resultFBO->m_Height);
-    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    // 1.) bind a quad with the images dimension.
-    Batch& unitQuadBatch = GetUnitQuadBatch();
-    unitQuadBatch.Bind();
-    m_imageShader.Activate();
-    // 2.) bind texture
-
-    m_blendedImages[m_ImageIndex].GetTexture().Bind();
-    glDrawElements(GL_TRIANGLES, unitQuadBatch.IndexCount(), GL_UNSIGNED_INT, nullptr);
-
-    m_resultFBO->Unbind();
 }
 
 void Editor::Run()
