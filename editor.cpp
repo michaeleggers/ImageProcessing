@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 
 #include "imgui.h"
+#include "tinyfiledialogs.h"
 
 #include "batch.h"
 #include "fbo.h"
@@ -356,6 +357,33 @@ void Editor::Run()
     ShowWindow("Destination", m_destImage, m_destFBO, m_destLines, ED_WINDOW_TYPE_DEST);
 
     ImGui::Begin("Control Panel");
+    const char* fileFilterList[] = { "*.mph" };
+    if (ImGui::Button("Save Project")) {
+        char const* saveDialogRet = tinyfd_saveFileDialog(
+            "Save Project", // ""
+            "", // ""
+            1, // 0
+            fileFilterList, // NULL | {"*.txt"}
+            "Morph MPH files"); // NULL | "text files"
+        if (saveDialogRet == NULL) {
+            SDL_Log("Save Project cancelled\n");
+        }
+        else {
+            // Sample data to save
+            const char* dataToSave = "This is the data to be saved in the file.";
+
+            FILE* file = fopen(saveDialogRet, "w"); // Open the file in write mode
+            if (file != NULL) {                
+                fwrite(dataToSave, sizeof(char), strlen(dataToSave), file);
+                fclose(file);
+                SDL_Log("Data saved to %s\n", saveDialogRet);
+            }
+            else {
+                SDL_Log("Error opening file for writing.\n");
+            }
+        }
+    }
+    ImGui::Button("LoadProject");
     ImGui::SliderFloat("a", &m_A, 0.0f, 2.0f);
     ImGui::SliderFloat("b", &m_B, 0.0f, 20.0f);
     ImGui::SliderFloat("p", &m_P, 0.0f, 1.0f);

@@ -98,6 +98,9 @@ add_executable(Morphing
 	dependencies/imgui/backends/imgui_impl_sdl2.cpp
 	dependencies/imgui/backends/imgui_impl_sdl2.h
 
+	dependencies/tinyfiledialogs/tinyfiledialogs.h
+	dependencies/tinyfiledialogs/tinyfiledialogs.c
+
 	dependencies/glad/src/glad.c
 )
 
@@ -105,6 +108,7 @@ target_include_directories(Morphing
     PUBLIC dependencies
 	PUBLIC dependencies/glad/include
 	PUBLIC dependencies/imgui
+	PUBLIC dependencies/tinyfiledialogs
 )
 
 target_link_libraries(Morphing PUBLIC
