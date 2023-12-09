@@ -328,6 +328,7 @@ void Editor::ShowResultWindow(const char* title)
         newWidth = imguiWindowHeight * srcAspect;
         newHeight = imguiWindowHeight;
     }
+
     float posOffsetX = (imguiWindowWidth - newWidth) / 2.0f;
     float posOffsetY = (imguiWindowHeight - newHeight) / 2.0f;
 
@@ -341,9 +342,9 @@ void Editor::ShowResultWindow(const char* title)
         ImGuiButtonFlags_MouseButtonMiddle);
 
     ImVec2 buttonMin = ImGui::GetItemRectMin();
-    ImVec2 buttonMax = ImGui::GetItemRectMax();
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    ImVec2 buttonMax = ImGui::GetItemRectMax();   
 
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
     for (int i = 0; i < m_blendedImages.size(); i++) {
         drawList->AddImage(
             (void*)m_resultFBO->GetTexture().GetHandle(),
@@ -354,7 +355,10 @@ void Editor::ShowResultWindow(const char* title)
         );
     }
    
-    ImGui::SliderInt("Image Index", &m_ImageIndex, 0, m_blendedImages.size() - 1);
+    //ImGui::SetCursorPos(ImVec2(buttonPosition.x, buttonPosition.y + buttonMax.y));
+    ImGui::SetCursorPosX(buttonPosition.x);
+    ImGui::PushItemWidth(buttonSize.x);
+    ImGui::SliderInt("", &m_ImageIndex, 0, m_blendedImages.size() - 1);
 
     //ImGui::SetCursorPos(ImGui::GetWindowPos());
 
