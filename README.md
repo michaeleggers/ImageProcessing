@@ -2,6 +2,23 @@
 
 ## Morphing
 
+### Build
+
+You need CMake to generate Makefiles and/or project files for your IDE.
+
+1.) Create folder in the root of the repo called ```build```.
+
+2.) ```cd``` into build and run
+```bash
+cmake ..
+```
+The default target should be built by CMake. To check what is your default target
+run
+```bash
+cmake -G
+```
+
+
 ### References
 
 Beier-Neely algorithm:
