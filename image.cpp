@@ -3,11 +3,12 @@
 #include <SDL2/SDL.h>
 
 #include "texture.h"
+#include "common.h" 
 
 #include "stb_image.h"
 
 Image::Image(std::string filePath)
-{
+{	
 	int x, y, n;
 	m_Data = stbi_load(filePath.c_str(), &x, &y, &n, 3);
 	if (!m_Data) {
@@ -17,6 +18,8 @@ Image::Image(std::string filePath)
 	m_Width = x;
 	m_Height = y;
 	m_Channels = n;
+	m_DataFromFile = true;
+	m_FilePath = filePath;
 	m_Texture = Texture(m_Data, m_Width, m_Height);
 }
 
@@ -26,6 +29,8 @@ Image::Image(uint32_t width, uint32_t height, uint32_t channels)
 	m_Height = height;
 	m_Channels = channels;
 	m_Data = (unsigned char*)malloc(m_Width * m_Height * m_Channels * sizeof(unsigned char));
+	m_DataFromFile = false;
+	m_FilePath = "";
 	m_Texture = Texture(nullptr, m_Width, m_Height);
 }
 

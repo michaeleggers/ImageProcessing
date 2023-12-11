@@ -36,6 +36,8 @@ public:
 	uint32_t		m_Width, m_Height;
 	uint32_t		m_Channels;
 	unsigned char * m_Data;
+	bool			m_DataFromFile;
+	std::string		m_FilePath;
 private:
 	Texture			m_Texture;
 };

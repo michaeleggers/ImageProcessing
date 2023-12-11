@@ -1,5 +1,7 @@
 #include "editor.h"
 
+#include <stdlib.h>
+
 #include <vector>
 #include <algorithm>
 
@@ -18,6 +20,56 @@
 #include "common.h"
 #include "beierneely.h"
 
+std::string LineToString(Line& line) {
+    std::string result;
+    // Image coordinates that the beier-neely algorithm uses
+    glm::vec3 aPos = line.a.pos;
+    glm::vec3 bPos = line.b.pos;
+    // Info for the editor to display lines correctly
+    ImVec2 absA = line.absA;
+    ImVec2 absB = line.absB;
+    ImVec2 editorScale = line.buttonSize; // TODO: Rename buttonSize -> widgetSize or something like that
+
+    result += std::to_string(aPos.x); result += " ";
+    result += std::to_string(aPos.y); result += " ";
+    result += std::to_string(absA.x); result += " ";
+    result += std::to_string(absA.y); result += " ";
+    result += std::to_string(editorScale.x); result += " ";
+    result += std::to_string(editorScale.y);
+
+    return result;
+}
+
+void WriteProjectFile(std::string pathAndFileName, std::vector<Line>& sourceLines, std::vector<Line>& destLines, std::string sourceImagePath, std::string destImagePath) {
+    // Create string to write
+    const char* dataToSave = "This is the data to be saved in the file.";
+    std::string result;
+    result += "src_img_path " + sourceImagePath + "\n";
+    result += "dst_img_path " + destImagePath+ "\n";
+
+    size_t numLinesPairs = sourceLines.size();
+    // TODO: Give warning if sourceLines.size() != destLines.size()
+    result += "src\n";
+    for (size_t i = 0; i < numLinesPairs; i++) {
+        std::string lineString = std::to_string(i) + " " + LineToString(sourceLines[i]);
+        result += lineString + "\n";
+    }
+    result += "dst\n";
+    for (size_t i = 0; i < numLinesPairs; i++) {
+        std::string lineString = std::to_string(i) + " " + LineToString(destLines[i]);
+        result += lineString + "\n";
+    }
+
+    FILE* file = fopen(pathAndFileName.c_str(), "w"); // Open the file in write mode
+    if (file != NULL) {
+        fwrite(result.data(), sizeof(char), result.size(), file);
+        fclose(file);
+        SDL_Log("Data saved to %s\n", pathAndFileName.c_str());
+    }
+    else {
+        SDL_Log("Error opening file for writing.\n");
+    }
+}
 
 static ImVec2 MousePosToImageCoords(ImVec2 mousePos, ImVec2 widgetMins, ImVec2 widgetSize, ImVec2 imageSize) {
     ImVec2 mousePosInButton = ImVec2(mousePos.x - widgetMins.x, mousePos.y - widgetMins.y);
@@ -341,7 +393,7 @@ void Editor::ShowResultWindow(const char* title)
     ImGui::Image((void*)(intptr_t)m_blendedImages[m_ImageIndex].GetTexture().GetHandle(), ImVec2(newWidth, newHeight));
     ImGui::SetCursorPosX(imagePosition.x);
     ImGui::PushItemWidth(imageSize.x);
-    ImGui::SliderInt("", &m_ImageIndex, 0, m_blendedImages.size() - 1);
+    ImGui::SliderInt("##imageIndexSlider", &m_ImageIndex, 0, m_blendedImages.size() - 1);
 
     ImGui::End();
 }
@@ -350,8 +402,7 @@ void Editor::Run()
 {
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
-    ImGui::Begin("Editor");    
-    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    ImGui::Begin("Editor");        
 
     ShowWindow("Source", m_sourceImage, m_sourceFBO, m_sourceLines, ED_WINDOW_TYPE_SOURCE);
     ShowWindow("Destination", m_destImage, m_destFBO, m_destLines, ED_WINDOW_TYPE_DEST);
@@ -369,18 +420,7 @@ void Editor::Run()
             SDL_Log("Save Project cancelled\n");
         }
         else {
-            // Sample data to save
-            const char* dataToSave = "This is the data to be saved in the file.";
-
-            FILE* file = fopen(saveDialogRet, "w"); // Open the file in write mode
-            if (file != NULL) {                
-                fwrite(dataToSave, sizeof(char), strlen(dataToSave), file);
-                fclose(file);
-                SDL_Log("Data saved to %s\n", saveDialogRet);
-            }
-            else {
-                SDL_Log("Error opening file for writing.\n");
-            }
+            WriteProjectFile(saveDialogRet, m_sourceLines, m_destLines, m_sourceImage.m_FilePath,  m_destImage.m_FilePath);
         }
     }
     ImGui::Button("LoadProject");
@@ -395,10 +435,12 @@ void Editor::Run()
         m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);        
     }
 
+    ImGui::End();
+
     if (!m_blendedImages.empty()) {
         ShowResultWindow("Result");
     }
-    ImGui::End();
 
     ImGui::End(); // Editor
+
 }
