@@ -71,6 +71,10 @@ void WriteProjectFile(std::string pathAndFileName, std::vector<Line>& sourceLine
     }
 }
 
+void InitProjectFromFile(std::string pathAndFilename) {
+    // IMPLEMENT
+}
+
 static ImVec2 MousePosToImageCoords(ImVec2 mousePos, ImVec2 widgetMins, ImVec2 widgetSize, ImVec2 imageSize) {
     ImVec2 mousePosInButton = ImVec2(mousePos.x - widgetMins.x, mousePos.y - widgetMins.y);
     ImVec2 pictureCoords = ImVec2(
@@ -423,7 +427,22 @@ void Editor::Run()
             WriteProjectFile(saveDialogRet, m_sourceLines, m_destLines, m_sourceImage.m_FilePath,  m_destImage.m_FilePath);
         }
     }
-    ImGui::Button("LoadProject");
+    if (ImGui::Button("Open Project")) {
+        SDL_Log("Implement!\n");
+        char const* retOpenFile = tinyfd_openFileDialog(
+            "Open Project", // ""
+            "", // ""
+            1, // 0
+            fileFilterList, // NULL {"*.jpg","*.png"}
+            "Morph MPH files", // NULL | "image files"
+            0); // 0
+        if (retOpenFile == NULL) {
+            SDL_Log("Open Project cancelled\n");
+        }
+        else {
+            InitProjectFromFile(retOpenFile);
+        }
+    }
     ImGui::SliderFloat("a", &m_A, 0.0f, 2.0f);
     ImGui::SliderFloat("b", &m_B, 0.0f, 20.0f);
     ImGui::SliderFloat("p", &m_P, 0.0f, 1.0f);
