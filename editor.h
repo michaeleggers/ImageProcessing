@@ -12,6 +12,7 @@
 #include "fbo.h"
 #include "image.h"
 #include "render_common.h"
+#include "common.h"
 
 enum EditorWindowType {
 	ED_WINDOW_TYPE_SOURCE,
@@ -45,6 +46,8 @@ public:
 	void ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::vector<Line>& lines, EditorWindowType windowType);
 	void ShowResultWindow(const char* title);
 	void Run();
+	
+	void Editor::InitFromProjectFile(std::string pathAndFilename);
 
 private:
 	EditorState      m_editorState;

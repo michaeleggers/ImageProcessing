@@ -19,6 +19,7 @@
 #include "render_common.h"
 #include "common.h"
 #include "beierneely.h"
+#include "parser.h"
 
 std::string LineToString(Line& line) {
     std::string result;
@@ -71,8 +72,13 @@ void WriteProjectFile(std::string pathAndFileName, std::vector<Line>& sourceLine
     }
 }
 
-void InitProjectFromFile(std::string pathAndFilename) {
-    // IMPLEMENT
+void Editor::InitFromProjectFile(std::string pathAndFilename) {    
+    ATP_File projectFile;
+    if (atp_read_file(pathAndFilename.c_str(), &projectFile) != ATP_SUCCESS) {
+        SDL_Log("Failed to read project file: %s.\n", pathAndFilename.c_str());
+        return;
+    }
+    MorphProjectData projectData = ParseProjectFile(projectFile);
 }
 
 static ImVec2 MousePosToImageCoords(ImVec2 mousePos, ImVec2 widgetMins, ImVec2 widgetSize, ImVec2 imageSize) {
@@ -414,33 +420,34 @@ void Editor::Run()
     ImGui::Begin("Control Panel");
     const char* fileFilterList[] = { "*.mph" };
     if (ImGui::Button("Save Project")) {
-        char const* saveDialogRet = tinyfd_saveFileDialog(
-            "Save Project", // ""
-            "", // ""
-            1, // 0
-            fileFilterList, // NULL | {"*.txt"}
-            "Morph MPH files"); // NULL | "text files"
-        if (saveDialogRet == NULL) {
+        char const* retSaveFile = tinyfd_saveFileDialog(
+            "Save Project",
+            "",
+            1,
+            fileFilterList,
+            "Morph MPH files");
+        if (retSaveFile  == NULL) {
             SDL_Log("Save Project cancelled\n");
         }
         else {
-            WriteProjectFile(saveDialogRet, m_sourceLines, m_destLines, m_sourceImage.m_FilePath,  m_destImage.m_FilePath);
+            WriteProjectFile(retSaveFile, m_sourceLines, m_destLines, m_sourceImage.m_FilePath,  m_destImage.m_FilePath);
         }
     }
     if (ImGui::Button("Open Project")) {
         SDL_Log("Implement!\n");
         char const* retOpenFile = tinyfd_openFileDialog(
-            "Open Project", // ""
-            "", // ""
-            1, // 0
-            fileFilterList, // NULL {"*.jpg","*.png"}
-            "Morph MPH files", // NULL | "image files"
-            0); // 0
+            "Open Project",
+            "",
+            1,
+            fileFilterList,
+            "Morph MPH files",
+            0
+        );
         if (retOpenFile == NULL) {
             SDL_Log("Open Project cancelled\n");
         }
         else {
-            InitProjectFromFile(retOpenFile);
+            InitFromProjectFile(retOpenFile);
         }
     }
     ImGui::SliderFloat("a", &m_A, 0.0f, 2.0f);

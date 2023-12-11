@@ -68,8 +68,10 @@ add_executable(Morphing
 	render_common.h
 	batch.h
 	batch.cpp
-	common.cpp
 	common.h
+	common.cpp
+	parser.h
+	parser.cpp
 	static_geometry.h
 	static_geometry.cpp
     stb_image.h

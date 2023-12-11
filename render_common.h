@@ -17,6 +17,7 @@ struct Rect {
 	Vertex v1, v2, v3, v4;
 };
 
+// TODO: Move this to somewhere else
 struct Line {
 	Vertex a, b;
 	ImVec2 absA, absB;
