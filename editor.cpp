@@ -438,6 +438,11 @@ void Editor::Run()
     ShowWindow("Destination", m_destImage, m_destFBO, m_destLines, ED_WINDOW_TYPE_DEST);
 
     ImGui::Begin("Control Panel");
+    if (ImGui::Button("New Project")) {
+        ResetState();
+        m_sourceLines.clear();
+        m_destLines.clear();
+    }
     const char* fileFilterList[] = { "*.mph" };
     if (ImGui::Button("Save Project")) {
         char const* retSaveFile = tinyfd_saveFileDialog(
