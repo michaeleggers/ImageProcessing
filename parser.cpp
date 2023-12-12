@@ -115,7 +115,7 @@ static Line GetLine() {
 
     Line line;
     line.a = { glm::vec3(std::stof(xPosA), std::stof(yPosA), 0.0) };
-    line.a = { glm::vec3(std::stof(xPosB), std::stof(yPosB), 0.0) };
+    line.b = { glm::vec3(std::stof(xPosB), std::stof(yPosB), 0.0) };
     line.absA.x = std::stof(absAx);
     line.absA.y = std::stof(absAy);
     line.absB.x = std::stof(absBx);
