@@ -21,7 +21,21 @@ enum TokenType {
 	TOKEN_DST_IMAGE,
 	TOKEN_SRC_LINES,
 	TOKEN_DST_LINES,
-	TOKEN_EOF
+	TOKEN_NUMBER,
+	TOKEN_EOF,
+	TOKEN_UNKNOWN
+};
+
+struct Token {	
+	TokenType type;
+};
+
+struct SrcImageToken : Token {
+	std::string string;
+};
+
+struct DstImageToken : Token {
+	std::string string;
 };
 
 MorphProjectData ParseProjectFile(ATP_File projectFile);

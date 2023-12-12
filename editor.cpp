@@ -33,8 +33,12 @@ std::string LineToString(Line& line) {
 
     result += std::to_string(aPos.x); result += " ";
     result += std::to_string(aPos.y); result += " ";
+    result += std::to_string(bPos.x); result += " ";
+    result += std::to_string(bPos.y); result += " ";
     result += std::to_string(absA.x); result += " ";
     result += std::to_string(absA.y); result += " ";
+    result += std::to_string(absB.x); result += " ";
+    result += std::to_string(absB.y); result += " ";
     result += std::to_string(editorScale.x); result += " ";
     result += std::to_string(editorScale.y);
 
@@ -79,6 +83,7 @@ void Editor::InitFromProjectFile(std::string pathAndFilename) {
         return;
     }
     MorphProjectData projectData = ParseProjectFile(projectFile);
+    // TODO: Init from projectData
 }
 
 static ImVec2 MousePosToImageCoords(ImVec2 mousePos, ImVec2 widgetMins, ImVec2 widgetSize, ImVec2 imageSize) {
