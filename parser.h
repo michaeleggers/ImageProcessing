@@ -6,6 +6,10 @@
 
 #include "imgui.h"
 
+#define GLM_FORCE_RADIANS
+#include "dependencies/glm/glm.hpp"
+#include "dependencies/glm/ext.hpp"
+
 #include "common.h"
 #include "render_common.h"
 
@@ -14,6 +18,7 @@ struct MorphProjectData {
 	std::string destImagePath;
 	std::vector<Line> sourceLines;
 	std::vector<Line> destLines;
+	glm::vec3 weightParams;
 };
 
 enum TokenType {
@@ -22,6 +27,7 @@ enum TokenType {
 	TOKEN_SRC_LINES,
 	TOKEN_DST_LINES,
 	TOKEN_NUMBER,
+	TOKEN_WEIGHT,
 	TOKEN_EOF,
 	TOKEN_UNKNOWN
 };

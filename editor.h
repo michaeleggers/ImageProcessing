@@ -50,9 +50,11 @@ public:
 	void Editor::InitFromProjectFile(std::string pathAndFilename);
 
 private:
+
 	EditorState      m_editorState;
 	EditorMouseState m_editorMouseState;
 	EditorMouseInfo  m_editorMouseInfo;
+	void ResetState();
 
 	// Hold a reference to source and dest images
 	Image m_sourceImage;

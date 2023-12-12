@@ -9,9 +9,7 @@
 // - if source and destination images don't have the same dimensions the program crashes
 //
 // TODOs:
-// - Port to MacOS
 // - Undo/Redo for lineplacement
-// - Save lineset and corresponding images as project 
 // - Change from line-mode to select-mode to change/delete existing linepairs
 // - Render result images out to disk
 // - At the moment the pixels are interpolated linearly from source-line to dest-line. But
@@ -20,6 +18,11 @@
 //   This will be computationally more taxing but could result in better warping and therefore
 //   less noticable blending between source and destination image.
 //
+// TODOs Done:
+// - Port to MacOS (7.12.2023)
+// - Save linesets and corresponding images as project (12.12.2023)
+// - Load linesets and images and weights as project (12.12.2023)
+// 
 // Fixed Bugs:
 // - (12.7.2023) It seems that the sequence is not being fully processed. The last image in the result window still shows parts of the source image
 

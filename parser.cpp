@@ -11,6 +11,10 @@
 
 #include <stdint.h>
 
+#define GLM_FORCE_RADIANS
+#include "dependencies/glm/glm.hpp"
+#include "dependencies/glm/ext.hpp"
+
 static uint8_t* c;
 static uint32_t inputLength;
 static uint32_t cursor = 0;
@@ -73,6 +77,9 @@ static Token GetNextToken() {
     else if (!parsed.compare("dst_img_path")) {
         result.type = TOKEN_DST_IMAGE;
     }
+    else if (!parsed.compare("weight")) {
+        result.type = TOKEN_WEIGHT;
+    }
     else if (!parsed.compare("src")) {
         result.type = TOKEN_SRC_LINES;
     }
@@ -81,6 +88,16 @@ static Token GetNextToken() {
     }
 
     return result;
+}
+
+static glm::vec3 GetWeightParams() {
+    std::string a = GetString();
+    std::string b = GetString();
+    std::string p = GetString();
+
+    return glm::vec3(
+        std::stof(a), std::stof(b), std::stof(p)
+    );
 }
 
 static Line GetLine() {
@@ -139,6 +156,9 @@ MorphProjectData ParseProjectFile(ATP_File projectFile)
         }
         else if (t.type == TOKEN_DST_IMAGE) {
             result.destImagePath = GetString();
+        }
+        else if (t.type == TOKEN_WEIGHT) {
+            result.weightParams = GetWeightParams();
         }
         else if (t.type == TOKEN_SRC_LINES) {
             result.sourceLines = GetLines();

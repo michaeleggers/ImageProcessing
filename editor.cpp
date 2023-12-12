@@ -45,12 +45,14 @@ std::string LineToString(Line& line) {
     return result;
 }
 
-void WriteProjectFile(std::string pathAndFileName, std::vector<Line>& sourceLines, std::vector<Line>& destLines, std::string sourceImagePath, std::string destImagePath) {
+void WriteProjectFile(std::string pathAndFileName, std::vector<Line>& sourceLines, std::vector<Line>& destLines, std::string sourceImagePath, std::string destImagePath, float a, float b, float p) {
     // Create string to write
     const char* dataToSave = "This is the data to be saved in the file.";
     std::string result;
     result += "src_img_path " + sourceImagePath + "\n";
     result += "dst_img_path " + destImagePath+ "\n";
+
+    result += "weight " + std::to_string(a) + " " + std::to_string(b) + " " + std::to_string(p) + "\n";
 
     size_t numLinesPairs = sourceLines.size();
     // TODO: Give warning if sourceLines.size() != destLines.size()
@@ -83,7 +85,22 @@ void Editor::InitFromProjectFile(std::string pathAndFilename) {
         return;
     }
     MorphProjectData projectData = ParseProjectFile(projectFile);
-    // TODO: Init from projectData
+    
+    ResetState();
+    m_sourceImage = Image(projectData.sourceImagePath);
+    m_destImage = Image(projectData.destImagePath);
+    m_A = projectData.weightParams.x;
+    m_B = projectData.weightParams.y;
+    m_P = projectData.weightParams.z;
+    m_sourceLines = projectData.sourceLines;
+    m_destLines = projectData.destLines;
+}
+
+void Editor::ResetState()
+{
+    m_editorState = ED_IDLE;
+    m_editorMouseState = ED_MOUSE_IDLE;
+    m_editorMouseInfo = { ImVec2(0, 0), ImVec2(0, 0) };
 }
 
 static ImVec2 MousePosToImageCoords(ImVec2 mousePos, ImVec2 widgetMins, ImVec2 widgetSize, ImVec2 imageSize) {
@@ -126,9 +143,7 @@ Editor::Editor(Image sourceImage, Image destImage)
     assert(sourceImage.m_Width == destImage.m_Width);
     assert(sourceImage.m_Height == destImage.m_Height);
 
-    m_editorState = ED_IDLE;
-    m_editorMouseState = ED_MOUSE_IDLE;
-    m_editorMouseInfo = {ImVec2(0, 0), ImVec2(0, 0)};
+    ResetState();
 
     m_sourceImage = sourceImage;
     m_destImage = destImage;
@@ -435,7 +450,7 @@ void Editor::Run()
             SDL_Log("Save Project cancelled\n");
         }
         else {
-            WriteProjectFile(retSaveFile, m_sourceLines, m_destLines, m_sourceImage.m_FilePath,  m_destImage.m_FilePath);
+            WriteProjectFile(retSaveFile, m_sourceLines, m_destLines, m_sourceImage.m_FilePath,  m_destImage.m_FilePath, m_A, m_B, m_P);
         }
     }
     if (ImGui::Button("Open Project")) {
