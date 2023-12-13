@@ -126,7 +126,9 @@ int main(int argc, char** argv)
 
     InitStaticGeometry();
 
-    InitCheckerboardTexture(512, 512, 3);   
+    // Checkerboard texture for images that could not be found on disk
+
+    InitCheckerboardTexture(64, 64, 3);   
 
     // Setup Imgui
 
