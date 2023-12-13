@@ -4,6 +4,7 @@
 
 #include "texture.h"
 #include "common.h" 
+#include "static_image_data.h"
 
 #include "stb_image.h"
 
@@ -12,14 +13,21 @@ Image::Image(std::string filePath)
 	int x, y, n;
 	m_Data = stbi_load(filePath.c_str(), &x, &y, &n, 3);
 	if (!m_Data) {
-		SDL_Log("Failed to load %s from disk! Abort.\n", filePath.c_str());
-		exit(-1);
+		SDL_Log("Failed to load %s from disk! Init Image with placeholder data...\n", filePath.c_str());		
+		Checkerboard cb = GetCheckerboard();
+		m_Width = cb.width;
+		m_Height = cb.height;
+		m_Channels = cb.channels;
+		m_Data = cb.data;		
+		m_FilePath = "file not found!";
 	}
-	m_Width = x;
-	m_Height = y;
-	m_Channels = n;
-	m_DataFromFile = true;
-	m_FilePath = filePath;
+	else {
+		m_Width = x;
+		m_Height = y;
+		m_Channels = n;
+		m_DataFromFile = true;
+		m_FilePath = filePath;
+	}
 	m_Texture = Texture(m_Data, m_Width, m_Height);
 }
 

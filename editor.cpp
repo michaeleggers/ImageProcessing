@@ -16,6 +16,7 @@
 #include "image.h"
 #include "input.h"
 #include "static_geometry.h"
+#include "static_image_data.h"
 #include "render_common.h"
 #include "common.h"
 #include "beierneely.h"
@@ -74,7 +75,7 @@ void WriteProjectFile(std::string pathAndFileName, std::vector<Line>& sourceLine
         SDL_Log("Data saved to %s\n", pathAndFileName.c_str());
     }
     else {
-        SDL_Log("Error opening file for writing.\n");
+        SDL_Log("Error opening file for writing: %s\n", pathAndFileName.c_str());
     }
 }
 
@@ -84,6 +85,7 @@ void Editor::InitFromProjectFile(std::string pathAndFilename) {
         SDL_Log("Failed to read project file: %s.\n", pathAndFilename.c_str());
         return;
     }
+    SDL_Log("Reading project file: %s\n", pathAndFilename.c_str());
     MorphProjectData projectData = ParseProjectFile(projectFile);
     
     ResetState();
@@ -174,6 +176,7 @@ Editor::Editor(Image sourceImage, Image destImage)
         exit(-1);
     }
 #endif
+    
 }
 
 Editor::~Editor()
@@ -458,8 +461,7 @@ void Editor::Run()
             WriteProjectFile(retSaveFile, m_sourceLines, m_destLines, m_sourceImage.m_FilePath,  m_destImage.m_FilePath, m_A, m_B, m_P);
         }
     }
-    if (ImGui::Button("Open Project")) {
-        SDL_Log("Implement!\n");
+    if (ImGui::Button("Open Project")) {        
         char const* retOpenFile = tinyfd_openFileDialog(
             "Open Project",
             "",

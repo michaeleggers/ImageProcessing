@@ -74,6 +74,8 @@ add_executable(Morphing
 	parser.cpp
 	static_geometry.h
 	static_geometry.cpp
+	static_image_data.h
+	static_image_data.cpp
     stb_image.h
 
 	shaders/basic.vert

@@ -59,6 +59,7 @@
 #include "editor.h"
 #include "image.h"
 #include "static_geometry.h"
+#include "static_image_data.h"
 #include "beierneely.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -68,31 +69,8 @@
 #define PI                      3.14159265359
 #define EPSILON                 0.00001
 
-#define CHECKERBOARD_WIDTH    64
-#define CHECKERBOARD_HEIGHT   64
-#define CHECKERBOARD_CHANNELS 4
-#define CHECKERBOARD_SIZE     (CHECKERBOARD_WIDTH * CHECKERBOARD_HEIGHT)
-#define CHECKERBOARD_BYTES    (CHECKERBOARD_SIZE * CHECKERBOARD_CHANNELS)
-#define MAX_CHECKERBOARD_INDEX ((CHECKERBOARD_HEIGHT*CHECKERBOARD_WIDTH + CHECKERBOARD_WIDTH)*4)
-uint8_t checkerboard[CHECKERBOARD_BYTES];
-
-
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
-
-void initCheckerboardTexture() {
-    for (size_t y = 0; y < CHECKERBOARD_HEIGHT; y++) {
-        for (size_t x = 0; x < CHECKERBOARD_WIDTH; x++) {
-            size_t index = (y * CHECKERBOARD_WIDTH + x) * 4;
-            uint8_t blackOrWhite = ((y & 0x8) == 0 ^ (x & 0x8) == 0) * 255;
-            checkerboard[index + 0] = blackOrWhite;
-            checkerboard[index + 1] = blackOrWhite;
-            checkerboard[index + 2] = blackOrWhite;
-            checkerboard[index + 3] = SDL_ALPHA_OPAQUE;
-        }
-    }
-    printf("max tex index: %d\n", MAX_CHECKERBOARD_INDEX);
-}
 
 int main(int argc, char** argv)
 {
@@ -145,7 +123,10 @@ int main(int argc, char** argv)
     SDL_ShowWindow(window);
 
     // Static geometry
+
     InitStaticGeometry();
+
+    InitCheckerboardTexture(512, 512, 3);
 
     // Setup Imgui
 

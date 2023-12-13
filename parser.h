@@ -36,14 +36,6 @@ struct Token {
 	TokenType type;
 };
 
-struct SrcImageToken : Token {
-	std::string string;
-};
-
-struct DstImageToken : Token {
-	std::string string;
-};
-
 MorphProjectData ParseProjectFile(ATP_File projectFile);
 
 #endif
