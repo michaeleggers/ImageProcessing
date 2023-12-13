@@ -47,7 +47,7 @@ public:
 	void ShowResultWindow(const char* title);
 	void Run();
 	
-	void Editor::InitFromProjectFile(std::string pathAndFilename);
+	void InitFromProjectFile(std::string pathAndFilename);
 
 private:
 
