@@ -2,7 +2,6 @@
 // IMAGE MORPHING USING BEIER-NEELY ALGORITHM
 // 
 // Known Bugs:
-// 
 // 4.12.2023
 // - non quare images stretch the result image to the right weirdly
 // - if a source line has no matching destination line the program crashes
@@ -19,12 +18,14 @@
 //   less noticable blending between source and destination image.
 //
 // TODOs Done:
-// - Port to MacOS (7.12.2023)
-// - Save linesets and corresponding images as project (12.12.2023)
-// - Load linesets and images and weights as project (12.12.2023)
+// - (7.12.2023)  Port to MacOS
+// - (12.12.2023) Save linesets and corresponding images as project 
+// - (12.12.2023) Load linesets and images and weights as project
+// - (13.12.2023) Support loading and writing project files with spaces in filename
 // 
 // Fixed Bugs:
-// - (12.7.2023) It seems that the sequence is not being fully processed. The last image in the result window still shows parts of the source image
+// - (12.7.2023)  It seems that the sequence is not being fully processed. The last image in the result window still shows parts of the source image
+// - (13.12.2023) Don't crash the program if an image could not be loaded from disk. Instead show checkerboard texture
 
 
 
