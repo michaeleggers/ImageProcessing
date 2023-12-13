@@ -41,10 +41,10 @@ static void AdvanceToNextNonWhitespace() {
     }
 }
 
-static std::string GetString() {
+static std::string GetString(bool keepSpaces = false) {
     AdvanceToNextNonWhitespace();
     std::string result;
-    while (*c != ' ' && *c != '\t' && *c != '\r' && *c != '\n') {
+    while ((keepSpaces || *c != ' ') && *c != '\t' && *c != '\r' && *c != '\n') {
         result += *c;
         c++; cursor++;
     }
@@ -152,10 +152,10 @@ MorphProjectData ParseProjectFile(ATP_File projectFile)
         if (t.type == TOKEN_EOF) break;
 
         if (t.type == TOKEN_SRC_IMAGE) {
-            result.sourceImagePath = GetString();
+            result.sourceImagePath = GetString(true);
         }
         else if (t.type == TOKEN_DST_IMAGE) {
-            result.destImagePath = GetString();
+            result.destImagePath = GetString(true);
         }
         else if (t.type == TOKEN_WEIGHT) {
             result.weightParams = GetWeightParams();
