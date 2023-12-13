@@ -10,7 +10,12 @@ static Checkerboard checkerboard;
 
 void InitCheckerboardTexture(int width, int height, int channels)
 {
-    assert(channels >= 3 && channels <= 4 && "Checkerboard texture must have 3 or 4 channels!");
+    if (checkerboard.data) {
+        SDL_Log("Checkerboard texture already initialized. Do nothing...\n");
+        return;
+    }
+
+    assert(channels >= 3 && channels <= 4 && "Checkerboard texture must have 3 or 4 channels!");    
 
     checkerboard.width = width;
     checkerboard.height = height;    

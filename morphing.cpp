@@ -126,7 +126,7 @@ int main(int argc, char** argv)
 
     InitStaticGeometry();
 
-    InitCheckerboardTexture(512, 512, 3);
+    InitCheckerboardTexture(512, 512, 3);   
 
     // Setup Imgui
 
