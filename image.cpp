@@ -80,4 +80,23 @@ Image Image::Blend(Image& a, Image& b, float pct)
 	return result;
 }
 
+// Takes an image and converts it to RGBA. A is set to 255. 
+// Does NOT create an OpenGL Texture!
+Image Image::ToRGBA(Image& image)
+{
+	Image result(image.m_Height, image.m_Width, 4);
+	for (uint32_t y = 0; y < image.m_Height; y++) {
+		for (uint32_t x = 0; x < image.m_Width; x++) {
+			glm::ivec3 pixel = image(x, y);
+			unsigned char* resultPixel = result.m_Data + (result.m_Channels * (y * result.m_Width + x));
+			resultPixel[0] = pixel.r;
+			resultPixel[1] = pixel.g;
+			resultPixel[2] = pixel.b;
+			resultPixel[3] = 255;
+		}
+	}
+	
+	return result;
+}
+
 

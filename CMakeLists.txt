@@ -78,6 +78,7 @@ add_executable(Morphing
 	static_image_data.cpp
     stb_image.h
 	stb_image_write.h
+	gif.h
 
 	shaders/basic.vert
 	shaders/basic.frag

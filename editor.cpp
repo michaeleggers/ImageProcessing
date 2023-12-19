@@ -11,6 +11,7 @@
 #include "tinyfiledialogs.h"
 
 #include "stb_image_write.h"
+#include "gif.h"
 
 #include "batch.h"
 #include "fbo.h"
@@ -48,7 +49,7 @@ std::string LineToString(Line& line) {
     return result;
 }
 
-void RenderToDisk(std::string pathAndFilename, std::vector<Image>& images) {
+void RenderToDiskAsTGA(std::string pathAndFilename, std::vector<Image>& images) {
     for (size_t i = 0; i < images.size(); i++) {
         std::string fileName = pathAndFilename + std::to_string(i) + ".tga";
         Image& image = images[i];
@@ -58,6 +59,23 @@ void RenderToDisk(std::string pathAndFilename, std::vector<Image>& images) {
         }
     }
     SDL_Log("Written images to: %s\n", pathAndFilename.c_str());
+}
+
+void RenderToDiskAsGIF(std::string pathAndFilename, std::vector<Image>& images) {
+    std::string fileName = pathAndFilename + ".gif";
+    GifWriter gf;
+    int width = (int)images[0].m_Width;
+    int height = (int)images[0].m_Height;
+    int delay = 1;
+    GifBegin(&gf, fileName.c_str(), width, height, delay, 8, true);
+    for (size_t i = 0; i < images.size(); i++) {
+        Image& image = images[i];
+        Image imageRGBA = Image::ToRGBA(image);
+        GifWriteFrame(&gf, imageRGBA.m_Data, width, height, delay);
+    }
+    GifEnd(&gf);
+
+    SDL_Log("Written GIF to: %s\n", pathAndFilename.c_str());
 }
 
 void WriteProjectFile(std::string pathAndFileName, std::vector<Line>& sourceLines, std::vector<Line>& destLines, std::string sourceImagePath, std::string destImagePath, float a, float b, float p) {
@@ -512,19 +530,34 @@ void Editor::Run()
         m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);        
     }
     if (!m_blendedImages.empty()) {
-        if (ImGui::Button("Render to disk")) {
+        if (ImGui::Button("Render (TGA)")) {
             char const* retSaveFile = tinyfd_saveFileDialog(
                 "Render",
                 "",
                 0,
                 nullptr,
-                "Image sequence");
+                "TGA Image sequence");
             if (retSaveFile == NULL) {
                 SDL_Log("Rendering cancelled\n");
             }
             else {
                 SDL_Log("Rendering...\n");
-                RenderToDisk(retSaveFile, m_blendedImages);
+                RenderToDiskAsTGA(retSaveFile, m_blendedImages);
+            }
+        }
+        if (ImGui::Button("Render (GIF)")) {
+            char const* retSaveFile = tinyfd_saveFileDialog(
+                "Render",
+                "",
+                0,
+                nullptr,
+                "GIF");
+            if (retSaveFile == NULL) {
+                SDL_Log("Rendering cancelled\n");
+            }
+            else {
+                SDL_Log("Rendering...\n");
+                RenderToDiskAsGIF(retSaveFile, m_blendedImages);
             }
         }
     }

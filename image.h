@@ -32,6 +32,7 @@ public:
 	}
 
 	static Image Blend(Image& a, Image& b, float pct);
+	static Image ToRGBA(Image& image);
 
 	uint32_t		m_Width, m_Height;
 	uint32_t		m_Channels;
