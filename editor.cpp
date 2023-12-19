@@ -260,10 +260,24 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
     float imageWidth = (float)image.m_Width;
     float imageHeight = (float)image.m_Height;
 
+    ImVec2 mousePos = ImGui::GetMousePos();
+
+    ImVec2 pictureCoords = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
+    if (ImGui::IsItemHovered()) {
+        printf("pictureCoords: %f, %f\n", pictureCoords.x, pictureCoords.y);
+        std::string pictureCoordsText;
+        pictureCoordsText += std::to_string((int)pictureCoords.x) + " " + std::to_string((int)pictureCoords.y);
+        ImVec2 labelPos = mousePos;
+        labelPos.y -= 20.0;
+        drawList->AddText(ImGui::GetFont(), ImGui::GetFontSize() * 1.2,
+            labelPos,
+            ImGui::GetColorU32(ImVec4(255, 230, 0, 100)),
+            &pictureCoordsText[0], &pictureCoordsText[0] + pictureCoordsText.size());
+    }
+
     if (windowType == ED_WINDOW_TYPE_SOURCE) {
         if (m_editorState == ED_IDLE) {
             if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                ImVec2 mousePos = ImGui::GetMousePos();
                 printf("mousePos: %f, %f\n", mousePos.x, mousePos.y);
                 m_editorMouseInfo.pos1 = mousePos;
                 ImVec2 pictureCoords = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
@@ -271,8 +285,7 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
                 m_editorState = ED_PLACE_SOURCE_LINE;
             }
         }
-        else if (m_editorState == ED_PLACE_SOURCE_LINE) {
-            ImVec2 mousePos = ImGui::GetMousePos();
+        else if (m_editorState == ED_PLACE_SOURCE_LINE) {            
             drawList->AddLine(m_editorMouseInfo.pos1, mousePos,
                 ImGui::GetColorU32(ImVec4(255, 250, 0, 255)),
                 5.0);
@@ -298,15 +311,13 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
     }
     else if (windowType == ED_WINDOW_TYPE_DEST) {
         if (m_editorState == ED_PLACE_DEST_LINE_1) {
-            if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                ImVec2 mousePos = ImGui::GetMousePos();
+            if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {                
                 m_editorMouseInfo.pos1 = mousePos;
                 ImVec2 pictureCoords = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
                 m_editorState = ED_PLACE_DEST_LINE_2;
             }
         }
         else if (m_editorState == ED_PLACE_DEST_LINE_2) {
-            ImVec2 mousePos = ImGui::GetMousePos();
             drawList->AddLine(m_editorMouseInfo.pos1, mousePos,
                 ImGui::GetColorU32(ImVec4(255, 250, 0, 255)),
                 5.0);
