@@ -10,6 +10,8 @@
 #include "imgui.h"
 #include "tinyfiledialogs.h"
 
+#include "stb_image_write.h"
+
 #include "batch.h"
 #include "fbo.h"
 #include "shader.h" 
@@ -44,6 +46,18 @@ std::string LineToString(Line& line) {
     result += std::to_string(editorScale.y);
 
     return result;
+}
+
+void RenderToDisk(std::string pathAndFilename, std::vector<Image>& images) {
+    for (size_t i = 0; i < images.size(); i++) {
+        std::string fileName = pathAndFilename + std::to_string(i) + ".tga";
+        Image& image = images[i];
+        int ok = stbi_write_tga(fileName.c_str(), image.m_Width, image.m_Height, image.m_Channels, image.m_Data);
+        if (!ok) {
+            SDL_Log("Error writing image # %d for %s\n", (int)i, pathAndFilename.c_str());
+        }
+    }
+    SDL_Log("Written images to: %s\n", pathAndFilename.c_str());
 }
 
 void WriteProjectFile(std::string pathAndFileName, std::vector<Line>& sourceLines, std::vector<Line>& destLines, std::string sourceImagePath, std::string destImagePath, float a, float b, float p) {
@@ -263,8 +277,7 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
     ImVec2 mousePos = ImGui::GetMousePos();
 
     ImVec2 pictureCoords = MousePosToImageCoords(mousePos, buttonMin, buttonSize, ImVec2(imageWidth, imageHeight));
-    if (ImGui::IsItemHovered()) {
-        printf("pictureCoords: %f, %f\n", pictureCoords.x, pictureCoords.y);
+    if (ImGui::IsItemHovered()) {        
         std::string pictureCoordsText;
         pictureCoordsText += std::to_string((int)pictureCoords.x) + " " + std::to_string((int)pictureCoords.y);
         ImVec2 labelPos = mousePos;
@@ -497,6 +510,23 @@ void Editor::Run()
         m_destToSourceMorphs = BeierNeely(m_destLines, m_sourceLines, m_destImage, m_sourceImage, m_NumIterations, m_A, m_B, m_P);
         std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end());
         m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);        
+    }
+    if (!m_blendedImages.empty()) {
+        if (ImGui::Button("Render to disk")) {
+            char const* retSaveFile = tinyfd_saveFileDialog(
+                "Render",
+                "",
+                0,
+                nullptr,
+                "Image sequence");
+            if (retSaveFile == NULL) {
+                SDL_Log("Rendering cancelled\n");
+            }
+            else {
+                SDL_Log("Rendering...\n");
+                RenderToDisk(retSaveFile, m_blendedImages);
+            }
+        }
     }
 
     ImGui::End();
