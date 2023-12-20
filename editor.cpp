@@ -130,6 +130,71 @@ void Editor::InitFromProjectFile(std::string pathAndFilename) {
     m_destLines = projectData.destLines;
 }
 
+void Editor::NewProject()
+{
+    ResetState();
+    m_sourceLines.clear();
+    m_destLines.clear();
+}
+
+void Editor::SaveProject()
+{
+    const char* fileFilterList[] = { "*.mph" };
+    char const* retSaveFile = tinyfd_saveFileDialog(
+        "Save Project",
+        "",
+        1,
+        fileFilterList,
+        "Morph MPH files");
+    if (retSaveFile == NULL) {
+        SDL_Log("Save Project cancelled\n");
+    }
+    else {
+        WriteProjectFile(retSaveFile, m_sourceLines, m_destLines, m_sourceImage.m_FilePath, m_destImage.m_FilePath, m_A, m_B, m_P);
+    }
+}
+
+void Editor::OpenProject()
+{
+    const char* fileFilterList[] = { "*.mph" };
+    char const* retOpenFile = tinyfd_openFileDialog(
+        "Open Project",
+        "",
+        1,
+        fileFilterList,
+        "Morph MPH files",
+        0
+    );
+    if (retOpenFile == NULL) {
+        SDL_Log("Open Project cancelled\n");
+    }
+    else {
+        InitFromProjectFile(retOpenFile);
+    }
+}
+
+void Editor::Undo()
+{
+    if (m_editorState == ED_IDLE) {        
+        if (!m_sourceLines.empty()) {
+            m_sourceLines.pop_back();
+        }
+        if (!m_destLines.empty()) {
+            m_destLines.pop_back();
+        }
+    }
+    else if (m_editorState == ED_PLACE_SOURCE_LINE) {
+        m_editorState = ED_IDLE;
+    }
+    else if (m_editorState == ED_PLACE_DEST_LINE_1) {
+        m_sourceLines.pop_back();
+        m_editorState = ED_IDLE;
+    }
+    else if (m_editorState == ED_PLACE_DEST_LINE_2) {
+        m_editorState = ED_PLACE_DEST_LINE_1;
+    }    
+}
+
 void Editor::ResetState()
 {
     m_editorState = ED_IDLE;
@@ -475,50 +540,60 @@ void Editor::ShowResultWindow(const char* title)
 
 void Editor::Run()
 {
-    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());    
 
-    ImGui::Begin("Editor");        
+    // Main Menu bar
+
+    if (ImGui::BeginMainMenuBar()) {
+
+        if (ImGui::BeginMenu("Project")) {
+            if (ImGui::MenuItem("New","Ctrl+N")) {
+                NewProject();
+            }
+            if (ImGui::MenuItem("Save", "Ctrl+S")) {
+                SaveProject();
+            }
+            if (ImGui::MenuItem("Open", "Ctrl+O")) {
+                OpenProject();
+            }
+            ImGui::EndMenu();
+        }        
+
+        if (ImGui::BeginMenu("Edit")) {
+            if (ImGui::MenuItem("Undo", "Ctrl+Z")) {
+                Undo();
+            }
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
+    }
+
+    // ! Main menu bar
+
+    // Keyboard shortcuts
+
+    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_N)) && ImGui::GetIO().KeyCtrl) {        
+        NewProject();
+    }
+    else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_S)) && ImGui::GetIO().KeyCtrl) {
+        SaveProject();
+    }
+    else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_O)) && ImGui::GetIO().KeyCtrl) {
+        OpenProject();
+    }
+
+    else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Z)) && ImGui::GetIO().KeyCtrl) {
+        Undo();
+    }
+
+    // ! Keyboard shortcuts
 
     ShowWindow("Source", m_sourceImage, m_sourceFBO, m_sourceLines, ED_WINDOW_TYPE_SOURCE);
     ShowWindow("Destination", m_destImage, m_destFBO, m_destLines, ED_WINDOW_TYPE_DEST);
 
     ImGui::Begin("Control Panel");
-    if (ImGui::Button("New Project")) {
-        ResetState();
-        m_sourceLines.clear();
-        m_destLines.clear();
-    }
-    const char* fileFilterList[] = { "*.mph" };
-    if (ImGui::Button("Save Project")) {
-        char const* retSaveFile = tinyfd_saveFileDialog(
-            "Save Project",
-            "",
-            1,
-            fileFilterList,
-            "Morph MPH files");
-        if (retSaveFile  == NULL) {
-            SDL_Log("Save Project cancelled\n");
-        }
-        else {
-            WriteProjectFile(retSaveFile, m_sourceLines, m_destLines, m_sourceImage.m_FilePath,  m_destImage.m_FilePath, m_A, m_B, m_P);
-        }
-    }
-    if (ImGui::Button("Open Project")) {        
-        char const* retOpenFile = tinyfd_openFileDialog(
-            "Open Project",
-            "",
-            1,
-            fileFilterList,
-            "Morph MPH files",
-            0
-        );
-        if (retOpenFile == NULL) {
-            SDL_Log("Open Project cancelled\n");
-        }
-        else {
-            InitFromProjectFile(retOpenFile);
-        }
-    }
+
     ImGui::SliderFloat("a", &m_A, 0.0f, 2.0f);
     ImGui::SliderFloat("b", &m_B, 0.0f, 20.0f);
     ImGui::SliderFloat("p", &m_P, 0.0f, 1.0f);
@@ -566,8 +641,5 @@ void Editor::Run()
 
     if (!m_blendedImages.empty()) {
         ShowResultWindow("Result");
-    }
-
-    ImGui::End(); // Editor
-
+    }    
 }

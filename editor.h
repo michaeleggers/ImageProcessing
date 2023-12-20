@@ -48,6 +48,10 @@ public:
 	void Run();
 	
 	void InitFromProjectFile(std::string pathAndFilename);
+	void NewProject();
+	void SaveProject();
+	void OpenProject();
+	void Undo();
 
 private:
 
