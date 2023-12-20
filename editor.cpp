@@ -173,16 +173,24 @@ void Editor::OpenProject()
     }
 }
 
+// TODO: Maybe use command pattern that allows us to store commands
+// that we can replay as we want.
 void Editor::Undo()
 {
     if (m_editorState == ED_IDLE) {        
-        if (!m_sourceLines.empty()) {
-            m_sourceLines.pop_back();
+        if (m_sourceLines.size() > m_destLines.size()) {
+            if (!m_sourceLines.empty()) {
+                m_sourceLines.pop_back();
+            }
         }
-        if (!m_destLines.empty()) {
-            m_destLines.pop_back();
+        else if (m_sourceLines.size() == m_destLines.size()) {
+            if (!m_destLines.empty()) {
+                m_destLines.pop_back();
+                m_editorState = ED_PLACE_DEST_LINE_1;
+            }
         }
     }
+    
     else if (m_editorState == ED_PLACE_SOURCE_LINE) {
         m_editorState = ED_IDLE;
     }
