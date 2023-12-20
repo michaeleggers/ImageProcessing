@@ -607,10 +607,15 @@ void Editor::Run()
     ImGui::SliderFloat("p", &m_P, 0.0f, 1.0f);
     ImGui::SliderInt("Iterations", &m_NumIterations, 1, 100);
     if (ImGui::Button("MAGIC!")) {
-        m_sourceToDestMorphs = BeierNeely(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P);
-        m_destToSourceMorphs = BeierNeely(m_destLines, m_sourceLines, m_destImage, m_sourceImage, m_NumIterations, m_A, m_B, m_P);
-        std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end());
-        m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);        
+        if (m_sourceLines.size() != m_destLines.size()) {
+            tinyfd_messageBox("Linecount mismatch", "The number of lines in the source window and the destination window do not match!", "ok", "warning", 1);
+        }
+        else {
+            m_sourceToDestMorphs = BeierNeely(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P);
+            m_destToSourceMorphs = BeierNeely(m_destLines, m_sourceLines, m_destImage, m_sourceImage, m_NumIterations, m_A, m_B, m_P);
+            std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end());
+            m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);        
+        }
     }
     if (!m_blendedImages.empty()) {
         if (ImGui::Button("Render (TGA)")) {
