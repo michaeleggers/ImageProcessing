@@ -4,30 +4,31 @@
 // Known Bugs:
 // 4.12.2023
 // - non quare images stretch the result image to the right weirdly
-// - if a source line has no matching destination line the program crashes
 // - if source and destination images don't have the same dimensions the program crashes
-//
+// 
+// Fixed Bugs:
+// - (7.12.2023)  It seems that the sequence is not being fully processed. The last image in the result window still shows parts of the source image
+// - (13.12.2023) Don't crash the program if an image could not be loaded from disk. Instead show checkerboard texture
+// - (20.12.2023) if a source line has no matching destination line the program crashes
+// 
 // TODOs:
-// - Undo/Redo for lineplacement
+// - Redo for lines
 // - Change from line-mode to select-mode to change/delete existing linepairs
-// - Render result images out to disk
 // - At the moment the pixels are interpolated linearly from source-line to dest-line. But
 //   I noticed that this will result in ignoring rotations. So It would be better to actually
 //   interpolate the lines correctly and *then* compute the resulting pixel.
 //   This will be computationally more taxing but could result in better warping and therefore
 //   less noticable blending between source and destination image.
+// - Add buttons to load src/dst images during runtime
 //
 // TODOs Done:
 // - (7.12.2023)  Port to MacOS
 // - (12.12.2023) Save linesets and corresponding images as project 
 // - (12.12.2023) Load linesets and images and weights as project
 // - (13.12.2023) Support loading and writing project files with spaces in filename
+// - (19.12.2023) Render result images out to disk
+// - (19.12.2023) (Primitive) undo (Ctrl+Z) to kill lines
 // 
-// Fixed Bugs:
-// - (12.7.2023)  It seems that the sequence is not being fully processed. The last image in the result window still shows parts of the source image
-// - (13.12.2023) Don't crash the program if an image could not be loaded from disk. Instead show checkerboard texture
-
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,9 +38,6 @@
 #include <vector>
 #include <algorithm>
 
-
-//#include <SDL2/SDL.h>
-//#include <SDL.h>
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
 
