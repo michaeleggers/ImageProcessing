@@ -167,6 +167,7 @@ void Editor::SaveProject()
     }
     else {
         WriteProjectFile(retSaveFile, m_sourceLines, m_destLines, m_sourceImage.m_FilePath, m_destImage.m_FilePath, m_A, m_B, m_P);
+        m_OpenedProject = GetProjectNameFromFilePath(retSaveFile);
     }
 }
 
