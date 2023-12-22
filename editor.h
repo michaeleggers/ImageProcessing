@@ -60,6 +60,8 @@ public:
 
 	virtual void Update(IEvent* event) override; // Handle events from other parts of the program
 
+	std::string GetProjectName();
+
 private:
 
 	EditorState      m_editorState;
@@ -109,6 +111,8 @@ private:
 	// should check if their source or destination image should be updated!
 	bool m_Dirty;
 	std::string m_newImagePathAndFilename;
+
+	std::string m_OpenedProject;
 };
 
 #endif

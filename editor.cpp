@@ -26,6 +26,21 @@
 #include "parser.h"
 #include "event_handler.h"
 
+std::string GetProjectNameFromFilePath(std::string pathAndFilename) {
+    int length = (int)pathAndFilename.size();
+    
+    if (length < 1) return "";
+
+    int pos = length - 1;
+    while (pos >= 0 && pathAndFilename[pos] != '\\' && pathAndFilename[pos] != '/') {
+        pos--;
+    }
+
+    std::string result = pathAndFilename.substr(pos+1, length - pos);
+
+    return result;
+}
+
 std::string LineToString(Line& line) {
     std::string result;
     // Image coordinates that the beier-neely algorithm uses
@@ -171,6 +186,7 @@ void Editor::OpenProject()
     }
     else {
         InitFromProjectFile(retOpenFile);
+        m_OpenedProject = GetProjectNameFromFilePath(retOpenFile);
     }
 }
 
@@ -233,6 +249,11 @@ void Editor::Update(IEvent* event)
     default: {};
     }
     
+}
+
+std::string Editor::GetProjectName()
+{
+    return m_OpenedProject;
 }
 
 static ImVec2 MousePosToImageCoords(ImVec2 mousePos, ImVec2 widgetMins, ImVec2 widgetSize, ImVec2 imageSize) {
@@ -309,6 +330,8 @@ Editor::Editor(Image sourceImage, Image destImage, EventHandler* eventHandler)
 
     m_EventHandler = eventHandler;
     m_EventHandler->Attach(this);    
+
+    m_OpenedProject = "Untitled Project";
 }
 
 Editor::~Editor()

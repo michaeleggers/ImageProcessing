@@ -206,15 +206,16 @@ int main(int argc, char** argv)
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         float windowAspect = (float)windowWidth / (float)windowHeight;
         
-        char cpMousePos[256];
-        sprintf(cpMousePos, "MousePos: %d, %d", MouseX(), MouseY());
-        SDL_SetWindowTitle(window, cpMousePos);
 
         // Draw stuff
 
         // Run the editor
         
         editor.Run();        
+
+        // Update Win32 Window title
+
+        SDL_SetWindowTitle(window, ("PowerMorph - " + editor.GetProjectName()).c_str());
 
         // Second pass
 
