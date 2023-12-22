@@ -209,6 +209,29 @@ void Editor::ResetState()
     m_editorState = ED_IDLE;
     m_editorMouseState = ED_MOUSE_IDLE;
     m_editorMouseInfo = { ImVec2(0, 0), ImVec2(0, 0) };
+    m_Dirty = false;
+}
+
+bool IsPointInsideRect(ImVec2 p, ImVec2 rectPos, ImVec2 rectSize) {
+    if (p.x > rectPos.x && p.x < rectPos.x + rectSize.x
+        && p.y > rectPos.y && p.y < rectPos.y + rectSize.y) {
+        return true;
+    }
+
+    return false;
+}
+
+bool Editor::WindowActive(EditorWindowType windowType)
+{
+    ImVec2 mousePos = ImGui::GetMousePos();
+    if (windowType == ED_WINDOW_TYPE_SOURCE) {
+        return IsPointInsideRect(mousePos, m_posSrc, m_sizeSrc);
+    }
+    else if (windowType == ED_WINDOW_TYPE_DEST) {
+        return IsPointInsideRect(mousePos, m_posDst, m_sizeDst);
+    }
+
+    return false; // should never be reached!
 }
 
 void Editor::Update(IEvent* event)
@@ -216,7 +239,9 @@ void Editor::Update(IEvent* event)
     switch (event->m_Type) {
     case EVENT_TYPE_DROP: {
         DropEvent* de = (DropEvent*)event;
-        printf("Want to drop file: %s\n", de->m_pathAndFilename.c_str());
+        printf("Editor Update: Want to drop file: %s\n", de->m_pathAndFilename.c_str());
+        m_newImagePathAndFilename = de->m_pathAndFilename;
+        m_Dirty = true;    
     } break;
     default: {};
     }
@@ -306,11 +331,45 @@ Editor::~Editor()
     delete m_resultFBO;
 }
 
+// TODO: Dest and Source windows should probably be in their own class! It is *very* annoying to check for
+// windowType each time we want to know if stuff is being updated (such as images loaded via drag and drop)
+// on either the source or the destination window.
 void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::vector<Line>& lines, EditorWindowType windowType)
 {
     // Setup Window to put the framebuffer into
 
     ImGui::Begin(title);    
+
+    // Save pos and size state of this window
+
+    if (windowType == ED_WINDOW_TYPE_SOURCE) {
+        m_posSrc = ImGui::GetWindowPos();
+        m_sizeSrc = ImGui::GetWindowSize();
+    }
+    else if (windowType == ED_WINDOW_TYPE_DEST) {
+        m_posDst = ImGui::GetWindowPos();
+        m_sizeDst = ImGui::GetWindowSize();
+    }
+
+    // TODO: Kinda ugly to have this here...
+
+    if (m_Dirty) {            
+        if (ImGui::IsWindowHovered()) {
+            if (windowType == ED_WINDOW_TYPE_SOURCE) {
+                Image newImage = Image(m_newImagePathAndFilename);
+                if (newImage.m_Data) {
+                    m_sourceImage = newImage;
+                }
+            }
+            else if (windowType == ED_WINDOW_TYPE_DEST) {
+                Image newImage = Image(m_newImagePathAndFilename);
+                if (newImage.m_Data) {
+                    m_destImage = newImage;
+                }                
+            }            
+        }        
+    }
+
     //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     //ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 
@@ -670,4 +729,6 @@ void Editor::Run()
     if (!m_blendedImages.empty()) {
         ShowResultWindow("Result");
     }    
+
+    m_Dirty = false;
 }

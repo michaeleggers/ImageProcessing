@@ -102,12 +102,12 @@ void HandleSystemEvents(bool* shouldClose, SDL_Window* window, EventHandler* eve
 
         if (event.type == SDL_DROPFILE) {
             droppedFile = event.drop.file;
-            SDL_ShowSimpleMessageBox(
-                SDL_MESSAGEBOX_INFORMATION,
-                "File dropped into window",
-                droppedFile,
-                window
-            );
+            //SDL_ShowSimpleMessageBox(
+            //    SDL_MESSAGEBOX_INFORMATION,
+            //    "File dropped into window",
+            //    droppedFile,
+            //    window
+            //);
             
             eventHandler->Notify(new DropEvent(droppedFile));
 
