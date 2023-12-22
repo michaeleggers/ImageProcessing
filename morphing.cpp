@@ -60,6 +60,7 @@
 #include "static_geometry.h"
 #include "static_image_data.h"
 #include "beierneely.h"
+#include "event_handler.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -174,10 +175,13 @@ int main(int argc, char** argv)
     glFrontFace(GL_CW); // front faces are in clockwise order
     glCullFace(GL_FALSE);
 
+    // Create the event manager
+
+    EventHandler *eventHandler = new EventHandler();
+
     // Create the editor
 
-    Editor editor(sourceImage, destImage);
-    Editor editor2(destImage, sourceImage);
+    Editor editor(sourceImage, destImage, eventHandler);    
 
     // Main loop
     
@@ -188,7 +192,7 @@ int main(int argc, char** argv)
         Uint32 startTime = SDL_GetTicks();
 
         // Call event handler here
-        HandleSystemEvents(&shouldClose);
+        HandleSystemEvents(&shouldClose, window, eventHandler);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame();
@@ -236,6 +240,8 @@ int main(int argc, char** argv)
             accumTime = 0.0f;
         }   
     }
+
+    delete eventHandler;
 
     // Kill OpenGL resources
 

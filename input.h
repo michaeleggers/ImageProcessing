@@ -3,7 +3,9 @@
 
 #include <SDL2/SDL.h>
 
-void HandleSystemEvents(bool* shouldClose);
+#include "event_handler.h"
+
+void HandleSystemEvents(bool* shouldClose, SDL_Window* window, EventHandler* eventHandler);
 
 // MOUSE
 

@@ -7,6 +7,10 @@
 
 #include <imgui/backends/imgui_impl_sdl2.h>
 
+#include "event_handler.h"
+#include "ievent.h"
+#include "events.h"
+
 struct MouseState {
     int x, y;
     int oldX, oldY;
@@ -26,6 +30,7 @@ void UpdateKeys(SDL_Event& e);
 static bool keys[SDL_NUM_SCANCODES] = { false };
 static bool keysPrev[SDL_NUM_SCANCODES] = { false };
 static MouseState mouseState;
+static char* droppedFile;
 
 bool LeftMouseButtonWentUp() {
     return mouseState.leftButtonWentUp;
@@ -73,7 +78,7 @@ bool KeyDown(SDL_Scancode scancode) {
 
 // MAIN SYSTEM EVENT HANDLER
 
-void HandleSystemEvents(bool* shouldClose) {
+void HandleSystemEvents(bool* shouldClose, SDL_Window* window, EventHandler* eventHandler) {
     
     // Remember keystate from prev frame.
 
@@ -92,6 +97,22 @@ void HandleSystemEvents(bool* shouldClose) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         ImGui_ImplSDL2_ProcessEvent(&event);
+
+        // Drag and drop from OS
+
+        if (event.type == SDL_DROPFILE) {
+            droppedFile = event.drop.file;
+            SDL_ShowSimpleMessageBox(
+                SDL_MESSAGEBOX_INFORMATION,
+                "File dropped into window",
+                droppedFile,
+                window
+            );
+            
+            eventHandler->Notify(new DropEvent(droppedFile));
+
+            SDL_free(droppedFile);
+        }
 
         UpdateKeys(event);
 

@@ -24,6 +24,7 @@
 #include "common.h"
 #include "beierneely.h"
 #include "parser.h"
+#include "event_handler.h"
 
 std::string LineToString(Line& line) {
     std::string result;
@@ -210,6 +211,18 @@ void Editor::ResetState()
     m_editorMouseInfo = { ImVec2(0, 0), ImVec2(0, 0) };
 }
 
+void Editor::Update(IEvent* event)
+{
+    switch (event->m_Type) {
+    case EVENT_TYPE_DROP: {
+        DropEvent* de = (DropEvent*)event;
+        printf("Want to drop file: %s\n", de->m_pathAndFilename.c_str());
+    } break;
+    default: {};
+    }
+    
+}
+
 static ImVec2 MousePosToImageCoords(ImVec2 mousePos, ImVec2 widgetMins, ImVec2 widgetSize, ImVec2 imageSize) {
     ImVec2 mousePosInButton = ImVec2(mousePos.x - widgetMins.x, mousePos.y - widgetMins.y);
     ImVec2 pictureCoords = ImVec2(
@@ -243,7 +256,7 @@ static ImVec2 MousePosToImageCoords(ImVec2 mousePos, ImVec2 widgetMins, ImVec2 w
     //fbo.Unbind();
 //}
 
-Editor::Editor(Image sourceImage, Image destImage)
+Editor::Editor(Image sourceImage, Image destImage, EventHandler* eventHandler)
 {
     // TODO: Should we allow source and destination images to be of different size?
     //       If yes, what is the size of the result image?
@@ -281,7 +294,9 @@ Editor::Editor(Image sourceImage, Image destImage)
         exit(-1);
     }
 #endif
-    
+
+    m_EventHandler = eventHandler;
+    m_EventHandler->Attach(this);    
 }
 
 Editor::~Editor()

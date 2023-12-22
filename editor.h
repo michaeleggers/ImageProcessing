@@ -13,6 +13,10 @@
 #include "image.h"
 #include "render_common.h"
 #include "common.h"
+#include "ievent_subscriber.h"
+#include "ievent.h"
+#include "events.h"
+#include "event_handler.h"
 
 enum EditorWindowType {
 	ED_WINDOW_TYPE_SOURCE,
@@ -38,9 +42,9 @@ struct EditorMouseInfo {
 };
 
 
-class Editor {
+class Editor : public IEventSubscriber {
 public:
-	Editor(Image sourceImage, Image destImage);
+	Editor(Image sourceImage, Image destImage, EventHandler* eventHandler);
 	~Editor();
 
 	void ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::vector<Line>& lines, EditorWindowType windowType);
@@ -52,6 +56,8 @@ public:
 	void SaveProject();
 	void OpenProject();
 	void Undo();
+
+	virtual void Update(IEvent* event) override; // Handle events from other parts of the program
 
 private:
 
@@ -88,6 +94,9 @@ private:
 
 	// Shader to render the images
 	Shader m_imageShader;
+
+	// Get notified from event manager
+	EventHandler* m_EventHandler;
 };
 
 #endif

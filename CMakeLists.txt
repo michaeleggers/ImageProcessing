@@ -57,6 +57,13 @@ add_executable(Morphing
     camera.cpp
 	input.h
 	input.cpp
+	event_handler.h
+	event_handler.cpp
+	ievent_subscriber.h
+	event_subscriber.h
+	event_subscriber.cpp
+	ievent.h
+	events.h
 	shader.h
 	shader.cpp
 	texture.h
