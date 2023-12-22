@@ -221,19 +221,6 @@ bool IsPointInsideRect(ImVec2 p, ImVec2 rectPos, ImVec2 rectSize) {
     return false;
 }
 
-bool Editor::WindowActive(EditorWindowType windowType)
-{
-    ImVec2 mousePos = ImGui::GetMousePos();
-    if (windowType == ED_WINDOW_TYPE_SOURCE) {
-        return IsPointInsideRect(mousePos, m_posSrc, m_sizeSrc);
-    }
-    else if (windowType == ED_WINDOW_TYPE_DEST) {
-        return IsPointInsideRect(mousePos, m_posDst, m_sizeDst);
-    }
-
-    return false; // should never be reached!
-}
-
 void Editor::Update(IEvent* event)
 {
     switch (event->m_Type) {

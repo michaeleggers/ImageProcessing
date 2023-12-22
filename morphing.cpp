@@ -10,6 +10,8 @@
 // - (7.12.2023)  It seems that the sequence is not being fully processed. The last image in the result window still shows parts of the source image
 // - (13.12.2023) Don't crash the program if an image could not be loaded from disk. Instead show checkerboard texture
 // - (20.12.2023) if a source line has no matching destination line the program crashes
+// - (22.12.2023) If the image index in the result window is higher than the range specified for a new sequence, the index causes
+//                an index out of range error and the program crashes.
 // 
 // TODOs:
 // - Redo for lines

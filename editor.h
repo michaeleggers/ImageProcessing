@@ -56,8 +56,7 @@ public:
 	void NewProject();
 	void SaveProject();
 	void OpenProject();
-	void Undo();
-	bool WindowActive(EditorWindowType windowType);
+	void Undo();	
 
 	virtual void Update(IEvent* event) override; // Handle events from other parts of the program
 

@@ -30,7 +30,6 @@ void UpdateKeys(SDL_Event& e);
 static bool keys[SDL_NUM_SCANCODES] = { false };
 static bool keysPrev[SDL_NUM_SCANCODES] = { false };
 static MouseState mouseState;
-static char* droppedFile;
 
 bool LeftMouseButtonWentUp() {
     return mouseState.leftButtonWentUp;
@@ -101,16 +100,8 @@ void HandleSystemEvents(bool* shouldClose, SDL_Window* window, EventHandler* eve
         // Drag and drop from OS
 
         if (event.type == SDL_DROPFILE) {
-            droppedFile = event.drop.file;
-            //SDL_ShowSimpleMessageBox(
-            //    SDL_MESSAGEBOX_INFORMATION,
-            //    "File dropped into window",
-            //    droppedFile,
-            //    window
-            //);
-            
+            char* droppedFile = event.drop.file;            
             eventHandler->Notify(new DropEvent(droppedFile));
-
             SDL_free(droppedFile);
         }
 
