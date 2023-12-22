@@ -226,6 +226,7 @@ void Editor::ResetState()
     m_editorMouseState = ED_MOUSE_IDLE;
     m_editorMouseInfo = { ImVec2(0, 0), ImVec2(0, 0) };
     m_Dirty = false;
+    m_OpenedProject = "Untitled Project";
 }
 
 bool IsPointInsideRect(ImVec2 p, ImVec2 rectPos, ImVec2 rectSize) {
