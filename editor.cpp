@@ -419,6 +419,7 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
         newWidth = imguiWindowHeight * srcAspect;
         newHeight = imguiWindowHeight;
     }
+    
     float posOffsetX = (imguiWindowWidth - newWidth) / 2.0f;
     float posOffsetY = (imguiWindowHeight - newHeight) / 2.0f;
 
@@ -592,8 +593,8 @@ void Editor::ShowResultWindow(const char* title)
         ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
     }
 
-    float imguiWindowWidth = ImGui::GetContentRegionAvail().x;
-    float imguiWindowHeight = ImGui::GetContentRegionAvail().y;
+    float imguiWindowWidth  = ImGui::GetContentRegionAvail().x;
+    float imguiWindowHeight = ImGui::GetContentRegionAvail().y - 30.0f; // -30 to leave some room for the slider widget below
 
     // safe guard for potential div by 0
 
@@ -615,19 +616,20 @@ void Editor::ShowResultWindow(const char* title)
     else { // vertical letterbox
         newWidth = imguiWindowHeight * srcAspect;
         newHeight = imguiWindowHeight;
-    }
+    }    
 
     float posOffsetX = (imguiWindowWidth - newWidth) / 2.0f;
-    float posOffsetY = (imguiWindowHeight - newHeight) / 2.0f;
+    float posOffsetY = (imguiWindowHeight - newHeight) / 2.0f;    
 
     ImVec2 imageSize(newWidth, newHeight);
     ImVec2 imagePosition(ImGui::GetCursorPosX() + posOffsetX, ImGui::GetCursorPosY() + posOffsetY);
 
     ImGui::SetCursorPos(imagePosition);
     ImGui::Image((void*)(intptr_t)m_blendedImages[m_ImageIndex].GetTexture().GetHandle(), ImVec2(newWidth, newHeight));
-    ImGui::SetCursorPosX(imagePosition.x);
+    ImGui::SetCursorPosX(imagePosition.x);    
     ImGui::PushItemWidth(imageSize.x);
     ImGui::SliderInt("##imageIndexSlider", &m_ImageIndex, 0, m_blendedImages.size() - 1);
+    ImGui::PopItemWidth();
 
     ImGui::End();
 }
