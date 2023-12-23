@@ -30,7 +30,7 @@ static glm::vec2 Perpendicular(glm::vec2& a) {
 }
 
 std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>& destLines, Image& sourceImage, Image& destImage, uint32_t iterations,
-                               float a, float b, float p)
+                               float a, float b, float p, std::vector<Image>& out_result, bool* out_done)
 {
     std::vector<Image> result;
 
@@ -83,9 +83,12 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
         image.CreateTexture();
 
         result.push_back(image);
+        out_result.push_back(image);
 
-        eventHandler->Notify(new RenderUpdateEvent(std::to_string(pct*100) + "% done\n", pct*100));
+        eventHandler->Notify(new RenderUpdateEvent(std::to_string(pct*100) + "% done\n", pct));
     }
+
+    *out_done = true;
 
     return result;
 }

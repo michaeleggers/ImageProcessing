@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <thread>
 
 #include <glad/glad.h>
 
@@ -191,15 +192,6 @@ void Editor::OpenProject()
     }
 }
 
-void Editor::ShowRenderStatusWindow()
-{
-    ImGui::Begin("Render Status");
-
-    ImGui::ProgressBar(m_RenderPctDone);
-
-    ImGui::End();
-}
-
 bool Editor::OpenImage(std::string& pathAndFilename)
 {
     const char* fileFilterList[] = { "*.png", "*.jpg", "*.bmp" };
@@ -371,6 +363,8 @@ Editor::Editor(Image sourceImage, Image destImage, EventHandler* eventHandler)
     m_OpenedProject = "Untitled Project";
 
     m_RenderPctDone = 0.0f;
+    m_sourceRenderDone = false;
+    m_destRenderDone = false;
 }
 
 Editor::~Editor()
@@ -746,15 +740,30 @@ void Editor::Run()
         else if (m_sourceLines.size() != m_destLines.size()) {
             tinyfd_messageBox("Linecount mismatch", "The number of lines in the source window and the destination window do not match!", "ok", "warning", 1);
         }
-        else {            
-            m_sourceToDestMorphs = BeierNeely(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P);
-            m_destToSourceMorphs = BeierNeely(m_destLines, m_sourceLines, m_destImage, m_sourceImage, m_NumIterations, m_A, m_B, m_P);
-            std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end());
-            m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);        
-            if (m_ImageIndex >= m_blendedImages.size()) {
-                m_ImageIndex = 0;
-            }
+        else {
+            m_sourceToDestMorphs.clear();
+            m_destToSourceMorphs.clear();
+            m_sourceImageThread = std::thread(&BeierNeely, m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P, std::ref(m_sourceToDestMorphs), &m_sourceRenderDone);
+            m_destImageThread = std::thread(&BeierNeely, m_destLines, m_sourceLines, m_destImage, m_sourceImage, m_NumIterations, m_A, m_B, m_P, std::ref(m_destToSourceMorphs), &m_destRenderDone);
+            //img1.join();
+            //img2.join();
+            //m_sourceToDestMorphs = BeierNeely(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P);
+            //m_destToSourceMorphs = BeierNeely(m_destLines, m_sourceLines, m_destImage, m_sourceImage, m_NumIterations, m_A, m_B, m_P);
         }
+    }
+    ImGui::ProgressBar(m_RenderPctDone);
+
+    if (m_sourceRenderDone && m_destRenderDone) {
+        m_sourceImageThread.join();
+        m_destImageThread.join();
+
+        std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end());
+        m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);        
+        if (m_ImageIndex >= m_blendedImages.size()) {
+            m_ImageIndex = 0;
+        }
+        m_sourceRenderDone = false;
+        m_destRenderDone = false;
     }
 
     if (!m_blendedImages.empty()) {
