@@ -740,6 +740,9 @@ void Editor::Run()
         else if (m_sourceLines.size() != m_destLines.size()) {
             tinyfd_messageBox("Linecount mismatch", "The number of lines in the source window and the destination window do not match!", "ok", "warning", 1);
         }
+        else if (m_sourceImageThread.joinable() || m_destImageThread.joinable()) {
+            // Still rendering. TODO: Kill running threads and start over again.
+        }
         else {
             m_sourceToDestMorphs.clear();
             m_destToSourceMorphs.clear();
