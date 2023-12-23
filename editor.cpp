@@ -744,6 +744,7 @@ void Editor::Run()
             // Still rendering. TODO: Kill running threads and start over again.
         }
         else {
+            m_EventHandler->Notify(new RenderStartEvent(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P));
             m_sourceToDestMorphs.clear();
             m_destToSourceMorphs.clear();
             m_sourceImageThread = std::thread(&BeierNeely, m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P, std::ref(m_sourceToDestMorphs), &m_sourceRenderDone);
