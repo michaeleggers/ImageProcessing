@@ -8,7 +8,7 @@
 class DropEvent : public IEvent {
 public:
 	DropEvent(std::string pathAndFilename);
-	virtual ~DropEvent() {};
+	~DropEvent() override;
 
 	std::string m_pathAndFilename;	
 };
@@ -16,7 +16,7 @@ public:
 class RenderUpdateEvent : public IEvent {
 public:
 	RenderUpdateEvent(std::string message, float pctDone);
-	virtual ~RenderUpdateEvent() {};
+	~RenderUpdateEvent() override;
 
 	std::string m_Message;
 	float m_pctDone;

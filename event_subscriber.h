@@ -10,7 +10,7 @@
 class EventSubscriber : public IEventSubscriber {
 public:
 	EventSubscriber(EventHandler* eventHandler);
-	virtual ~EventSubscriber();
+	virtual ~EventSubscriber() override;
 
 	virtual void Update(IEvent* event) override;
 

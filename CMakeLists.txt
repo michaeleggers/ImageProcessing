@@ -64,6 +64,7 @@ add_executable(Morphing
 	event_subscriber.cpp
 	ievent.h
 	events.h
+	events.cpp
 	shader.h
 	shader.cpp
 	texture.h
