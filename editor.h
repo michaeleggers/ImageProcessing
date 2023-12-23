@@ -56,7 +56,7 @@ public:
 	void NewProject();
 	void SaveProject();
 	void OpenProject();
-	Image OpenImage();
+	bool OpenImage(std::string& pathAndFilename);
 	void Undo();	
 
 	virtual void Update(IEvent* event) override; // Handle events from other parts of the program

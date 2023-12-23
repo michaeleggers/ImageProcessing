@@ -191,7 +191,7 @@ void Editor::OpenProject()
     }
 }
 
-Image Editor::OpenImage()
+bool Editor::OpenImage(std::string& pathAndFilename)
 {
     const char* fileFilterList[] = { "*.png", "*.jpg", "*.bmp" };
     char const* retOpenFile = tinyfd_openFileDialog(
@@ -206,8 +206,11 @@ Image Editor::OpenImage()
         SDL_Log("Open Image cancelled\n");
     }
     else {
-        return Image(retOpenFile);        
+        pathAndFilename = std::string(retOpenFile);
+        return true;
     }
+
+    return false;
 }
 
 // TODO: Maybe use command pattern that allows us to store commands
@@ -372,14 +375,21 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
     ImGui::Begin(title);    
 
     if (ImGui::Button("Select picture...")) {
-        if (windowType == ED_WINDOW_TYPE_SOURCE) {         
-            m_sourceImage = OpenImage();            
+        std::string pathAndFilename;
+        if (windowType == ED_WINDOW_TYPE_SOURCE) {
+            if (OpenImage(pathAndFilename)) {
+                m_sourceImage = Image(pathAndFilename);
+            }
         }
         else if (windowType == ED_WINDOW_TYPE_DEST) {
-            m_destImage = OpenImage();
+            if (OpenImage(pathAndFilename)) {
+                m_destImage = Image(pathAndFilename);
+            }
         }
     }
-    ImGui::Text(image.m_FilePath.c_str());
+
+    // TODO: This is wastefule. Build the string only on change.
+    ImGui::Text((image.m_FilePath + " (" + std::to_string(image.m_Width) + ", " + std::to_string(image.m_Height) + ")").c_str());
 
     // TODO: Kinda ugly to have this here...
 
