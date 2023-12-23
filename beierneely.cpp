@@ -69,17 +69,7 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
                 if ((uint32_t)srcX.x < 0) srcX.x = 0.0f;
                 if ((uint32_t)srcX.y < 0) srcX.y = 0.0f;                
 
-                glm::vec2 srcXFinal = X + DSUM / weightsum;
-                if ((uint32_t)srcXFinal.x > destImage.m_Height - 1) srcXFinal.x = float(destImage.m_Height - 1);
-                if ((uint32_t)srcXFinal.y > destImage.m_Height - 1) srcXFinal.y = float(destImage.m_Height - 1);
-                if ((uint32_t)srcXFinal.x < 0) srcXFinal.x = 0.0f;
-                if ((uint32_t)srcXFinal.y < 0) srcXFinal.y = 0.0f;
-
-                // if (srcX.x < 0 || srcX.y < 0) printf("srcX negative!\n");
-                                                
-                glm::ivec3 sourcePixel = sourceImage((uint32_t)srcX.x, (uint32_t)srcX.y);
-                glm::ivec3 sourcePixelFinal = sourceImage((uint32_t)srcXFinal.x, (uint32_t)srcXFinal.y);
-                glm::ivec3 destPixel = destImage(x, y);
+                glm::ivec3 sourcePixel = sourceImage((uint32_t)srcX.x, (uint32_t)srcX.y);                
                 
                 unsigned char* newPixel = image.m_Data + (image.m_Channels * (y * image.m_Width + x));
                 newPixel[0] = sourcePixel.r;
