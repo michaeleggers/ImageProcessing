@@ -191,6 +191,25 @@ void Editor::OpenProject()
     }
 }
 
+Image Editor::OpenImage()
+{
+    const char* fileFilterList[] = { "*.png", "*.jpg", "*.bmp" };
+    char const* retOpenFile = tinyfd_openFileDialog(
+        "Open Image",
+        "",
+        3,
+        fileFilterList,
+        "image files",
+        0
+    );
+    if (retOpenFile == NULL) {
+        SDL_Log("Open Image cancelled\n");
+    }
+    else {
+        return Image(retOpenFile);        
+    }
+}
+
 // TODO: Maybe use command pattern that allows us to store commands
 // that we can replay as we want.
 void Editor::Undo()
@@ -352,16 +371,15 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
 
     ImGui::Begin(title);    
 
-    // Save pos and size state of this window
-
-    if (windowType == ED_WINDOW_TYPE_SOURCE) {
-        m_posSrc = ImGui::GetWindowPos();
-        m_sizeSrc = ImGui::GetWindowSize();
+    if (ImGui::Button("Select picture...")) {
+        if (windowType == ED_WINDOW_TYPE_SOURCE) {         
+            m_sourceImage = OpenImage();            
+        }
+        else if (windowType == ED_WINDOW_TYPE_DEST) {
+            m_destImage = OpenImage();
+        }
     }
-    else if (windowType == ED_WINDOW_TYPE_DEST) {
-        m_posDst = ImGui::GetWindowPos();
-        m_sizeDst = ImGui::GetWindowSize();
-    }
+    ImGui::Text(image.m_FilePath.c_str());
 
     // TODO: Kinda ugly to have this here...
 
@@ -694,8 +712,13 @@ void Editor::Run()
     ImGui::SliderFloat("b", &m_B, 0.0f, 20.0f);
     ImGui::SliderFloat("p", &m_P, 0.0f, 1.0f);
     ImGui::SliderInt("Iterations", &m_NumIterations, 1, 100);
+
     if (ImGui::Button("MAGIC!")) {
-        if (m_sourceLines.size() != m_destLines.size()) {
+        if (m_sourceImage.m_Width != m_destImage.m_Width 
+            || m_sourceImage.m_Height != m_destImage.m_Height) {
+            tinyfd_messageBox("Image dimension mismatch", "Source and destination images must have the same dimensions!", "ok", "warning", 1);
+        }
+        else if (m_sourceLines.size() != m_destLines.size()) {
             tinyfd_messageBox("Linecount mismatch", "The number of lines in the source window and the destination window do not match!", "ok", "warning", 1);
         }
         else {
@@ -708,6 +731,7 @@ void Editor::Run()
             }
         }
     }
+
     if (!m_blendedImages.empty()) {
         if (ImGui::Button("Render (TGA)")) {
             char const* retSaveFile = tinyfd_saveFileDialog(

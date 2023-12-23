@@ -56,6 +56,7 @@ public:
 	void NewProject();
 	void SaveProject();
 	void OpenProject();
+	Image OpenImage();
 	void Undo();	
 
 	virtual void Update(IEvent* event) override; // Handle events from other parts of the program
@@ -100,12 +101,6 @@ private:
 
 	// Get notified from event manager
 	EventHandler* m_EventHandler;
-
-	// Retain state of src and dst windows so we can respond to file-drop events correctly 
-	// (THIS IS REALLY FUCKED UP. But what can you do...)
-
-	ImVec2 m_posSrc, m_posDst;
-	ImVec2 m_sizeSrc, m_sizeDst;
 
 	// Exists so that the window functions that don't have state (eg ShowWindow) know if they
 	// should check if their source or destination image should be updated!
