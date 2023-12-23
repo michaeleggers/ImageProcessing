@@ -3,6 +3,7 @@
 
 enum EventType {
 	EVENT_TYPE_DROP,
+	EVENT_TYPE_RENDER_UPDATE,
 	MAX_EVENT_TYPES
 };
 

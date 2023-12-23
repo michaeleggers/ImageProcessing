@@ -13,4 +13,13 @@ public:
 	std::string m_pathAndFilename;	
 };
 
+class RenderUpdateEvent : public IEvent {
+public:
+	RenderUpdateEvent(std::string message, float pctDone);
+	virtual ~RenderUpdateEvent() {};
+
+	std::string m_Message;
+	float m_pctDone;
+};
+
 #endif

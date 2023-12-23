@@ -10,6 +10,10 @@
 
 #include "image.h"
 #include "render_common.h"
+#include "event_handler.h" 
+#include "events.h"
+
+extern EventHandler* eventHandler;
 
 static float Distance(float u, float v, glm::vec2 P, glm::vec2 Q, glm::vec2 X) {
     if (0.0f < u && u < 1.0f)   return glm::abs(v);
@@ -29,8 +33,6 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
                                float a, float b, float p)
 {
     std::vector<Image> result;
-
-    // constants
 
     for (uint32_t iter = 0; iter <= iterations; iter++) {
         float pct = (float)iter / (float)iterations;
@@ -91,6 +93,8 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
         image.CreateTexture();
 
         result.push_back(image);
+
+        eventHandler->Notify(new RenderUpdateEvent(std::to_string(pct*100) + "% done\n", pct*100));
     }
 
     return result;

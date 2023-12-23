@@ -191,6 +191,15 @@ void Editor::OpenProject()
     }
 }
 
+void Editor::ShowRenderStatusWindow()
+{
+    ImGui::Begin("Render Status");
+
+    ImGui::ProgressBar(m_RenderPctDone);
+
+    ImGui::End();
+}
+
 bool Editor::OpenImage(std::string& pathAndFilename)
 {
     const char* fileFilterList[] = { "*.png", "*.jpg", "*.bmp" };
@@ -266,13 +275,17 @@ void Editor::Update(IEvent* event)
     switch (event->m_Type) {
     case EVENT_TYPE_DROP: {
         DropEvent* de = (DropEvent*)event;
-        printf("Editor Update: Want to drop file: %s\n", de->m_pathAndFilename.c_str());
+        printf("Editor handling drop event: %s\n", de->m_pathAndFilename.c_str());
         m_newImagePathAndFilename = de->m_pathAndFilename;
         m_Dirty = true;    
     } break;
+    case EVENT_TYPE_RENDER_UPDATE: {
+        RenderUpdateEvent* rue = (RenderUpdateEvent*)event;
+        m_RenderPctDone = rue->m_pctDone;
+        printf("Editor handling render update event: %s\n", rue->m_Message.c_str());
+    } break;
     default: {};
-    }
-    
+    }    
 }
 
 std::string Editor::GetProjectName()
@@ -356,6 +369,8 @@ Editor::Editor(Image sourceImage, Image destImage, EventHandler* eventHandler)
     m_EventHandler->Attach(this);    
 
     m_OpenedProject = "Untitled Project";
+
+    m_RenderPctDone = 0.0f;
 }
 
 Editor::~Editor()
@@ -731,7 +746,7 @@ void Editor::Run()
         else if (m_sourceLines.size() != m_destLines.size()) {
             tinyfd_messageBox("Linecount mismatch", "The number of lines in the source window and the destination window do not match!", "ok", "warning", 1);
         }
-        else {
+        else {            
             m_sourceToDestMorphs = BeierNeely(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P);
             m_destToSourceMorphs = BeierNeely(m_destLines, m_sourceLines, m_destImage, m_sourceImage, m_NumIterations, m_A, m_B, m_P);
             std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end());

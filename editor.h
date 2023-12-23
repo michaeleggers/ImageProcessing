@@ -50,6 +50,7 @@ public:
 
 	void ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::vector<Line>& lines, EditorWindowType windowType);
 	void ShowResultWindow(const char* title);
+	void ShowRenderStatusWindow();
 	void Run();
 	
 	void InitFromProjectFile(std::string pathAndFilename);
@@ -108,6 +109,8 @@ private:
 	std::string m_newImagePathAndFilename;
 
 	std::string m_OpenedProject;
+
+	float m_RenderPctDone;
 };
 
 #endif

@@ -77,6 +77,8 @@
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
 
+EventHandler* eventHandler;
+
 int main(int argc, char** argv)
 {
     std::string exePath = com_GetExePath();
@@ -179,7 +181,7 @@ int main(int argc, char** argv)
 
     // Create the event manager
 
-    EventHandler *eventHandler = new EventHandler();
+    eventHandler = new EventHandler();
 
     // Create the editor
 
