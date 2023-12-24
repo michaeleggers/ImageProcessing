@@ -29,9 +29,15 @@ void Processor::Update(IEvent* event)
     switch (event->m_Type) {
     case EVENT_TYPE_RENDER_START: {
         SDL_Log("Processor: Received render start event.\n");
-        RenderStartEvent* rse = (RenderStartEvent*)event;
-        StartRenderThread(rse);
-        SDL_Log("Processor: Main Render thread started...\n");
+        // TODO: How to kill a running thread???
+        if (!m_sourceRenderDone || !m_destRenderDone) { // already rendering
+            SDL_Log("Processor: Received render start event. Already rendering. Wait for finish...\n");
+        }
+        else {
+            RenderStartEvent* rse = (RenderStartEvent*)event;
+            StartRenderThread(rse);
+            SDL_Log("Processor: Main Render thread started...\n");
+        }
 
     } break;
     default: {};
@@ -72,6 +78,8 @@ void Processor::CheckRenderThread()
         return;
     }
 
+    // Hack: render done is received and final pct-age is not captured.
+    //       So do it again here to get 100%
     float totalRenderPct = (m_sourceRenderPctDone + m_destRenderPctDone) / 2.0f;
     RenderUpdateEvent rue("Message (Render update)", totalRenderPct);
     m_EventHandler->Notify(&rue);
