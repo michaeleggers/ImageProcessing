@@ -277,6 +277,14 @@ void Editor::Update(IEvent* event)
     } break;
     case EVENT_TYPE_RENDER_DONE: {
         SDL_Log("Editor: Received render done event\n");
+        RenderDoneEvent* rde = (RenderDoneEvent*)event;
+        m_sourceToDestMorphs = rde->m_sourceToDestMorphs;
+        m_destToSourceMorphs = rde->m_destToSourceMorphs;
+        std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end());
+        m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);        
+        if (m_ImageIndex >= m_blendedImages.size()) {
+            m_ImageIndex = 0;
+        }
     } break;
     default: {};
     }    
@@ -747,33 +755,12 @@ void Editor::Run()
         }
         else {
             m_EventHandler->Notify(new RenderStartEvent(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P));
-            //m_sourceToDestMorphs.clear();
-            //m_destToSourceMorphs.clear();
-            //m_sourceImageThread = std::thread(&BeierNeely, m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P, std::ref(m_sourceToDestMorphs), &m_sourceRenderDone);
-            //m_destImageThread = std::thread(&BeierNeely, m_destLines, m_sourceLines, m_destImage, m_sourceImage, m_NumIterations, m_A, m_B, m_P, std::ref(m_destToSourceMorphs), &m_destRenderDone);
-
-            //img1.join();
-            //img2.join();
-
-            //m_sourceToDestMorphs = BeierNeely(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P);
-            //m_destToSourceMorphs = BeierNeely(m_destLines, m_sourceLines, m_destImage, m_sourceImage, m_NumIterations, m_A, m_B, m_P);
+            m_sourceToDestMorphs.clear();
+            m_destToSourceMorphs.clear();
         }
     }
     ImGui::ProgressBar(m_RenderPctDone);
-
-    //if (m_sourceRenderDone && m_destRenderDone) {
-    //    m_sourceImageThread.join();
-    //    m_destImageThread.join();
-
-    //    std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end());
-    //    m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);        
-    //    if (m_ImageIndex >= m_blendedImages.size()) {
-    //        m_ImageIndex = 0;
-    //    }
-    //    m_sourceRenderDone = false;
-    //    m_destRenderDone = false;
-    //}
-
+    
     if (!m_blendedImages.empty()) {
         if (ImGui::Button("Render (TGA)")) {
             char const* retSaveFile = tinyfd_saveFileDialog(

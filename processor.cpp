@@ -42,7 +42,8 @@ void Processor::StartRenderThread(RenderStartEvent* rse)
 {
     m_sourceRenderDone = false;
     m_destRenderDone = false;
-
+    m_sourceToDestMorphs.clear();
+    m_destToSourceMorphs.clear();
     m_sourceImageThread = std::thread(&BeierNeely,
         rse->m_sourceLines, rse->m_destLines,
         rse->m_sourceImage, rse->m_destImage,
@@ -62,7 +63,8 @@ void Processor::CheckRenderThread()
 {
     if (!m_sourceRenderDone || !m_destRenderDone) {
         float totalRenderPct = (m_sourceRenderPctDone + m_destRenderPctDone) / 2.0f;
-        m_EventHandler->Notify(new RenderUpdateEvent("Message (Render update)", totalRenderPct));
+        RenderUpdateEvent rue("Message (Render update)", totalRenderPct);
+        m_EventHandler->Notify(&rue);
 
         return;
     }
@@ -71,10 +73,14 @@ void Processor::CheckRenderThread()
     }
 
     float totalRenderPct = (m_sourceRenderPctDone + m_destRenderPctDone) / 2.0f;
-    m_EventHandler->Notify(new RenderUpdateEvent("Message (Render update)", totalRenderPct));
+    RenderUpdateEvent rue("Message (Render update)", totalRenderPct);
+    m_EventHandler->Notify(&rue);
 
     m_sourceImageThread.join();
     m_destImageThread.join();
+    m_sourceRenderDone = true;
+    m_destRenderDone = true;
 
-    m_EventHandler->Notify(new RenderDoneEvent(m_sourceToDestMorphs, m_destToSourceMorphs));
+    RenderDoneEvent rde(m_sourceToDestMorphs, m_destToSourceMorphs);
+    m_EventHandler->Notify(&rde);
 }

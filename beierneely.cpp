@@ -84,6 +84,7 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
         image.CreateTexture();
 
         result.push_back(image);
+        out_result.push_back(image);
 
         *pctDone = pct;
     }
