@@ -159,7 +159,7 @@ void Editor::SaveProject()
     const char* fileFilterList[] = { "*.mph" };
     char const* retSaveFile = tinyfd_saveFileDialog(
         "Save Project",
-        "",
+        m_OpenedProject.c_str(),
         1,
         fileFilterList,
         "Morph MPH files");
