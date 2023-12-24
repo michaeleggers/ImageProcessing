@@ -13,7 +13,7 @@ std::vector<Image> BeierNeely(
 	Image& sourceImage, Image& destImage, 
 	uint32_t iterations,
 	float a, float b, float p,
-	std::vector<Image>& out_result, bool* out_done);
+	std::vector<Image>& out_result, float* pctDone, bool* done);
 
 std::vector<Image> BlendImages(std::vector<Image>& a, std::vector<Image>& b);
 

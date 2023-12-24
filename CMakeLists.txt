@@ -73,6 +73,8 @@ add_executable(Morphing
 	fbo.cpp
 	editor.h
 	editor.cpp
+	processor.h
+	processor.cpp
 	render_common.h
 	batch.h
 	batch.cpp

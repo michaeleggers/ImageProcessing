@@ -63,6 +63,7 @@
 #include "static_image_data.h"
 #include "beierneely.h"
 #include "event_handler.h"
+#include "processor.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -216,6 +217,10 @@ int main(int argc, char** argv)
 
     eventHandler = new EventHandler();
 
+    // Processor. Does the heavy lifting in this program
+
+    Processor processor(eventHandler);
+
     // Create the editor
 
     Editor editor(sourceImage, destImage, eventHandler);    
@@ -244,9 +249,13 @@ int main(int argc, char** argv)
 
         // Draw stuff
 
+        // Processor: Check if rendering
+
+        processor.CheckRenderThread();
+
         // Run the editor
         
-        editor.Run();        
+        editor.Run();
 
         // Update Win32 Window title
 

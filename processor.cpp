@@ -1,0 +1,80 @@
+#include "processor.h"
+
+#include <thread>
+
+#include <SDL2/SDL.h>
+
+#include "events.h"
+#include "beierneely.h"
+
+Processor::Processor(EventHandler* eventHandler)
+{
+    m_EventHandler = eventHandler;
+    m_EventHandler->Attach(this);
+    m_sourceRenderPctDone = 0.0f;
+    m_destRenderPctDone = 0.0f;
+    m_sourceRenderDone = true;
+    m_destRenderDone = true;
+    m_sourceImageThread = std::thread();
+    m_destImageThread = std::thread();
+
+}
+
+Processor::~Processor()
+{
+}
+
+void Processor::Update(IEvent* event)
+{
+    switch (event->m_Type) {
+    case EVENT_TYPE_RENDER_START: {
+        SDL_Log("Processor: Received render start event.\n");
+        RenderStartEvent* rse = (RenderStartEvent*)event;
+        StartRenderThread(rse);
+        SDL_Log("Processor: Main Render thread started...\n");
+
+    } break;
+    default: {};
+    }
+}
+
+void Processor::StartRenderThread(RenderStartEvent* rse)
+{
+    m_sourceRenderDone = false;
+    m_destRenderDone = false;
+
+    m_sourceImageThread = std::thread(&BeierNeely,
+        rse->m_sourceLines, rse->m_destLines,
+        rse->m_sourceImage, rse->m_destImage,
+        rse->m_numIterations,
+        rse->m_A, rse->m_B, rse->m_P,
+        std::ref(m_sourceToDestMorphs), &m_sourceRenderPctDone, &m_sourceRenderDone);
+
+    m_destImageThread = std::thread(&BeierNeely,
+        rse->m_destLines, rse->m_sourceLines,
+        rse->m_destImage, rse->m_sourceImage,
+        rse->m_numIterations,
+        rse->m_A, rse->m_B, rse->m_P,
+        std::ref(m_destToSourceMorphs), &m_destRenderPctDone, &m_destRenderDone);
+}
+
+void Processor::CheckRenderThread()
+{
+    if (!m_sourceRenderDone || !m_destRenderDone) {
+        float totalRenderPct = (m_sourceRenderPctDone + m_destRenderPctDone) / 2.0f;
+        m_EventHandler->Notify(new RenderUpdateEvent("Message (Render update)", totalRenderPct));
+
+        return;
+    }
+    else if (!m_sourceImageThread.joinable() || !m_destImageThread.joinable()) {
+        return;
+    }
+
+    float totalRenderPct = (m_sourceRenderPctDone + m_destRenderPctDone) / 2.0f;
+    m_EventHandler->Notify(new RenderUpdateEvent("Message (Render update)", totalRenderPct));
+
+    m_sourceImageThread.join();
+    m_destImageThread.join();
+
+    m_EventHandler->Notify(new RenderDoneEvent(m_sourceToDestMorphs, m_destToSourceMorphs));
+}

@@ -40,5 +40,13 @@ public:
 	float m_A, m_B, m_P;
 };
 
+class RenderDoneEvent : public IEvent {
+public:
+	RenderDoneEvent(std::vector<Image> sourceToDestMorphs, std::vector<Image> destToSourceMorphs);
+	virtual ~RenderDoneEvent() {};
+
+	std::vector<Image> m_sourceToDestMorphs;
+	std::vector<Image> m_destToSourceMorphs;
+};
 
 #endif

@@ -35,3 +35,9 @@ RenderStartEvent::RenderStartEvent(
 	m_P = P;
 }
 
+RenderDoneEvent::RenderDoneEvent(std::vector<Image> sourceToDestMorphs, std::vector<Image> destToSourceMorphs)
+{
+	m_Type = EVENT_TYPE_RENDER_DONE;
+	m_sourceToDestMorphs = sourceToDestMorphs;
+	m_destToSourceMorphs = destToSourceMorphs;
+}
