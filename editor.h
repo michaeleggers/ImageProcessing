@@ -46,7 +46,7 @@ struct EditorMouseInfo {
 class Editor : public IEventSubscriber {
 public:
 	Editor(Image sourceImage, Image destImage, EventHandler* eventHandler);
-	~Editor();
+	~Editor() override;
 
 	void ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::vector<Line>& lines, EditorWindowType windowType);
 	void ShowResultWindow(const char* title);	

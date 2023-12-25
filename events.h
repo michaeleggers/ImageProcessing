@@ -11,7 +11,7 @@
 class DropEvent : public IEvent {
 public:
 	DropEvent(std::string pathAndFilename);
-	virtual ~DropEvent() {};
+	virtual ~DropEvent() override;
 
 	std::string m_pathAndFilename;	
 };
@@ -19,7 +19,7 @@ public:
 class RenderUpdateEvent : public IEvent {
 public:
 	RenderUpdateEvent(std::string message, float pctDone);
-	virtual ~RenderUpdateEvent() {};
+	virtual ~RenderUpdateEvent() override;
 
 	std::string m_Message;
 	float m_pctDone;
@@ -28,7 +28,7 @@ public:
 class RenderStopEvent : public IEvent {
 public:
 	RenderStopEvent();
-	virtual ~RenderStopEvent() {};
+	virtual ~RenderStopEvent() override;
 };
 
 class RenderStartEvent : public IEvent {
@@ -38,7 +38,7 @@ public:
 		Image sourceImage, Image destImage, 
 		int numIterations, 
 		float A, float B, float P);
-	virtual ~RenderStartEvent() {};
+	virtual ~RenderStartEvent() override;
 
 	std::vector<Line> m_sourceLines, m_destLines;
 	Image m_sourceImage, m_destImage;
@@ -49,7 +49,7 @@ public:
 class RenderDoneEvent : public IEvent {
 public:
 	RenderDoneEvent(std::vector<Image> sourceToDestMorphs, std::vector<Image> destToSourceMorphs);
-	virtual ~RenderDoneEvent() {};
+	virtual ~RenderDoneEvent() override;
 
 	std::vector<Image> m_sourceToDestMorphs;
 	std::vector<Image> m_destToSourceMorphs;

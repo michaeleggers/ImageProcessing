@@ -12,11 +12,19 @@ DropEvent::DropEvent(std::string pathAndFilename)
 	m_pathAndFilename = pathAndFilename;
 }
 
+DropEvent::~DropEvent()
+{
+}
+
 RenderUpdateEvent::RenderUpdateEvent(std::string message, float pctDone)
 {
 	m_Type = EVENT_TYPE_RENDER_UPDATE;
 	m_Message = message;
 	m_pctDone = pctDone;
+}
+
+RenderUpdateEvent::~RenderUpdateEvent()
+{
 }
 
 RenderStartEvent::RenderStartEvent(
@@ -35,6 +43,10 @@ RenderStartEvent::RenderStartEvent(
 	m_P = P;
 }
 
+RenderStartEvent::~RenderStartEvent()
+{
+}
+
 RenderDoneEvent::RenderDoneEvent(std::vector<Image> sourceToDestMorphs, std::vector<Image> destToSourceMorphs)
 {
 	m_Type = EVENT_TYPE_RENDER_DONE;
@@ -42,7 +54,15 @@ RenderDoneEvent::RenderDoneEvent(std::vector<Image> sourceToDestMorphs, std::vec
 	m_destToSourceMorphs = destToSourceMorphs;
 }
 
+RenderDoneEvent::~RenderDoneEvent()
+{
+}
+
 RenderStopEvent::RenderStopEvent()
 {
 	m_Type = EVENT_TYPE_RENDER_STOP;
+}
+
+RenderStopEvent::~RenderStopEvent()
+{
 }
