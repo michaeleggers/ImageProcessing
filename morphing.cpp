@@ -63,6 +63,7 @@
 #include "static_image_data.h"
 #include "beierneely.h"
 #include "event_handler.h"
+#include "processor.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -129,6 +130,39 @@ int main(int argc, char** argv)
 
     SDL_ShowWindow(window);
 
+    // Setup Window icon
+
+    Uint32 rmask = 0x000000ff;
+    Uint32 gmask = 0x0000ff00;
+    Uint32 bmask = 0x00ff0000;
+    Uint32 amask = 0xff000000;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    int shift = 0;
+    rmask = 0xff000000 >> shift;
+    gmask = 0x00ff0000 >> shift;
+    bmask = 0x0000ff00 >> shift;
+    amask = 0x000000ff >> shift;
+#else // little endian, like x86
+    rmask = 0x000000ff;
+    gmask = 0x0000ff00;
+    bmask = 0x00ff0000;
+    amask = 0xff000000;
+#endif
+
+    Image windowIcon(exePath + "../../res/icon.bmp");
+    SDL_Surface* windowIconSurf = SDL_CreateRGBSurfaceFrom(
+        windowIcon.m_Data,
+        windowIcon.m_Width, windowIcon.m_Height,
+        24, // depth
+        windowIcon.m_Width * 3, // 3 bytes/pixel
+        rmask,
+        gmask,
+        bmask,
+        amask
+    );
+    SDL_SetWindowIcon(window, windowIconSurf);
+    SDL_FreeSurface(windowIconSurf);
+
     // Static geometry
 
     InitStaticGeometry();
@@ -183,6 +217,10 @@ int main(int argc, char** argv)
 
     eventHandler = new EventHandler();
 
+    // Processor. Does the heavy lifting in this program
+
+    Processor processor(eventHandler);
+
     // Create the editor
 
     Editor editor(sourceImage, destImage, eventHandler);    
@@ -211,9 +249,13 @@ int main(int argc, char** argv)
 
         // Draw stuff
 
+        // Processor: Check if rendering
+
+        processor.CheckRenderThread();
+
         // Run the editor
         
-        editor.Run();        
+        editor.Run();
 
         // Update Win32 Window title
 

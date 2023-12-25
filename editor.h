@@ -2,7 +2,7 @@
 #define _EDITOR_H_
 
 #include <vector>
-#include <deque>
+#include <thread>
 
 #include <glad/glad.h>
 
@@ -49,8 +49,7 @@ public:
 	~Editor() override;
 
 	void ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::vector<Line>& lines, EditorWindowType windowType);
-	void ShowResultWindow(const char* title);
-	void ShowRenderStatusWindow();
+	void ShowResultWindow(const char* title);	
 	void Run();
 	
 	void InitFromProjectFile(std::string pathAndFilename);
@@ -111,6 +110,14 @@ private:
 	std::string m_OpenedProject;
 
 	float m_RenderPctDone;
+
+	bool m_sourceRenderDone;
+	bool m_destRenderDone;
+
+	std::thread m_sourceImageThread;
+	std::thread m_destImageThread;
+
+	bool m_isRendering;
 };
 
 #endif

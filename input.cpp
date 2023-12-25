@@ -101,7 +101,8 @@ void HandleSystemEvents(bool* shouldClose, SDL_Window* window, EventHandler* eve
 
         if (event.type == SDL_DROPFILE) {
             char* droppedFile = event.drop.file;            
-            eventHandler->Notify(new DropEvent(droppedFile));
+            DropEvent de(droppedFile);
+            eventHandler->Notify(&de);
             SDL_free(droppedFile);
         }
 
@@ -109,6 +110,7 @@ void HandleSystemEvents(bool* shouldClose, SDL_Window* window, EventHandler* eve
 
         if (event.type == SDL_QUIT) {
             *shouldClose = true;
+            eventHandler->Notify(new RenderStopEvent());
         }
 
         if (event.type == SDL_WINDOWEVENT) {

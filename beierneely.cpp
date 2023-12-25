@@ -30,11 +30,17 @@ static glm::vec2 Perpendicular(glm::vec2& a) {
 }
 
 std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>& destLines, Image& sourceImage, Image& destImage, uint32_t iterations,
-                               float a, float b, float p)
+                               float a, float b, float p,
+                                std::vector<Image>& out_result, float* pctDone, bool* done, bool* stop)
 {
     std::vector<Image> result;
 
     for (uint32_t iter = 0; iter <= iterations; iter++) {
+
+        if (*stop) {
+            break; // received stop event.
+        }
+
         float pct = (float)iter / (float)iterations;
         Image image(sourceImage.m_Width, sourceImage.m_Height, 3); // TODO: Check for channels and handle correctly
 
@@ -69,17 +75,7 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
                 if ((uint32_t)srcX.x < 0) srcX.x = 0.0f;
                 if ((uint32_t)srcX.y < 0) srcX.y = 0.0f;                
 
-                glm::vec2 srcXFinal = X + DSUM / weightsum;
-                if ((uint32_t)srcXFinal.x > destImage.m_Height - 1) srcXFinal.x = float(destImage.m_Height - 1);
-                if ((uint32_t)srcXFinal.y > destImage.m_Height - 1) srcXFinal.y = float(destImage.m_Height - 1);
-                if ((uint32_t)srcXFinal.x < 0) srcXFinal.x = 0.0f;
-                if ((uint32_t)srcXFinal.y < 0) srcXFinal.y = 0.0f;
-
-                // if (srcX.x < 0 || srcX.y < 0) printf("srcX negative!\n");
-                                                
-                glm::ivec3 sourcePixel = sourceImage((uint32_t)srcX.x, (uint32_t)srcX.y);
-                glm::ivec3 sourcePixelFinal = sourceImage((uint32_t)srcXFinal.x, (uint32_t)srcXFinal.y);
-                glm::ivec3 destPixel = destImage(x, y);
+                glm::ivec3 sourcePixel = sourceImage((uint32_t)srcX.x, (uint32_t)srcX.y);                
                 
                 unsigned char* newPixel = image.m_Data + (image.m_Channels * (y * image.m_Width + x));
                 newPixel[0] = sourcePixel.r;
@@ -93,9 +89,12 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
         image.CreateTexture();
 
         result.push_back(image);
+        out_result.push_back(image);
 
-        eventHandler->Notify(new RenderUpdateEvent(std::to_string(pct*100) + "% done\n", pct*100));
+        *pctDone = pct;
     }
+    
+    *done = true;
 
     return result;
 }

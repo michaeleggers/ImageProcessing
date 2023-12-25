@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <thread>
 
 #include <glad/glad.h>
 
@@ -158,7 +159,7 @@ void Editor::SaveProject()
     const char* fileFilterList[] = { "*.mph" };
     char const* retSaveFile = tinyfd_saveFileDialog(
         "Save Project",
-        "",
+        m_OpenedProject.c_str(),
         1,
         fileFilterList,
         "Morph MPH files");
@@ -189,15 +190,6 @@ void Editor::OpenProject()
         InitFromProjectFile(retOpenFile);
         m_OpenedProject = GetProjectNameFromFilePath(retOpenFile);
     }
-}
-
-void Editor::ShowRenderStatusWindow()
-{
-    ImGui::Begin("Render Status");
-
-    ImGui::ProgressBar(m_RenderPctDone);
-
-    ImGui::End();
 }
 
 bool Editor::OpenImage(std::string& pathAndFilename)
@@ -275,14 +267,25 @@ void Editor::Update(IEvent* event)
     switch (event->m_Type) {
     case EVENT_TYPE_DROP: {
         DropEvent* de = (DropEvent*)event;
-        printf("Editor handling drop event: %s\n", de->m_pathAndFilename.c_str());
+        printf("Editor: received file drop event: %s\n", de->m_pathAndFilename.c_str());
         m_newImagePathAndFilename = de->m_pathAndFilename;
         m_Dirty = true;    
     } break;
     case EVENT_TYPE_RENDER_UPDATE: {
         RenderUpdateEvent* rue = (RenderUpdateEvent*)event;
         m_RenderPctDone = rue->m_pctDone;
-        printf("Editor handling render update event: %s\n", rue->m_Message.c_str());
+    } break;
+    case EVENT_TYPE_RENDER_DONE: {
+        SDL_Log("Editor: Received render done event\n");
+        RenderDoneEvent* rde = (RenderDoneEvent*)event;
+        m_sourceToDestMorphs = rde->m_sourceToDestMorphs;
+        m_destToSourceMorphs = rde->m_destToSourceMorphs;
+        std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end());
+        m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);        
+        if (m_ImageIndex >= m_blendedImages.size()) {
+            m_ImageIndex = 0;
+        }
+        m_isRendering = false;
     } break;
     default: {};
     }    
@@ -371,6 +374,9 @@ Editor::Editor(Image sourceImage, Image destImage, EventHandler* eventHandler)
     m_OpenedProject = "Untitled Project";
 
     m_RenderPctDone = 0.0f;
+    m_sourceRenderDone = false;
+    m_destRenderDone = false;
+    m_isRendering = false;
 }
 
 Editor::~Editor()
@@ -746,17 +752,26 @@ void Editor::Run()
         else if (m_sourceLines.size() != m_destLines.size()) {
             tinyfd_messageBox("Linecount mismatch", "The number of lines in the source window and the destination window do not match!", "ok", "warning", 1);
         }
-        else {            
-            m_sourceToDestMorphs = BeierNeely(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P);
-            m_destToSourceMorphs = BeierNeely(m_destLines, m_sourceLines, m_destImage, m_sourceImage, m_NumIterations, m_A, m_B, m_P);
-            std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end());
-            m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);        
-            if (m_ImageIndex >= m_blendedImages.size()) {
-                m_ImageIndex = 0;
-            }
+        else if (m_sourceImageThread.joinable() || m_destImageThread.joinable()) {
+            // Still rendering. TODO: Kill running threads and start over again.
+        }
+        else {
+            m_EventHandler->Notify(new RenderStartEvent(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P));
+            m_sourceToDestMorphs.clear();
+            m_destToSourceMorphs.clear();
+            m_isRendering = true;
         }
     }
-
+    
+    if (m_isRendering) {
+        ImGui::ProgressBar(m_RenderPctDone);
+        if (ImGui::Button("Cancel Render")) {
+            m_EventHandler->Notify(new RenderStopEvent());
+            m_RenderPctDone = 0.0f;
+            m_isRendering = false;
+        }
+    }
+    
     if (!m_blendedImages.empty()) {
         if (ImGui::Button("Render (TGA)")) {
             char const* retSaveFile = tinyfd_saveFileDialog(
