@@ -109,6 +109,7 @@ void Processor::CheckRenderThread()
     m_destImageThread.join();
     m_sourceRenderDone = true;
     m_destRenderDone = true;
+    m_isRendering = false;
 
     RenderDoneEvent rde(m_sourceToDestMorphs, m_destToSourceMorphs);
     m_EventHandler->Notify(&rde);
