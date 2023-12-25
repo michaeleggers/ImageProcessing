@@ -41,3 +41,8 @@ RenderDoneEvent::RenderDoneEvent(std::vector<Image> sourceToDestMorphs, std::vec
 	m_sourceToDestMorphs = sourceToDestMorphs;
 	m_destToSourceMorphs = destToSourceMorphs;
 }
+
+RenderStopEvent::RenderStopEvent()
+{
+	m_Type = EVENT_TYPE_RENDER_STOP;
+}

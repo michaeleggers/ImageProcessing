@@ -25,6 +25,12 @@ public:
 	float m_pctDone;
 };
 
+class RenderStopEvent : public IEvent {
+public:
+	RenderStopEvent();
+	virtual ~RenderStopEvent() {};
+};
+
 class RenderStartEvent : public IEvent {
 public:
 	RenderStartEvent(

@@ -33,6 +33,8 @@ private:
 	bool m_destRenderDone;
 	std::thread m_sourceImageThread;
 	std::thread m_destImageThread;	
+	bool m_stop;
+	bool m_isRendering;
 };
 
 #endif

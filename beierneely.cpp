@@ -31,11 +31,16 @@ static glm::vec2 Perpendicular(glm::vec2& a) {
 
 std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>& destLines, Image& sourceImage, Image& destImage, uint32_t iterations,
                                float a, float b, float p,
-                                std::vector<Image>& out_result, float* pctDone, bool* done)
+                                std::vector<Image>& out_result, float* pctDone, bool* done, bool* stop)
 {
     std::vector<Image> result;
 
     for (uint32_t iter = 0; iter <= iterations; iter++) {
+
+        if (*stop) {
+            break; // received stop event.
+        }
+
         float pct = (float)iter / (float)iterations;
         Image image(sourceImage.m_Width, sourceImage.m_Height, 3); // TODO: Check for channels and handle correctly
 

@@ -285,6 +285,7 @@ void Editor::Update(IEvent* event)
         if (m_ImageIndex >= m_blendedImages.size()) {
             m_ImageIndex = 0;
         }
+        m_isRendering = false;
     } break;
     default: {};
     }    
@@ -375,6 +376,7 @@ Editor::Editor(Image sourceImage, Image destImage, EventHandler* eventHandler)
     m_RenderPctDone = 0.0f;
     m_sourceRenderDone = false;
     m_destRenderDone = false;
+    m_isRendering = false;
 }
 
 Editor::~Editor()
@@ -757,9 +759,16 @@ void Editor::Run()
             m_EventHandler->Notify(new RenderStartEvent(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P));
             m_sourceToDestMorphs.clear();
             m_destToSourceMorphs.clear();
+            m_isRendering = true;
         }
     }
-    ImGui::ProgressBar(m_RenderPctDone);
+    
+    if (m_isRendering) {
+        ImGui::ProgressBar(m_RenderPctDone);
+        if (ImGui::Button("Cancel Render")) {
+            m_EventHandler->Notify(new RenderStopEvent());
+        }
+    }
     
     if (!m_blendedImages.empty()) {
         if (ImGui::Button("Render (TGA)")) {
