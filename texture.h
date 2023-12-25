@@ -18,9 +18,9 @@ public:
 
 	GLuint GetHandle();
 
+	uint32_t m_Width, m_Height;
 private:
 	GLuint m_Texture;
-	uint32_t m_Width, m_Height;
 };
 
 #endif

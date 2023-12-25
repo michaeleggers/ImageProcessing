@@ -18,7 +18,8 @@ public:
 
 	void Bind();
 	void Unbind();
-	void Resize(int width, int height);
+	void Resize(int width, int height);	
+
 	Texture& GetTexture();
 
 	int		m_Width;

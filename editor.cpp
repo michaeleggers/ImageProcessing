@@ -418,15 +418,17 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
     if (m_Dirty) {            
         if (ImGui::IsWindowHovered()) {
             if (windowType == ED_WINDOW_TYPE_SOURCE) {
-                Image newImage = Image(m_newImagePathAndFilename);
+                Image newImage(m_newImagePathAndFilename);
                 if (newImage.m_Data) {
                     m_sourceImage = newImage;
+                    m_sourceFBO->Resize(newImage.m_Width, newImage.m_Height);
                 }
             }
             else if (windowType == ED_WINDOW_TYPE_DEST) {
-                Image newImage = Image(m_newImagePathAndFilename);
+                Image newImage(m_newImagePathAndFilename);
                 if (newImage.m_Data) {
                     m_destImage = newImage;
+                    m_destFBO->Resize(newImage.m_Width, newImage.m_Height);
                 }                
             }            
         }        
@@ -484,8 +486,8 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
 
     ImVec2 buttonMin = ImGui::GetItemRectMin();
     ImVec2 buttonMax = ImGui::GetItemRectMax();
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
 
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
     drawList->AddImage(
         (void*)fbo->GetTexture().GetHandle(),
         buttonMin,
