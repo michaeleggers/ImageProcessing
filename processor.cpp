@@ -66,6 +66,8 @@ void Processor::StartRenderThread(RenderStartEvent* rse)
 {
     m_sourceRenderDone = false;
     m_destRenderDone = false;
+    m_sourceRenderPctDone = 0.0f;
+    m_destRenderPctDone = 0.0f;
     m_sourceToDestMorphs.clear();
     m_destToSourceMorphs.clear();
 

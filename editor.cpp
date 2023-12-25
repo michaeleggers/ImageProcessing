@@ -767,6 +767,8 @@ void Editor::Run()
         ImGui::ProgressBar(m_RenderPctDone);
         if (ImGui::Button("Cancel Render")) {
             m_EventHandler->Notify(new RenderStopEvent());
+            m_RenderPctDone = 0.0f;
+            m_isRendering = false;
         }
     }
     
