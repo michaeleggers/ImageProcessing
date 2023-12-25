@@ -286,6 +286,7 @@ void Editor::Update(IEvent* event)
             m_ImageIndex = 0;
         }
         m_isRendering = false;
+        m_RenderPctDone = 0.0f;
     } break;
     default: {};
     }    

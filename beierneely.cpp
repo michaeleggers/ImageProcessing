@@ -37,10 +37,6 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
 
     for (uint32_t iter = 0; iter <= iterations; iter++) {
 
-        if (*stop) {
-            break; // received stop event.
-        }
-
         float pct = (float)iter / (float)iterations;
         Image image(sourceImage.m_Width, sourceImage.m_Height, 3); // TODO: Check for channels and handle correctly
 
@@ -50,6 +46,11 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
                 glm::vec2 DSUM = glm::vec2(0.0, 0.0);
                 float weightsum = 0;     
                 for (uint32_t i = 0; i < destLines.size(); i++) {
+
+                    if (*stop) {
+                        break; // received stop event.
+                    }
+
                     Line& destLine = destLines[i];
                     Line& srcLine = sourceLines[i];
                     glm::vec2 P = destLine.a.pos;

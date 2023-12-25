@@ -35,7 +35,7 @@ add_executable(DFT
 	dft.cpp
 	camera.h
     camera.cpp
-    stb_image.h
+    dependencies/stb_image.h
 )
 
 target_include_directories(DFT
@@ -86,9 +86,10 @@ add_executable(Morphing
 	static_geometry.cpp
 	static_image_data.h
 	static_image_data.cpp
-    stb_image.h
-	stb_image_write.h
-	gif.h
+
+    dependencies/stb_image.h
+	dependencies/stb_image_write.h
+	dependencies/gif.h
 
 	shaders/basic.vert
 	shaders/basic.frag
