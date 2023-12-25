@@ -421,14 +421,14 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
                 Image newImage(m_newImagePathAndFilename);
                 if (newImage.m_Data) {
                     m_sourceImage = newImage;
-                    m_sourceFBO->Resize(newImage.m_Width, newImage.m_Height);
+                    m_sourceFBO->Resize(newImage.m_Width, newImage.m_Height);                    
                 }
             }
             else if (windowType == ED_WINDOW_TYPE_DEST) {
                 Image newImage(m_newImagePathAndFilename);
                 if (newImage.m_Data) {
                     m_destImage = newImage;
-                    m_destFBO->Resize(newImage.m_Width, newImage.m_Height);
+                    m_destFBO->Resize(newImage.m_Width, newImage.m_Height);                    
                 }                
             }            
         }        
@@ -762,6 +762,7 @@ void Editor::Run()
             m_EventHandler->Notify(new RenderStartEvent(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P));
             m_sourceToDestMorphs.clear();
             m_destToSourceMorphs.clear();
+            m_resultFBO->Resize(m_destImage.m_Width, m_destImage.m_Height);
             m_isRendering = true;
         }
     }
