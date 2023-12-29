@@ -283,6 +283,7 @@ void Editor::Update(IEvent* event)
         m_sourceToDestMorphs = rde->m_sourceToDestMorphs;
         m_destToSourceMorphs = rde->m_destToSourceMorphs;
         std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end());
+        m_blendedImages.clear();
         m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);        
         if (m_ImageIndex >= m_blendedImages.size()) {
             m_ImageIndex = 0;
@@ -430,7 +431,7 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
                 Image newImage(m_newImagePathAndFilename);
                 if (newImage.m_Data) {
                     m_sourceImage = newImage;
-                    m_sourceFBO->Resize(newImage.m_Width, newImage.m_Height);                    
+                    m_sourceFBO->Resize(newImage.m_Width, newImage.m_Height);
                 }
             }
             else if (windowType == ED_WINDOW_TYPE_DEST) {
@@ -773,9 +774,6 @@ void Editor::Run()
         }
         else if (m_sourceLines.size() != m_destLines.size()) {
             tinyfd_messageBox("Linecount mismatch", "The number of lines in the source window and the destination window do not match!", "ok", "warning", 1);
-        }
-        else if (m_sourceImageThread.joinable() || m_destImageThread.joinable()) {
-            // Still rendering. TODO: Kill running threads and start over again.
         }
         else {
             RenderStartEvent rse(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P);

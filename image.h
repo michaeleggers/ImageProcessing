@@ -39,19 +39,14 @@ public:
 				size_t numBytes = other.m_Width * other.m_Height * other.m_Channels;
 				this->m_Data = (unsigned char*)malloc(numBytes);
 				memcpy(this->m_Data, other.m_Data, numBytes);
-			}
-			else {
-				//this->m_Data = nullptr;
+				//free(other.m_Data);
 			}
 		}
-
-		// Copy constructor
 
 		return *this;
 	}
 
-	void Destroy();	
-	void CreateTexture();
+	void Destroy();		
 
 	const glm::ivec3 operator()(uint32_t x, uint32_t y) {
 		unsigned char* pixel = m_Data + ((y * m_Width + x) * m_Channels);

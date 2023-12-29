@@ -79,7 +79,7 @@ Image::Image(const Image& other)
 
 Image::~Image()
 {
-	if (!m_IsCheckerboard && m_Data != nullptr) {
+	if (m_Data != nullptr) {
 		free(m_Data);
 	}
 	else {
@@ -94,13 +94,7 @@ void Image::Destroy()
 			stbi_image_free(m_Data);  // TODO: We have to check if mem was allocated by stb_image or c-runtime
 		else
 			free(m_Data);
-	}
-	//m_Texture.Destroy();
-}
-
-void Image::CreateTexture()
-{
-
+	}	
 }
 
 Image Image::Blend(Image& a, Image& b, float pct)
@@ -119,8 +113,7 @@ Image Image::Blend(Image& a, Image& b, float pct)
 			resultPixel[1] = blendedPixel.g;
 			resultPixel[2] = blendedPixel.b;
 		}
-	}
-	result.CreateTexture();
+	}	
 
 	return result;
 }

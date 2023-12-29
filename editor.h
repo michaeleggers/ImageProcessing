@@ -2,7 +2,6 @@
 #define _EDITOR_H_
 
 #include <vector>
-#include <thread>
 
 #include <glad/glad.h>
 
@@ -122,9 +121,6 @@ private:
 
 	bool m_sourceRenderDone;
 	bool m_destRenderDone;
-
-	std::thread m_sourceImageThread;
-	std::thread m_destImageThread;
 
 	bool m_isRendering;
 };

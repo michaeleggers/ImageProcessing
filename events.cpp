@@ -56,6 +56,7 @@ RenderDoneEvent::RenderDoneEvent(std::vector<Image> sourceToDestMorphs, std::vec
 
 RenderDoneEvent::~RenderDoneEvent()
 {
+
 }
 
 RenderStopEvent::RenderStopEvent()
