@@ -32,10 +32,12 @@ public:
 			this->m_Channels = other.m_Channels;
 			this->m_FilePath = other.m_FilePath;
 			if (other.m_IsCheckerboard) {
+				if (this->m_Data) free(this->m_Data);
 				this->m_IsCheckerboard = true;
 				this->m_Data = other.m_Data;
 			}
-			else if (other.m_Data) {
+			if (other.m_Data) {
+				if (this->m_Data) free(this->m_Data);
 				size_t numBytes = other.m_Width * other.m_Height * other.m_Channels;
 				this->m_Data = (unsigned char*)malloc(numBytes);
 				memcpy(this->m_Data, other.m_Data, numBytes);

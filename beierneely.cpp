@@ -82,7 +82,7 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
             } // ! pixel row
         } // ! pixel col       
 
-        result.push_back(image);
+        //result.push_back(image);
         out_result.push_back(image);
 
         *pctDone = pct;

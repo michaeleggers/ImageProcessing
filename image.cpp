@@ -83,7 +83,7 @@ Image::~Image()
 		free(m_Data);
 	}
 	else {
-		SDL_Log("WARNING: Undestroyed image\n");
+		SDL_Log("WARNING: Undestroyed image!!!!!!!!!!!!!!!!!!!!!\n");
 	}
 }
 

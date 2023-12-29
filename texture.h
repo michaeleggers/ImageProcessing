@@ -10,7 +10,7 @@ public:
 	Texture();
 	Texture(unsigned char* data, uint32_t width, uint32_t height);
 
-	// Delete copy and move Ctors to prevent calling the Destructor.
+	// Delete copy and assign Ctors to prevent calling the Destructor.
 	Texture(const Texture& other) = delete;
 	Texture& operator=(const Texture& other) = delete;
 

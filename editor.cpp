@@ -277,18 +277,18 @@ void Editor::Update(IEvent* event)
     } break;
     case EVENT_TYPE_RENDER_DONE: {
         SDL_Log("Editor: Received render done event\n");
-        RenderDoneEvent* rde = (RenderDoneEvent*)event;
         m_sourceToDestMorphs.clear();
         m_destToSourceMorphs.clear();
-        m_sourceToDestMorphs = rde->m_sourceToDestMorphs;
-        m_destToSourceMorphs = rde->m_destToSourceMorphs;
-        std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end());
         m_blendedImages.clear();
+        m_blendedImageTextures.clear();
+        RenderDoneEvent* rde = (RenderDoneEvent*)event;
+        m_sourceToDestMorphs = rde->m_sourceToDestMorphs;
+        m_destToSourceMorphs = rde->m_destToSourceMorphs;        
+        std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end()); // TODO: Causes mem-leak because Image move ctor is broken or something
         m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);        
         if (m_ImageIndex >= m_blendedImages.size()) {
             m_ImageIndex = 0;
-        }
-        m_blendedImageTextures.clear();
+        }        
         for (auto& blendedImage : m_blendedImages) {
             m_blendedImageTextures.push_back(Texture(blendedImage.m_Data, blendedImage.m_Width, blendedImage.m_Height));
         }
@@ -349,8 +349,8 @@ Editor::Editor(Image sourceImage, Image destImage, EventHandler* eventHandler)
     m_sourceImage = sourceImage;
     m_destImage = destImage;
 
-    m_sourceImageTexture = Texture(sourceImage.m_Data, sourceImage.m_Width, sourceImage.m_Height);
-    m_destImageTexture = Texture(destImage.m_Data, destImage.m_Width, destImage.m_Height);
+    m_sourceImageTexture = Texture(m_sourceImage.m_Data, m_sourceImage.m_Width, m_sourceImage.m_Height);
+    m_destImageTexture = Texture(m_destImage.m_Data, m_destImage.m_Width, m_destImage.m_Height);
 
     m_A = 0.001f;
     m_B = 2.5f;
@@ -361,9 +361,9 @@ Editor::Editor(Image sourceImage, Image destImage, EventHandler* eventHandler)
     m_ImageIndex = 0;
 
     // Create Framebuffers for windows
-    m_sourceFBO = new Framebuffer(sourceImage.m_Width, sourceImage.m_Height);
-    m_destFBO = new Framebuffer(destImage.m_Width, destImage.m_Height);
-    m_resultFBO = new Framebuffer(sourceImage.m_Width, sourceImage.m_Height);
+    m_sourceFBO = new Framebuffer(m_sourceImage.m_Width, m_sourceImage.m_Height);
+    m_destFBO = new Framebuffer(m_destImage.m_Width, m_destImage.m_Height);
+    m_resultFBO = new Framebuffer(m_sourceImage.m_Width, m_sourceImage.m_Height);
 
     // Shader
     std::string exePath = com_GetExePath();
