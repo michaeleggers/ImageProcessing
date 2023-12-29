@@ -25,6 +25,7 @@ public:
 	Image(const Image& other);
 	~Image();
 
+	// Copy assignment
 	Image& operator=(const Image& other) {
 		if (this != &other) { // Check for self-assignment
 			this->m_Width = other.m_Width;
@@ -43,6 +44,17 @@ public:
 				memcpy(this->m_Data, other.m_Data, numBytes);
 				//free(other.m_Data);
 			}
+		}
+
+		return *this;
+	}
+
+	// Move assignment
+	Image& operator=(Image&& other) noexcept {
+		if (this != &other) {
+			free(m_Data);
+			m_Data = nullptr;			
+			std::swap(m_Data, other.m_Data);
 		}
 
 		return *this;
