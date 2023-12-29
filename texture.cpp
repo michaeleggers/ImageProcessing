@@ -30,7 +30,7 @@ Texture::Texture(unsigned char* data, uint32_t width, uint32_t height)
 Texture::~Texture()
 { 
     printf("Want to destroy texture\n");
-    // Destroy(); // TODO: Copy ctor in fbo ctor won't work
+    Destroy(); // TODO: Copy ctor in fbo ctor won't work
 }
 
 void Texture::Bind()

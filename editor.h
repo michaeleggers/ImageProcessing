@@ -74,6 +74,11 @@ private:
 	Image m_sourceImage;
 	Image m_destImage;
 
+	// Texture to display images
+
+	Texture m_sourceImageTexture;
+	Texture m_destImageTexture;
+
 	// Beier-Neely weight parameters
 	float m_A;
 	float m_B;
@@ -90,6 +95,10 @@ private:
 	std::vector<Image> m_sourceToDestMorphs;
 	std::vector<Image> m_destToSourceMorphs;
 	std::vector<Image> m_blendedImages;
+
+	// Texture vector for blended images
+
+	std::vector<Texture> m_blendedImageTextures;
 
 	// Framebuffers for ImGUI windows to render our images into
 	Framebuffer* m_sourceFBO; 
