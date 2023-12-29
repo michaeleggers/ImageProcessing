@@ -18,11 +18,41 @@ public:
 		m_Height = 0;
 		m_Channels = 0;
 		m_Data = nullptr;
+		m_IsCheckerboard = false;
 	};
 	Image(std::string filePath);
 	Image(uint32_t width, uint32_t height, uint32_t channels);
+	Image(const Image& other);
 	~Image();
 
+	Image& operator=(const Image& other) {
+		if (this != &other) { // Check for self-assignment
+			this->m_Width = other.m_Width;
+			this->m_Height = other.m_Height;
+			this->m_Channels = other.m_Channels;
+			this->m_FilePath = other.m_FilePath;
+			if (other.m_IsCheckerboard) {
+				this->m_IsCheckerboard = true;
+				this->m_Data = other.m_Data;
+			}
+			else if (other.m_Data) {
+				size_t numBytes = other.m_Width * other.m_Height * other.m_Channels;
+				this->m_Data = (unsigned char*)malloc(numBytes);
+				memcpy(this->m_Data, other.m_Data, numBytes);
+			}
+			else {
+				//this->m_Data = nullptr;
+			}
+
+			m_Texture = Texture(m_Data, m_Width, m_Height);
+		}
+
+		// Copy constructor
+
+		return *this;
+	}
+
+	void Destroy();
 	Texture& GetTexture();
 	void CreateTexture();
 
@@ -37,7 +67,7 @@ public:
 	uint32_t		m_Width, m_Height;
 	uint32_t		m_Channels;
 	unsigned char * m_Data;
-	bool			m_DataFromFile;
+	bool			m_IsCheckerboard;
 	std::string		m_FilePath;
 private:
 	Texture			m_Texture;

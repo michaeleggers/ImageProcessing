@@ -110,7 +110,8 @@ void HandleSystemEvents(bool* shouldClose, SDL_Window* window, EventHandler* eve
 
         if (event.type == SDL_QUIT) {
             *shouldClose = true;
-            eventHandler->Notify(new RenderStopEvent());
+            RenderStopEvent rse;
+            eventHandler->Notify(&rse);
         }
 
         if (event.type == SDL_WINDOWEVENT) {

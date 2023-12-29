@@ -759,7 +759,8 @@ void Editor::Run()
             // Still rendering. TODO: Kill running threads and start over again.
         }
         else {
-            m_EventHandler->Notify(new RenderStartEvent(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P));
+            RenderStartEvent rse(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P);
+            m_EventHandler->Notify(&rse);
             m_sourceToDestMorphs.clear();
             m_destToSourceMorphs.clear();
             m_resultFBO->Resize(m_destImage.m_Width, m_destImage.m_Height);
@@ -770,7 +771,8 @@ void Editor::Run()
     if (m_isRendering) {
         ImGui::ProgressBar(m_RenderPctDone);
         if (ImGui::Button("Cancel Render")) {
-            m_EventHandler->Notify(new RenderStopEvent());
+            RenderStopEvent rse;
+            m_EventHandler->Notify(&rse);
             m_RenderPctDone = 0.0f;
             m_isRendering = false;
         }
