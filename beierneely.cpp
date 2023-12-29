@@ -10,10 +10,6 @@
 
 #include "image.h"
 #include "render_common.h"
-#include "event_handler.h" 
-#include "events.h"
-
-extern EventHandler* eventHandler;
 
 static float Distance(float u, float v, glm::vec2 P, glm::vec2 Q, glm::vec2 X) {
     if (0.0f < u && u < 1.0f)   return glm::abs(v);
@@ -72,7 +68,7 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
                 }                
                 glm::vec2 srcX = X + pct*DSUM / weightsum;
                 if ((uint32_t)srcX.x > destImage.m_Width - 1) srcX.x = float(destImage.m_Width - 1);
-                if ((uint32_t)srcX.y > destImage.m_Height - 1) srcX.y = float(destImage.m_Height-1);
+                if ((uint32_t)srcX.y > destImage.m_Height - 1) srcX.y = float(destImage.m_Height - 1);
                 if ((uint32_t)srcX.x < 0) srcX.x = 0.0f;
                 if ((uint32_t)srcX.y < 0) srcX.y = 0.0f;                
 
@@ -84,12 +80,9 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
                 newPixel[2] = sourcePixel.b;
 
             } // ! pixel row
-        } // ! pixel col
+        } // ! pixel col       
 
-        image.GetTexture().Destroy(); // TODO: Janky!
-        image.CreateTexture();
-
-        result.push_back(image);
+        //result.push_back(image);
         out_result.push_back(image);
 
         *pctDone = pct;

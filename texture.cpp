@@ -8,7 +8,8 @@ Texture::Texture()
 {
     m_Width = 0;
     m_Height = 0;
-    m_Texture = 0;
+    m_GLTextureHandle = 0;
+    m_isOK = false;
 }
 
 Texture::Texture(unsigned char* data, uint32_t width, uint32_t height)
@@ -16,22 +17,25 @@ Texture::Texture(unsigned char* data, uint32_t width, uint32_t height)
     m_Width = width;
     m_Height = height;
 
-    glGenTextures(1, &m_Texture);
-    glBindTexture(GL_TEXTURE_2D, m_Texture);
+    glGenTextures(1, &m_GLTextureHandle);
+    glBindTexture(GL_TEXTURE_2D, m_GLTextureHandle);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLuint)width, (GLuint)height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    m_isOK = true;
 }
 
 Texture::~Texture()
 { 
-    // Destroy(); // TODO: Copy ctor in fbo ctor won't work
+    printf("Want to destroy texture\n");
+    Destroy(); // TODO: Copy ctor in fbo ctor won't work
 }
 
 void Texture::Bind()
 {
-    glBindTexture(GL_TEXTURE_2D, m_Texture);
+    glBindTexture(GL_TEXTURE_2D, m_GLTextureHandle);
 }
 
 void Texture::Unbind()
@@ -41,10 +45,12 @@ void Texture::Unbind()
 
 void Texture::Destroy()
 {
-    glDeleteTextures(1, &m_Texture);
+    if (m_isOK) {
+        glDeleteTextures(1, &m_GLTextureHandle);
+    }
 }
 
 GLuint Texture::GetHandle()
 {
-    return m_Texture;
+    return m_GLTextureHandle;
 }

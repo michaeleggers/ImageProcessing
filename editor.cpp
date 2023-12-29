@@ -140,6 +140,8 @@ void Editor::InitFromProjectFile(std::string pathAndFilename) {
     ResetState();
     m_sourceImage = Image(projectData.sourceImagePath);
     m_destImage = Image(projectData.destImagePath);
+    m_sourceImageTexture = Texture(m_sourceImage.m_Data, m_sourceImage.m_Width, m_sourceImage.m_Height);
+    m_destImageTexture = Texture(m_destImage.m_Data, m_destImage.m_Width, m_destImage.m_Height);
     m_A = projectData.weightParams.x;
     m_B = projectData.weightParams.y;
     m_P = projectData.weightParams.z;
@@ -277,13 +279,20 @@ void Editor::Update(IEvent* event)
     } break;
     case EVENT_TYPE_RENDER_DONE: {
         SDL_Log("Editor: Received render done event\n");
+        m_sourceToDestMorphs.clear();
+        m_destToSourceMorphs.clear();
+        m_blendedImages.clear();
+        m_blendedImageTextures.clear();
         RenderDoneEvent* rde = (RenderDoneEvent*)event;
         m_sourceToDestMorphs = rde->m_sourceToDestMorphs;
-        m_destToSourceMorphs = rde->m_destToSourceMorphs;
-        std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end());
+        m_destToSourceMorphs = rde->m_destToSourceMorphs;        
+        std::reverse(m_destToSourceMorphs.begin(), m_destToSourceMorphs.end()); // TODO: Causes mem-leak because Image move ctor is broken or something
         m_blendedImages = BlendImages(m_sourceToDestMorphs, m_destToSourceMorphs);        
         if (m_ImageIndex >= m_blendedImages.size()) {
             m_ImageIndex = 0;
+        }        
+        for (auto& blendedImage : m_blendedImages) {
+            m_blendedImageTextures.push_back(Texture(blendedImage.m_Data, blendedImage.m_Width, blendedImage.m_Height));
         }
         m_isRendering = false;
         m_RenderPctDone = 0.0f;
@@ -342,6 +351,9 @@ Editor::Editor(Image sourceImage, Image destImage, EventHandler* eventHandler)
     m_sourceImage = sourceImage;
     m_destImage = destImage;
 
+    m_sourceImageTexture = Texture(m_sourceImage.m_Data, m_sourceImage.m_Width, m_sourceImage.m_Height);
+    m_destImageTexture = Texture(m_destImage.m_Data, m_destImage.m_Width, m_destImage.m_Height);
+
     m_A = 0.001f;
     m_B = 2.5f;
     m_P = 0.0f;
@@ -351,9 +363,9 @@ Editor::Editor(Image sourceImage, Image destImage, EventHandler* eventHandler)
     m_ImageIndex = 0;
 
     // Create Framebuffers for windows
-    m_sourceFBO = new Framebuffer(sourceImage.m_Width, sourceImage.m_Height);
-    m_destFBO = new Framebuffer(destImage.m_Width, destImage.m_Height);
-    m_resultFBO = new Framebuffer(sourceImage.m_Width, sourceImage.m_Height);
+    m_sourceFBO = new Framebuffer(m_sourceImage.m_Width, m_sourceImage.m_Height);
+    m_destFBO = new Framebuffer(m_destImage.m_Width, m_destImage.m_Height);
+    m_resultFBO = new Framebuffer(m_sourceImage.m_Width, m_sourceImage.m_Height);
 
     // Shader
     std::string exePath = com_GetExePath();
@@ -421,13 +433,15 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
                 Image newImage(m_newImagePathAndFilename);
                 if (newImage.m_Data) {
                     m_sourceImage = newImage;
-                    m_sourceFBO->Resize(newImage.m_Width, newImage.m_Height);                    
+                    m_sourceImageTexture = Texture(m_sourceImage.m_Data, m_sourceImage.m_Width, m_sourceImage.m_Height);
+                    m_sourceFBO->Resize(newImage.m_Width, newImage.m_Height);
                 }
             }
             else if (windowType == ED_WINDOW_TYPE_DEST) {
                 Image newImage(m_newImagePathAndFilename);
                 if (newImage.m_Data) {
                     m_destImage = newImage;
+                    m_destImageTexture = Texture(m_destImage.m_Data, m_destImage.m_Width, m_destImage.m_Height);
                     m_destFBO->Resize(newImage.m_Width, newImage.m_Height);                    
                 }                
             }            
@@ -615,11 +629,19 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
     glViewport(0, 0, fbo->m_Width, fbo->m_Height);
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
     // 1.) bind a quad with the images dimension.
     Batch& unitQuadBatch = GetUnitQuadBatch();
     unitQuadBatch.Bind();
+    
     // 2.) bind texture
-    image.GetTexture().Bind();
+    if (windowType == ED_WINDOW_TYPE_SOURCE) {
+        m_sourceImageTexture.Bind();
+    }
+    else if (windowType == ED_WINDOW_TYPE_DEST) {
+        m_destImageTexture.Bind();
+    }
+
     // 3.) render
     m_imageShader.Activate();
     glDrawElements(GL_TRIANGLES, unitQuadBatch.IndexCount(), GL_UNSIGNED_INT, nullptr);
@@ -677,7 +699,9 @@ void Editor::ShowResultWindow(const char* title)
     ImVec2 imagePosition(ImGui::GetCursorPosX() + posOffsetX, ImGui::GetCursorPosY() + posOffsetY);
 
     ImGui::SetCursorPos(imagePosition);
-    ImGui::Image((void*)(intptr_t)m_blendedImages[m_ImageIndex].GetTexture().GetHandle(), ImVec2(newWidth, newHeight));
+    
+    ImGui::Image((void*)(intptr_t)m_blendedImageTextures[m_ImageIndex].GetHandle(), ImVec2(newWidth, newHeight));
+
     ImGui::SetCursorPosX(imagePosition.x);    
     ImGui::PushItemWidth(imageSize.x);
     ImGui::SliderInt("##imageIndexSlider", &m_ImageIndex, 0, m_blendedImages.size() - 1);
@@ -755,13 +779,9 @@ void Editor::Run()
         else if (m_sourceLines.size() != m_destLines.size()) {
             tinyfd_messageBox("Linecount mismatch", "The number of lines in the source window and the destination window do not match!", "ok", "warning", 1);
         }
-        else if (m_sourceImageThread.joinable() || m_destImageThread.joinable()) {
-            // Still rendering. TODO: Kill running threads and start over again.
-        }
         else {
-            m_EventHandler->Notify(new RenderStartEvent(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P));
-            m_sourceToDestMorphs.clear();
-            m_destToSourceMorphs.clear();
+            RenderStartEvent rse(m_sourceLines, m_destLines, m_sourceImage, m_destImage, m_NumIterations, m_A, m_B, m_P);
+            m_EventHandler->Notify(&rse);
             m_resultFBO->Resize(m_destImage.m_Width, m_destImage.m_Height);
             m_isRendering = true;
         }
@@ -770,7 +790,8 @@ void Editor::Run()
     if (m_isRendering) {
         ImGui::ProgressBar(m_RenderPctDone);
         if (ImGui::Button("Cancel Render")) {
-            m_EventHandler->Notify(new RenderStopEvent());
+            RenderStopEvent rse;
+            m_EventHandler->Notify(&rse);
             m_RenderPctDone = 0.0f;
             m_isRendering = false;
         }

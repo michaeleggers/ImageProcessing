@@ -1,5 +1,7 @@
 #include "image.h"
 
+#include <stdlib.h>
+
 #include <SDL2/SDL.h>
 
 #include "texture.h"
@@ -8,11 +10,14 @@
 
 #include "stb_image.h"
 
+static int imageID = 0;
+
+
 Image::Image(std::string filePath)
 {	
 	int x, y, n;
-	m_Data = stbi_load(filePath.c_str(), &x, &y, &n, 3);
-	if (!m_Data) {
+	unsigned char* data = stbi_load(filePath.c_str(), &x, &y, &n, 3);
+	if (!data) {
 		SDL_Log("Failed to load %s from disk! Init Image with placeholder data...\n", filePath.c_str());		
 		Checkerboard cb = GetCheckerboard();
 		m_Width = cb.width;
@@ -20,15 +25,20 @@ Image::Image(std::string filePath)
 		m_Channels = cb.channels;
 		m_Data = cb.data;		
 		m_FilePath = "file not found!";
+		m_IsCheckerboard = true;
 	}
 	else {
+		size_t numBytes = x * y * n * sizeof(unsigned char);
+		m_Data = (unsigned char*)malloc(numBytes);
+		memcpy(m_Data, data, numBytes);
 		m_Width = x;
 		m_Height = y;
 		m_Channels = n;
-		m_DataFromFile = true;
+		m_IsCheckerboard = false;
 		m_FilePath = filePath;
-	}
-	m_Texture = Texture(m_Data, m_Width, m_Height);
+		stbi_image_free(data);
+		m_imageID = imageID++;
+	}	
 }
 
 Image::Image(uint32_t width, uint32_t height, uint32_t channels)
@@ -37,25 +47,54 @@ Image::Image(uint32_t width, uint32_t height, uint32_t channels)
 	m_Height = height;
 	m_Channels = channels;
 	m_Data = (unsigned char*)malloc(m_Width * m_Height * m_Channels * sizeof(unsigned char));
-	m_DataFromFile = false;
+	m_imageID = imageID++;
+	m_IsCheckerboard = false;
 	m_FilePath = "";
-	m_Texture = Texture(nullptr, m_Width, m_Height);
+}
+
+
+Image::Image(const Image& other)
+{
+	printf("In Image copy Ctor\n");
+	m_Width = other.m_Width;
+	m_Height = other.m_Height;
+	m_Channels = other.m_Channels;
+	m_FilePath = other.m_FilePath;
+	if (other.m_IsCheckerboard) {
+		m_IsCheckerboard = true;
+		m_Data = other.m_Data;
+	}
+	else if (other.m_Data) {		
+		size_t numBytes = other.m_Width * other.m_Height * other.m_Channels;
+		m_Data = (unsigned char*)malloc(numBytes);
+		m_IsCheckerboard = false;
+		memcpy(m_Data, other.m_Data, numBytes);
+		m_imageID = imageID++;
+	}
+	else {
+		m_IsCheckerboard = false;
+		this->m_Data = nullptr;
+	}
 }
 
 Image::~Image()
 {
-	//stbi_image_free(m_Data);  // TODO: We have to check if mem was allocated by stb_image or c-runtime
-	//m_Texture.Destroy(); // Assignment operator missing. This kills the texture on Construction and Assignment! TODO: FIX!!!
+	if (m_Data != nullptr) {
+		free(m_Data);
+	}
+	else {
+		SDL_Log("WARNING: Undestroyed image!!!!!!!!!!!!!!!!!!!!!\n");
+	}
 }
 
-Texture& Image::GetTexture()
+void Image::Destroy()
 {
-	return m_Texture;
-}
-
-void Image::CreateTexture()
-{
-	m_Texture = Texture(m_Data, m_Width, m_Height);
+	if (m_Data) {
+		if (m_IsCheckerboard)
+			stbi_image_free(m_Data);  // TODO: We have to check if mem was allocated by stb_image or c-runtime
+		else
+			free(m_Data);
+	}	
 }
 
 Image Image::Blend(Image& a, Image& b, float pct)
@@ -74,8 +113,7 @@ Image Image::Blend(Image& a, Image& b, float pct)
 			resultPixel[1] = blendedPixel.g;
 			resultPixel[2] = blendedPixel.b;
 		}
-	}
-	result.CreateTexture();
+	}	
 
 	return result;
 }

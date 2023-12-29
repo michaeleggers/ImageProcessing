@@ -130,6 +130,14 @@ int main(int argc, char** argv)
 
     SDL_ShowWindow(window);
 
+    // GL Vsync on
+    if (SDL_GL_SetSwapInterval(1) != 0) {
+        SDL_Log("Failed to enable vsync!\n");
+    }
+    else {
+        SDL_Log("vsync enabled\n");
+    }
+
     // Setup Window icon
 
     Uint32 rmask = 0x000000ff;

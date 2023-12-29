@@ -109,6 +109,8 @@ void Processor::CheckRenderThread()
 
     m_sourceImageThread.join();
     m_destImageThread.join();
+    m_sourceImageThread.~thread();
+    m_destImageThread.~thread();
     m_sourceRenderDone = true;
     m_destRenderDone = true;
     m_isRendering = false;
