@@ -71,7 +71,7 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
                     weightsum += weight;        
                 }                
                 glm::vec2 srcX = X + pct*DSUM / weightsum;
-                if ((uint32_t)srcX.x > destImage.m_Height - 1) srcX.x = float(destImage.m_Height - 1);
+                if ((uint32_t)srcX.x > destImage.m_Width - 1) srcX.x = float(destImage.m_Width - 1);
                 if ((uint32_t)srcX.y > destImage.m_Height - 1) srcX.y = float(destImage.m_Height-1);
                 if ((uint32_t)srcX.x < 0) srcX.x = 0.0f;
                 if ((uint32_t)srcX.y < 0) srcX.y = 0.0f;                
