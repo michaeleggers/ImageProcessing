@@ -431,6 +431,7 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
                 Image newImage(m_newImagePathAndFilename);
                 if (newImage.m_Data) {
                     m_sourceImage = newImage;
+                    m_sourceImageTexture = Texture(m_sourceImage.m_Data, m_sourceImage.m_Width, m_sourceImage.m_Height);
                     m_sourceFBO->Resize(newImage.m_Width, newImage.m_Height);
                 }
             }
@@ -438,6 +439,7 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
                 Image newImage(m_newImagePathAndFilename);
                 if (newImage.m_Data) {
                     m_destImage = newImage;
+                    m_destImageTexture = Texture(m_destImage.m_Data, m_destImage.m_Width, m_destImage.m_Height);
                     m_destFBO->Resize(newImage.m_Width, newImage.m_Height);                    
                 }                
             }            
