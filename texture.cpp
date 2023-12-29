@@ -1,11 +1,14 @@
 #include "texture.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <glad/glad.h>
 
 Texture::Texture()
 {
+    m_Data = nullptr;
     m_Width = 0;
     m_Height = 0;
     m_GLTextureHandle = 0;
@@ -16,6 +19,14 @@ Texture::Texture(unsigned char* data, uint32_t width, uint32_t height)
 {
     m_Width = width;
     m_Height = height;
+
+    if (data) {
+        m_Data = (unsigned char*)malloc(m_Width * m_Height * 3);
+        memcpy(m_Data, data, m_Width * m_Height * 3);
+    }
+    else {
+        m_Data = nullptr;
+    }
 
     glGenTextures(1, &m_GLTextureHandle);
     glBindTexture(GL_TEXTURE_2D, m_GLTextureHandle);
@@ -47,6 +58,9 @@ void Texture::Destroy()
 {
     if (m_isOK) {
         glDeleteTextures(1, &m_GLTextureHandle);
+    }
+    if (m_Data) {
+        free(m_Data);
     }
 }
 
