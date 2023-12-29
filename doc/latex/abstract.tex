@@ -6,7 +6,13 @@ Kreuzblende (engl. cross dissolve). Dabei wird jeder Pixel des Quellbildes
 sukzessive um (1-1/numIterations) abgeschwächt und dafür jeder Pixel
 des Zielbildes um 1/numIterations multipliziert (verstärkt). 
 Das Resultat aus der Addition dieser beiden Operationen ergibt den
-Effekt der eben genannten Kreuzblende:
+Effekt der eben genannten Kreuzblende (\ref{fig:dissolve}). Der Übergang
+ist deutlich wahrnehmbar. Eine Verbesserung erreicht man durch die Verzerrung
+beider Bilder bevor die Kreuzblende angewendet wird: Die Resultierende Animation
+kann den Eindruck erwecken als verwandle sich das Quell in das Zielbild.
+Beier und Neely \cite{beierneely} entwickelten dafür einen Feature-basierten 
+Algorithmus um diesen Effekt zu erzielen. Er kam in dem Michael Jackson Musikvideo
+Black or White zum Einsatz \cite{cartoonbrew}.
 
 \begin{equation}	
 	\left( 1-\frac{1}{numIterations} \right) \cdot \mathbf{x} + \frac{1}{numIterations} \cdot \overline{\mathbf{x}}
@@ -46,7 +52,7 @@ Effekt der eben genannten Kreuzblende:
 		\caption{50\% Beier-Neely Morph}
 		\label{fig:morph}
 	\end{subfigure}
-	\caption{}
+	\caption{Gegenüberstellung: einfache Kreuzblende und Beier-Neely Morphing}
 	\label{fig:side-by-side}
 	
 \end{figure}
