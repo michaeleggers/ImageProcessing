@@ -10,6 +10,9 @@
 
 #include "stb_image.h"
 
+static int imageID = 0;
+
+
 Image::Image(std::string filePath)
 {	
 	int x, y, n;
@@ -34,8 +37,8 @@ Image::Image(std::string filePath)
 		m_IsCheckerboard = false;
 		m_FilePath = filePath;
 		stbi_image_free(data);
-	}
-	m_Texture = Texture(m_Data, m_Width, m_Height);
+		m_imageID = imageID++;
+	}	
 }
 
 Image::Image(uint32_t width, uint32_t height, uint32_t channels)
@@ -44,10 +47,11 @@ Image::Image(uint32_t width, uint32_t height, uint32_t channels)
 	m_Height = height;
 	m_Channels = channels;
 	m_Data = (unsigned char*)malloc(m_Width * m_Height * m_Channels * sizeof(unsigned char));
+	m_imageID = imageID++;
 	m_IsCheckerboard = false;
 	m_FilePath = "";
-	m_Texture = Texture(nullptr, m_Width, m_Height);
 }
+
 
 Image::Image(const Image& other)
 {
@@ -60,18 +64,17 @@ Image::Image(const Image& other)
 		m_IsCheckerboard = true;
 		m_Data = other.m_Data;
 	}
-	else if (other.m_Data) {
+	else if (other.m_Data) {		
 		size_t numBytes = other.m_Width * other.m_Height * other.m_Channels;
 		m_Data = (unsigned char*)malloc(numBytes);
 		m_IsCheckerboard = false;
 		memcpy(m_Data, other.m_Data, numBytes);
+		m_imageID = imageID++;
 	}
 	else {
 		m_IsCheckerboard = false;
 		this->m_Data = nullptr;
 	}
-
-	m_Texture = Texture(m_Data, m_Width, m_Height);
 }
 
 Image::~Image()
@@ -79,7 +82,9 @@ Image::~Image()
 	if (!m_IsCheckerboard && m_Data != nullptr) {
 		free(m_Data);
 	}
-	m_Texture.Destroy(); // Assignment operator missing. This kills the texture on Construction and Assignment! TODO: FIX!!!
+	else {
+		SDL_Log("WARNING: Undestroyed image\n");
+	}
 }
 
 void Image::Destroy()
@@ -93,14 +98,9 @@ void Image::Destroy()
 	//m_Texture.Destroy();
 }
 
-Texture& Image::GetTexture()
-{
-	return m_Texture;
-}
-
 void Image::CreateTexture()
 {
-	m_Texture = Texture(m_Data, m_Width, m_Height);
+
 }
 
 Image Image::Blend(Image& a, Image& b, float pct)

@@ -18,7 +18,7 @@ public:
 		m_Height = 0;
 		m_Channels = 0;
 		m_Data = nullptr;
-		m_IsCheckerboard = false;
+		m_IsCheckerboard = false;		
 	};
 	Image(std::string filePath);
 	Image(uint32_t width, uint32_t height, uint32_t channels);
@@ -43,8 +43,6 @@ public:
 			else {
 				//this->m_Data = nullptr;
 			}
-
-			m_Texture = Texture(m_Data, m_Width, m_Height);
 		}
 
 		// Copy constructor
@@ -52,8 +50,7 @@ public:
 		return *this;
 	}
 
-	void Destroy();
-	Texture& GetTexture();
+	void Destroy();	
 	void CreateTexture();
 
 	const glm::ivec3 operator()(uint32_t x, uint32_t y) {
@@ -69,8 +66,9 @@ public:
 	unsigned char * m_Data;
 	bool			m_IsCheckerboard;
 	std::string		m_FilePath;
+
 private:
-	Texture			m_Texture;
+	int m_imageID;
 };
 
 #endif

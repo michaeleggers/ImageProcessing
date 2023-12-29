@@ -618,8 +618,10 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
     // 1.) bind a quad with the images dimension.
     Batch& unitQuadBatch = GetUnitQuadBatch();
     unitQuadBatch.Bind();
+    
     // 2.) bind texture
-    image.GetTexture().Bind();
+    //image.GetTexture().Bind(); // TODO: FIX THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     // 3.) render
     m_imageShader.Activate();
     glDrawElements(GL_TRIANGLES, unitQuadBatch.IndexCount(), GL_UNSIGNED_INT, nullptr);
@@ -677,7 +679,10 @@ void Editor::ShowResultWindow(const char* title)
     ImVec2 imagePosition(ImGui::GetCursorPosX() + posOffsetX, ImGui::GetCursorPosY() + posOffsetY);
 
     ImGui::SetCursorPos(imagePosition);
-    ImGui::Image((void*)(intptr_t)m_blendedImages[m_ImageIndex].GetTexture().GetHandle(), ImVec2(newWidth, newHeight));
+    
+    // TODO: FIX THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //ImGui::Image((void*)(intptr_t)m_blendedImages[m_ImageIndex].GetTexture().GetHandle(), ImVec2(newWidth, newHeight));
+
     ImGui::SetCursorPosX(imagePosition.x);    
     ImGui::PushItemWidth(imageSize.x);
     ImGui::SliderInt("##imageIndexSlider", &m_ImageIndex, 0, m_blendedImages.size() - 1);

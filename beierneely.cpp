@@ -10,10 +10,6 @@
 
 #include "image.h"
 #include "render_common.h"
-#include "event_handler.h" 
-#include "events.h"
-
-extern EventHandler* eventHandler;
 
 static float Distance(float u, float v, glm::vec2 P, glm::vec2 Q, glm::vec2 X) {
     if (0.0f < u && u < 1.0f)   return glm::abs(v);
@@ -84,10 +80,7 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
                 newPixel[2] = sourcePixel.b;
 
             } // ! pixel row
-        } // ! pixel col
-
-        image.GetTexture().Destroy(); // TODO: Janky!
-        image.CreateTexture();
+        } // ! pixel col       
 
         result.push_back(image);
         out_result.push_back(image);
