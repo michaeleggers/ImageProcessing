@@ -140,6 +140,8 @@ void Editor::InitFromProjectFile(std::string pathAndFilename) {
     ResetState();
     m_sourceImage = Image(projectData.sourceImagePath);
     m_destImage = Image(projectData.destImagePath);
+    m_sourceImageTexture = Texture(m_sourceImage.m_Data, m_sourceImage.m_Width, m_sourceImage.m_Height);
+    m_destImageTexture = Texture(m_destImage.m_Data, m_destImage.m_Width, m_destImage.m_Height);
     m_A = projectData.weightParams.x;
     m_B = projectData.weightParams.y;
     m_P = projectData.weightParams.z;
