@@ -54,6 +54,14 @@ public:
 		if (this != &other) {
 			free(m_Data);
 			m_Data = nullptr;			
+			this->m_Width = other.m_Width;
+			this->m_Height = other.m_Height;
+			this->m_Channels = other.m_Channels;
+			this->m_FilePath = other.m_FilePath;
+			if (other.m_IsCheckerboard) {
+				if (this->m_Data) free(this->m_Data);
+				this->m_IsCheckerboard = true;			
+			}
 			std::swap(m_Data, other.m_Data);
 		}
 
