@@ -10,9 +10,6 @@
 
 #include "stb_image.h"
 
-static int imageID = 0;
-
-
 Image::Image(std::string filePath)
 {	
 	int x, y, n;
@@ -37,7 +34,6 @@ Image::Image(std::string filePath)
 		m_IsCheckerboard = false;
 		m_FilePath = filePath;
 		stbi_image_free(data);
-		m_imageID = imageID++;
 	}	
 }
 
@@ -47,15 +43,12 @@ Image::Image(uint32_t width, uint32_t height, uint32_t channels)
 	m_Height = height;
 	m_Channels = channels;
 	m_Data = (unsigned char*)malloc(m_Width * m_Height * m_Channels * sizeof(unsigned char));
-	m_imageID = imageID++;
 	m_IsCheckerboard = false;
 	m_FilePath = "";
 }
 
-
 Image::Image(const Image& other)
-{
-	printf("In Image copy Ctor\n");
+{	
 	m_Width = other.m_Width;
 	m_Height = other.m_Height;
 	m_Channels = other.m_Channels;
@@ -68,8 +61,7 @@ Image::Image(const Image& other)
 		size_t numBytes = other.m_Width * other.m_Height * other.m_Channels;
 		m_Data = (unsigned char*)malloc(numBytes);
 		m_IsCheckerboard = false;
-		memcpy(m_Data, other.m_Data, numBytes);
-		m_imageID = imageID++;
+		memcpy(m_Data, other.m_Data, numBytes);		
 	}
 	else {
 		m_IsCheckerboard = false;
@@ -79,20 +71,17 @@ Image::Image(const Image& other)
 
 Image::~Image()
 {
-	if (m_Data != nullptr) {
+	if (m_Data != nullptr && !m_IsCheckerboard) {
 		free(m_Data);
 	}
-	m_Data = nullptr;
 }
 
 void Image::Destroy()
 {
-	if (m_Data) {
-		if (m_IsCheckerboard)
-			stbi_image_free(m_Data);  // TODO: We have to check if mem was allocated by stb_image or c-runtime
-		else
-			free(m_Data);
+	if (m_Data && !m_IsCheckerboard) {
+		free(m_Data);
 	}	
+	m_Data = nullptr;
 }
 
 Image Image::Blend(Image& a, Image& b, float pct)
@@ -117,7 +106,6 @@ Image Image::Blend(Image& a, Image& b, float pct)
 }
 
 // Takes an image and converts it to RGBA. A is set to 255. 
-// Does NOT create an OpenGL Texture!
 Image Image::ToRGBA(Image& image)
 {
 	Image result(image.m_Height, image.m_Width, 4);
