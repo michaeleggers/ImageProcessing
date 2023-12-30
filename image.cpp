@@ -82,9 +82,7 @@ Image::~Image()
 	if (m_Data != nullptr) {
 		free(m_Data);
 	}
-	else {
-		SDL_Log("WARNING: Undestroyed image!!!!!!!!!!!!!!!!!!!!!\n");
-	}
+	m_Data = nullptr;
 }
 
 void Image::Destroy()

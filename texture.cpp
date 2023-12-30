@@ -11,8 +11,7 @@ Texture::Texture()
     m_Data = nullptr;
     m_Width = 0;
     m_Height = 0;
-    m_GLTextureHandle = 0;
-    m_isOK = false;
+    m_GLTextureHandle = 0;    
 }
 
 Texture::Texture(unsigned char* data, uint32_t width, uint32_t height)
@@ -33,9 +32,7 @@ Texture::Texture(unsigned char* data, uint32_t width, uint32_t height)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLuint)width, (GLuint)height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    m_isOK = true;
+    glBindTexture(GL_TEXTURE_2D, 0);    
 }
 
 Texture::~Texture()
@@ -56,9 +53,8 @@ void Texture::Unbind()
 
 void Texture::Destroy()
 {
-    if (m_isOK) {
-        glDeleteTextures(1, &m_GLTextureHandle);
-    }
+
+    glDeleteTextures(1, &m_GLTextureHandle);
     if (m_Data) {
         free(m_Data);
     }
