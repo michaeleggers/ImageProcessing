@@ -156,7 +156,7 @@ int main(int argc, char** argv)
     amask = 0xff000000;
 #endif
 
-    Image windowIcon(exePath + "../../res/icon.bmp");
+    Image windowIcon(exePath + "../../res/icon2.bmp");
     SDL_Surface* windowIconSurf = SDL_CreateRGBSurfaceFrom(
         windowIcon.m_Data,
         windowIcon.m_Width, windowIcon.m_Height,
