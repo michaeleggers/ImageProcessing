@@ -108,7 +108,7 @@ Image Image::Blend(Image& a, Image& b, float pct)
 // Takes an image and converts it to RGBA. A is set to 255. 
 Image Image::ToRGBA(Image& image)
 {
-	Image result(image.m_Height, image.m_Width, 4);
+	Image result(image.m_Width, image.m_Height, 4);
 	for (uint32_t y = 0; y < image.m_Height; y++) {
 		for (uint32_t x = 0; x < image.m_Width; x++) {
 			glm::ivec3 pixel = image(x, y);
