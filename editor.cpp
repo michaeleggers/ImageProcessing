@@ -26,6 +26,10 @@
 #include "beierneely.h"
 #include "parser.h"
 #include "event_handler.h"
+#include "utils.h"
+
+
+// TODO: Unify Result window and morph windows
 
 std::string GetProjectNameFromFilePath(std::string pathAndFilename) {
     int length = (int)pathAndFilename.size();
@@ -216,6 +220,84 @@ bool Editor::OpenImage(std::string& pathAndFilename)
     }
 
     return false;
+}
+
+void Editor::RenderTGA(std::vector<Image>& images)
+{
+    if (ImGui::Button("Render (TGA)")) {
+        char const* retSaveFile = tinyfd_saveFileDialog(
+            "Render",
+            "",
+            0,
+            nullptr,
+            "TGA Image sequence");
+        if (retSaveFile == NULL) {
+            SDL_Log("Rendering cancelled\n");
+        }
+        else {
+            SDL_Log("Rendering...\n");
+            RenderToDiskAsTGA(retSaveFile, m_blendedImages);
+        }
+    }
+}
+
+void Editor::RenderGIF(std::vector<Image>& images)
+{
+    if (ImGui::Button("Render (GIF)")) {
+        char const* retSaveFile = tinyfd_saveFileDialog(
+            "Render",
+            "",
+            0,
+            nullptr,
+            "GIF");
+        if (retSaveFile == NULL) {
+            SDL_Log("Rendering cancelled\n");
+        }
+        else {
+            SDL_Log("Rendering...\n");
+            RenderToDiskAsGIF(retSaveFile, m_blendedImages);
+        }
+    }
+}
+
+void Editor::RenderTGA(std::vector<Texture>& textures)
+{
+    if (ImGui::Button("Render (TGA)")) {
+        char const* retSaveFile = tinyfd_saveFileDialog(
+            "Render",
+            "",
+            0,
+            nullptr,
+            "TGA Image sequence");
+        if (retSaveFile == NULL) {
+            SDL_Log("Rendering cancelled\n");
+        }
+        else {
+            SDL_Log("Rendering...\n");
+            std::vector<Image> images = CreateImagesFromTexture(textures);
+            RenderToDiskAsTGA(retSaveFile, images);
+        }
+    }
+}
+
+void Editor::RenderGIF(std::vector<Texture>& textures)
+{
+    if (ImGui::Button("Render (GIF)")) {
+        char const* retSaveFile = tinyfd_saveFileDialog(
+            "Render",
+            "",
+            0,
+            nullptr,
+            "GIF");
+        if (retSaveFile == NULL) {
+            SDL_Log("Rendering cancelled\n");
+        }
+        else {
+            SDL_Log("Rendering...\n");
+            std::vector<Image> images = CreateImagesFromTexture(textures);
+            RenderToDiskAsGIF(retSaveFile, images);
+        }
+    }
 }
 
 // TODO: Maybe use command pattern that allows us to store commands
@@ -674,7 +756,7 @@ void Editor::ShowResultWindow(const char* title)
     }
 
     float imguiWindowWidth  = ImGui::GetContentRegionAvail().x;
-    float imguiWindowHeight = ImGui::GetContentRegionAvail().y - 30.0f; // -30 to leave some room for the slider widget below
+    float imguiWindowHeight = ImGui::GetContentRegionAvail().y - 60.0f; // -30 to leave some room for the slider widget below
 
     // safe guard for potential div by 0
 
@@ -713,8 +795,14 @@ void Editor::ShowResultWindow(const char* title)
     ImGui::SliderInt("##imageIndexSlider", &m_ImageIndex, 0, m_blendedImages.size() - 1);
     ImGui::PopItemWidth();
 
+    RenderTGA(m_blendedImages);
+    ImGui::SameLine();
+    RenderGIF(m_blendedImages);
+
     ImGui::End();
 }
+
+
 
 void Editor::ShowTextureSequenceWindow(const char* title, std::vector<Texture>& textures)
 {
@@ -730,7 +818,7 @@ void Editor::ShowTextureSequenceWindow(const char* title, std::vector<Texture>& 
     }
 
     float imguiWindowWidth = ImGui::GetContentRegionAvail().x;
-    float imguiWindowHeight = ImGui::GetContentRegionAvail().y - 30.0f; // -30 to leave some room for the slider widget below
+    float imguiWindowHeight = ImGui::GetContentRegionAvail().y - 60.0f; // -60 to leave some room for the slider widget below
 
     // safe guard for potential div by 0
 
@@ -767,6 +855,10 @@ void Editor::ShowTextureSequenceWindow(const char* title, std::vector<Texture>& 
     ImGui::SetCursorPosX(imagePosition.x);
     ImGui::PushItemWidth(imageSize.x);
     ImGui::SliderInt("##imageIndexSlider", &m_ImageIndex, 0, m_blendedImages.size() - 1);
+    RenderTGA(textures);
+    ImGui::SameLine();
+    RenderGIF(textures);
+
     ImGui::PopItemWidth();
 
     ImGui::End();
@@ -868,36 +960,6 @@ void Editor::Run()
         }
         if (m_ShowDestToSourceImages) {
             ShowTextureSequenceWindow("destination morphs", m_DestToSourceMorphTextures);
-        }
-        if (ImGui::Button("Render (TGA)")) {
-            char const* retSaveFile = tinyfd_saveFileDialog(
-                "Render",
-                "",
-                0,
-                nullptr,
-                "TGA Image sequence");
-            if (retSaveFile == NULL) {
-                SDL_Log("Rendering cancelled\n");
-            }
-            else {
-                SDL_Log("Rendering...\n");
-                RenderToDiskAsTGA(retSaveFile, m_blendedImages);
-            }
-        }
-        if (ImGui::Button("Render (GIF)")) {
-            char const* retSaveFile = tinyfd_saveFileDialog(
-                "Render",
-                "",
-                0,
-                nullptr,
-                "GIF");
-            if (retSaveFile == NULL) {
-                SDL_Log("Rendering cancelled\n");
-            }
-            else {
-                SDL_Log("Rendering...\n");
-                RenderToDiskAsGIF(retSaveFile, m_blendedImages);
-            }
         }
     }
 

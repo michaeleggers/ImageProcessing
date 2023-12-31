@@ -22,6 +22,7 @@ public:
 	};
 	Image(std::string filePath);
 	Image(uint32_t width, uint32_t height, uint32_t channels);
+	Image(uint32_t width, uint32_t height, uint32_t channels, unsigned char* data);
 	Image(const Image& other);
 	~Image();
 

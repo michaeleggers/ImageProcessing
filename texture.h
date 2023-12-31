@@ -71,10 +71,10 @@ public:
 	GLuint GetHandle();
 
 	uint32_t m_Width, m_Height;
+	unsigned char* m_Data = nullptr;
 
 private:
 	GLuint m_GLTextureHandle;
-	unsigned char* m_Data = nullptr;
 };
 
 #endif

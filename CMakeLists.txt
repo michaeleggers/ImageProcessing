@@ -80,6 +80,8 @@ add_executable(Morphing
 	batch.cpp
 	common.h
 	common.cpp
+	utils.h
+	utils.cpp
 	parser.h
 	parser.cpp
 	static_geometry.h

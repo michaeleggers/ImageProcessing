@@ -58,6 +58,10 @@ public:
 	void OpenProject();
 	bool OpenImage(std::string& pathAndFilename);
 	void Undo();	
+	void RenderTGA(std::vector<Image>& images);
+	void RenderGIF(std::vector<Image>& images);
+	void RenderTGA(std::vector<Texture>& textures);
+	void RenderGIF(std::vector<Texture>& textures);
 
 	virtual void Update(IEvent* event) override; // Handle events from other parts of the program
 

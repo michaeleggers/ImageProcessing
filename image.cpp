@@ -47,6 +47,18 @@ Image::Image(uint32_t width, uint32_t height, uint32_t channels)
 	m_FilePath = "";
 }
 
+Image::Image(uint32_t width, uint32_t height, uint32_t channels, unsigned char* data)
+{
+	m_Width = width;
+	m_Height = height;
+	m_Channels = channels;
+	size_t numBytes = width * height * channels;
+	m_Data = (unsigned char*)malloc(numBytes);
+	memcpy(m_Data, data, numBytes);
+	m_IsCheckerboard = false;
+	m_FilePath = "";
+}
+
 Image::Image(const Image& other)
 {	
 	m_Width = other.m_Width;
