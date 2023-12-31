@@ -42,7 +42,6 @@ public:
 				size_t numBytes = other.m_Width * other.m_Height * other.m_Channels;
 				this->m_Data = (unsigned char*)malloc(numBytes);
 				memcpy(this->m_Data, other.m_Data, numBytes);
-				//free(other.m_Data);
 			}
 		}
 
@@ -85,7 +84,7 @@ public:
 	std::string		m_FilePath;
 
 private:
-	int m_imageID;
+	
 };
 
 #endif

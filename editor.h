@@ -48,7 +48,8 @@ public:
 	~Editor() override;
 
 	void ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::vector<Line>& lines, EditorWindowType windowType);
-	void ShowResultWindow(const char* title);	
+	void ShowResultWindow(const char* title);
+	void ShowTextureSequenceWindow(const char* title, std::vector<Texture>& textures);
 	void Run();
 	
 	void InitFromProjectFile(std::string pathAndFilename);
@@ -79,6 +80,7 @@ private:
 	Texture m_destImageTexture;
 
 	// Beier-Neely weight parameters
+
 	float m_A;
 	float m_B;
 	float m_P;
@@ -91,13 +93,24 @@ private:
 	std::vector<Line> m_destLines;
 
 	// Results
+
 	std::vector<Image> m_sourceToDestMorphs;
 	std::vector<Image> m_destToSourceMorphs;
 	std::vector<Image> m_blendedImages;
 
+	// What windows to show
+
+	bool m_ShowSourceToDestImages = false;
+	bool m_ShowDestToSourceImages = false;
+
 	// Texture vector for blended images
 
 	std::vector<Texture> m_blendedImageTextures;
+
+	// Textures for individual morph images
+
+	std::vector<Texture> m_SourceToDestMorphTextures;
+	std::vector<Texture> m_DestToSourceMorphTextures;
 
 	// Framebuffers for ImGUI windows to render our images into
 	Framebuffer* m_sourceFBO; 

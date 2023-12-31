@@ -25,6 +25,14 @@ static glm::vec2 Perpendicular(glm::vec2& a) {
     return glm::length(a) * perp;
 }
 
+Line InterpolateLinesLinear(Line& sourceLine, Line& destLine, float t) {
+    Line result;
+    result.a.pos = (1.0f - t) * sourceLine.a.pos + t * destLine.a.pos;
+    result.b.pos = (1.0f - t) * sourceLine.b.pos + t * destLine.b.pos;
+
+    return result;
+}
+
 std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>& destLines, Image& sourceImage, Image& destImage, uint32_t iterations,
                                float a, float b, float p,
                                 std::vector<Image>& out_result, float* pctDone, bool* done, bool* stop)
@@ -32,6 +40,7 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
     std::vector<Image> result;
 
     for (uint32_t iter = 0; iter <= iterations; iter++) {
+
 
         float pct = (float)iter / (float)iterations;
         Image image(sourceImage.m_Width, sourceImage.m_Height, 3); // TODO: Check for channels and handle correctly
@@ -49,10 +58,12 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
 
                     Line& destLine = destLines[i];
                     Line& srcLine = sourceLines[i];
+                    Line interpolatedLine = InterpolateLinesLinear(destLine, srcLine, pct);
+
                     glm::vec2 P = destLine.a.pos;
                     glm::vec2 Q = destLine.b.pos;
-                    glm::vec2 srcP = srcLine.a.pos;
-                    glm::vec2 srcQ = srcLine.b.pos;
+                    glm::vec2 srcP = interpolatedLine.a.pos;
+                    glm::vec2 srcQ = interpolatedLine.b.pos;
                     glm::vec2 PX = X - P;
                     glm::vec2 PQ = Q - P;
                     float PQlength = glm::length(PQ);
@@ -66,7 +77,7 @@ std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>&
                     DSUM += D * weight;
                     weightsum += weight;        
                 }                
-                glm::vec2 srcX = X + pct*DSUM / weightsum;
+                glm::vec2 srcX = X + DSUM / weightsum;
                 if ((uint32_t)srcX.x > destImage.m_Width - 1) srcX.x = float(destImage.m_Width - 1);
                 if ((uint32_t)srcX.y > destImage.m_Height - 1) srcX.y = float(destImage.m_Height - 1);
                 if ((uint32_t)srcX.x < 0) srcX.x = 0.0f;

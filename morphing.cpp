@@ -2,9 +2,6 @@
 // IMAGE MORPHING USING BEIER-NEELY ALGORITHM
 // 
 // Known Bugs:
-// 4.12.2023
-// - non quare images stretch the result image to the right weirdly
-// - if source and destination images don't have the same dimensions the program crashes
 // 
 // Fixed Bugs:
 // - (7.12.2023)  It seems that the sequence is not being fully processed. The last image in the result window still shows parts of the source image
@@ -12,6 +9,8 @@
 // - (20.12.2023) if a source line has no matching destination line the program crashes
 // - (22.12.2023) If the image index in the result window is higher than the range specified for a new sequence, the index causes
 //                an index out of range error and the program crashes.
+// - (30.12.2023) Non square images stretch the result image to the right weirdly
+// - (some time ago) If source and destination images don't have the same dimensions the program crashes.
 // 
 // TODOs:
 // - Redo for lines
@@ -21,7 +20,6 @@
 //   interpolate the lines correctly and *then* compute the resulting pixel.
 //   This will be computationally more taxing but could result in better warping and therefore
 //   less noticable blending between source and destination image.
-// - Add buttons to load src/dst images during runtime
 //
 // TODOs Done:
 // - (7.12.2023)  Port to MacOS
@@ -30,7 +28,8 @@
 // - (13.12.2023) Support loading and writing project files with spaces in filename
 // - (19.12.2023) Render result images out to disk
 // - (19.12.2023) (Primitive) undo (Ctrl+Z) to kill lines
-// 
+// - (some time ago) Add buttons to load src/dst images during runtime
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -157,7 +156,7 @@ int main(int argc, char** argv)
     amask = 0xff000000;
 #endif
 
-    Image windowIcon(exePath + "../../res/icon.bmp");
+    Image windowIcon(exePath + "../../res/icon2.bmp");
     SDL_Surface* windowIconSurf = SDL_CreateRGBSurfaceFrom(
         windowIcon.m_Data,
         windowIcon.m_Width, windowIcon.m_Height,

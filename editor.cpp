@@ -285,6 +285,8 @@ void Editor::Update(IEvent* event)
         m_destToSourceMorphs.clear();
         m_blendedImages.clear();
         m_blendedImageTextures.clear();
+        m_SourceToDestMorphTextures.clear();
+        m_DestToSourceMorphTextures.clear();
         RenderDoneEvent* rde = (RenderDoneEvent*)event;
         m_sourceToDestMorphs = rde->m_sourceToDestMorphs;
         m_destToSourceMorphs = rde->m_destToSourceMorphs;        
@@ -293,8 +295,10 @@ void Editor::Update(IEvent* event)
         if (m_ImageIndex >= m_blendedImages.size()) {
             m_ImageIndex = 0;
         }        
-        for (auto& blendedImage : m_blendedImages) {
-            m_blendedImageTextures.push_back(Texture(blendedImage.m_Data, blendedImage.m_Width, blendedImage.m_Height));
+        for (int i = 0; i < m_blendedImages.size(); i++) {
+            m_blendedImageTextures.push_back(Texture(m_blendedImages[i].m_Data, m_blendedImages[i].m_Width, m_blendedImages[i].m_Height));
+            m_SourceToDestMorphTextures.push_back(Texture(m_sourceToDestMorphs[i].m_Data, m_sourceToDestMorphs[i].m_Width, m_sourceToDestMorphs[i].m_Height));
+            m_DestToSourceMorphTextures.push_back(Texture(m_destToSourceMorphs[i].m_Data, m_destToSourceMorphs[i].m_Width, m_destToSourceMorphs[i].m_Height));
         }
         m_isRendering = false;
         m_RenderPctDone = 0.0f;
@@ -712,6 +716,62 @@ void Editor::ShowResultWindow(const char* title)
     ImGui::End();
 }
 
+void Editor::ShowTextureSequenceWindow(const char* title, std::vector<Texture>& textures)
+{
+    ImGui::Begin(title);
+    
+    // TODO: This is wrong! This sets global state but we don't want that. For individual input
+    // capture there is something else. google it!
+    if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
+        ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = false;
+    }
+    else {
+        ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
+    }
+
+    float imguiWindowWidth = ImGui::GetContentRegionAvail().x;
+    float imguiWindowHeight = ImGui::GetContentRegionAvail().y - 30.0f; // -30 to leave some room for the slider widget below
+
+    // safe guard for potential div by 0
+
+    if (imguiWindowWidth <= 0) {
+        imguiWindowWidth = 1.0;
+    }
+    if (imguiWindowHeight <= 0) {
+        imguiWindowHeight = 1.0;
+    }
+
+    float srcAspect = (float)m_resultFBO->m_Width / (float)m_resultFBO->m_Height;
+    float dstAspect = imguiWindowWidth / imguiWindowHeight;
+    float newWidth = 0.0f;
+    float newHeight = 0.0f;
+    if (srcAspect > dstAspect) { // horizontal letterbox
+        newWidth = imguiWindowWidth;
+        newHeight = imguiWindowWidth / srcAspect;
+    }
+    else { // vertical letterbox
+        newWidth = imguiWindowHeight * srcAspect;
+        newHeight = imguiWindowHeight;
+    }
+
+    float posOffsetX = (imguiWindowWidth - newWidth) / 2.0f;
+    float posOffsetY = (imguiWindowHeight - newHeight) / 2.0f;
+
+    ImVec2 imageSize(newWidth, newHeight);
+    ImVec2 imagePosition(ImGui::GetCursorPosX() + posOffsetX, ImGui::GetCursorPosY() + posOffsetY);
+
+    ImGui::SetCursorPos(imagePosition);
+
+    ImGui::Image((void*)(intptr_t)textures[m_ImageIndex].GetHandle(), ImVec2(newWidth, newHeight));
+
+    ImGui::SetCursorPosX(imagePosition.x);
+    ImGui::PushItemWidth(imageSize.x);
+    ImGui::SliderInt("##imageIndexSlider", &m_ImageIndex, 0, m_blendedImages.size() - 1);
+    ImGui::PopItemWidth();
+
+    ImGui::End();
+}
+
 void Editor::Run()
 {
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());    
@@ -800,6 +860,15 @@ void Editor::Run()
     }
     
     if (!m_blendedImages.empty()) {
+        ImGui::Checkbox("Show source morphs", &m_ShowSourceToDestImages);
+        ImGui::Checkbox("Show destination morphs", &m_ShowDestToSourceImages);
+
+        if (m_ShowSourceToDestImages) {
+            ShowTextureSequenceWindow("source morphs", m_SourceToDestMorphTextures);
+        }
+        if (m_ShowDestToSourceImages) {
+            ShowTextureSequenceWindow("destination morphs", m_DestToSourceMorphTextures);
+        }
         if (ImGui::Button("Render (TGA)")) {
             char const* retSaveFile = tinyfd_saveFileDialog(
                 "Render",
