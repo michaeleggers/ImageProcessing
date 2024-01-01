@@ -156,19 +156,21 @@ int main(int argc, char** argv)
     amask = 0xff000000;
 #endif
 
-    Image windowIcon(exePath + "../../res/icon2.bmp");
-    SDL_Surface* windowIconSurf = SDL_CreateRGBSurfaceFrom(
-        windowIcon.m_Data,
-        windowIcon.m_Width, windowIcon.m_Height,
-        24, // depth
-        windowIcon.m_Width * 3, // 3 bytes/pixel
-        rmask,
-        gmask,
-        bmask,
-        amask
-    );
-    SDL_SetWindowIcon(window, windowIconSurf);
-    SDL_FreeSurface(windowIconSurf);
+    // Keep for reference. Not really needed on Windows with .rc file
+
+    //Image windowIcon(exePath + "../../res/icon2.bmp");
+    //SDL_Surface* windowIconSurf = SDL_CreateRGBSurfaceFrom(
+    //    windowIcon.m_Data,
+    //    windowIcon.m_Width, windowIcon.m_Height,
+    //    24, // depth
+    //    windowIcon.m_Width * 3, // 3 bytes/pixel
+    //    rmask,
+    //    gmask,
+    //    bmask,
+    //    amask
+    //);
+    //SDL_SetWindowIcon(window, windowIconSurf);
+    //SDL_FreeSurface(windowIconSurf);
 
     // Static geometry
 
@@ -189,7 +191,7 @@ int main(int argc, char** argv)
         
     Shader finalShader;
 #ifdef WIN32
-    if (!finalShader.Load(exePath + "../../shaders/final.vert", exePath + "../../shaders/final.frag")) {
+    if (!finalShader.Load(exePath + "shaders/final.vert", exePath + "shaders/final.frag")) {
         SDL_Log("Could not load shaders!\n");
         exit(-1);
     }
@@ -208,8 +210,8 @@ int main(int argc, char** argv)
     // Load image that will be presented in imgui window
 
 #ifdef WIN32
-    Image sourceImage(exePath + "../../assets/guy_squared.bmp");
-    Image destImage(exePath + "../../assets/gal_squared.bmp");
+    Image sourceImage(exePath + "assets/guy_squared.bmp");
+    Image destImage(exePath + "assets/gal_squared.bmp");
 #elif __APPLE__
     Image sourceImage(exePath + "/../assets/guy_squared.bmp");
     Image destImage(exePath + "/../assets/gal_squared.bmp");

@@ -18,11 +18,10 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
-# if(${WINDOWING} STREQUAL "VKAL_SDL")
-# 	message("Using SDL2...")
-# 	add_subdirectory(src/dependencies/SDL)
-# 	# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/dependencies/SDL)
-# endif()
+if (WIN32)
+	# res/app.rc
+	SET(RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/res/app.rc)
+endif()
 
 add_subdirectory(dependencies/SDL2.28.4)
 
@@ -121,6 +120,8 @@ add_executable(Morphing
 	dependencies/tinyfiledialogs/tinyfiledialogs.c
 
 	dependencies/glad/src/glad.c
+
+	${RESOURCE_FILES}
 )
 
 target_include_directories(Morphing
@@ -134,3 +135,44 @@ target_link_libraries(Morphing PUBLIC
     PUBLIC SDL2
     PUBLIC SDL2main
 )
+
+if (WIN32)
+	set(ASSETS_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/assets")
+	set(SHADERS_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/shaders")
+
+	set(DEST_ASSETS_DIR_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug/assets")
+	set(DEST_ASSETS_DIR_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release/assets")
+	set(DEST_SHADERS_DIR_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug/shaders")
+	set(DEST_SHADERS_DIR_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release/shaders")
+
+	add_custom_command(TARGET Morphing POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_directory
+					${ASSETS_DIR}
+					${DEST_ASSETS_DIR_DEBUG}
+	)
+	add_custom_command(TARGET Morphing POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_directory
+					${ASSETS_DIR}
+					${DEST_ASSETS_DIR_RELEASE}
+	)
+
+	add_custom_command(TARGET Morphing POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+			${SHADERS_DIR}
+			${DEST_SHADERS_DIR_DEBUG}
+	)
+	add_custom_command(TARGET Morphing POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+				${SHADERS_DIR}
+				${DEST_SHADERS_DIR_RELEASE}
+	)
+endif()
+
+# Is this needed???
+# add_custom_target(copy_directory_target ALL DEPENDS ${DEST_ASSETS_DIR})
+
+
+# file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
+# file(COPY shaders DESTINATION ${CMAKE_BINARY_DIR})
+
+

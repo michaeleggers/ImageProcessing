@@ -458,7 +458,7 @@ Editor::Editor(Image sourceImage, Image destImage, EventHandler* eventHandler)
     // Shader
     std::string exePath = com_GetExePath();
 #ifdef WIN32
-    if (!m_imageShader.Load(exePath + "../../shaders/basic.vert", exePath + "../../shaders/basic.frag")) {
+    if (!m_imageShader.Load(exePath + "shaders/basic.vert", exePath + "shaders/basic.frag")) {
         SDL_Log("Could not load shaders!\n");
         exit(-1);
     }   
