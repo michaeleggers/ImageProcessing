@@ -1,0 +1,51 @@
+\chapter{Warping der Bilder}
+
+Sobald die Linienpaare gesetzt wurden, kann der eigentliche Algorithmus gestartet werden. Die Pixel
+des Quellbildes werden in Richtung der Linienpositionen des Zielbildes verschoben. Und die Pixel
+des Zielbildes wiederum werden in Richtung der Linienpositionen des Quellbildes verschoben.
+Dies ist ein iterativer Prozess. Je mehr Iterationen gewählt werden, desto flie \ss ender ist
+die Verzerrung.
+Fuer jeden Pixel im Bild wird jede Linie in Betracht gezogen. Alle Linien haben also einen gewissen Einfluss auf
+das Warping eines Pixels. Die Laufzeitkomplexitaet
+des Beier-Neely Algorithmus errechnet sich aus
+$\mathcal{O}(numPixels \cdot numLines)$.
+Der Einfluss einer Linie auf einen Pixel kann mit einem
+von Beier-Neely entwickelten Gewicht festgelegt werden
+\cite{beierneely}:
+
+\begin{equation}
+	weight = \left(\frac{length^{p}}{a+dist}\right)^{b}
+\end{equation}
+
+a, b, p sind Konstanten, die einmalig gesetzt werden.
+
+\begin{itemize}
+	\item \textbf{length}: Laenge der Linie
+	\item \textbf{dist}: senkrechter Abstand des Pixels zur Linie
+	\item \textbf{a}: Bestimmt den Einfluss der senkrechten Distanz
+	auf das Gewicht. Wenn a nahe 0 ist, so werden Pixel, die auf der
+	Linie liegen mit einem Gewicht von nahezu $\infty$ beeinflusst.
+	\item \textbf{b}: Kontrolliert den Fall-Off der Linien. Ist b
+	nahe 0, tragen alle Linien, gleich Ihrer senkrechten Distanz zum
+	Pixel, gleichmaessig zur Verzerrung des jenes Pixels bei.
+	Grosse Werte (es wird nicht erwaehnt, was gross ist), fuehren
+	zu einem hoeheren Gewicht, je naeher der Pixel sich an
+	der jeweiligen Linie befindet.
+	\item \textbf{p}: Regelt, ob sich die Linienlaenge auf das Gewicht
+	auswirkt. Bei einem Wert von 0 wird $length^{p}$ offensichtlich 0
+	und das Gewicht ist unabhaengig zur Linienlaenge.
+\end{itemize}
+
+Wie die Parameter festgelegt werden kommt auf die in den Bildern
+vorhandenen Features an und erfordert in der Regel ein wenig
+ausprobieren. Beispielsweise haben sich die Werte 
+a = 0, b = 3.1 und p = 0 fuer das Bilderset aus Abbildung
+\ref{fig:linepairsfinal} in unseren Tests bewaehrt.
+
+
+
+
+
+
+
+...

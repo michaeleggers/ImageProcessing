@@ -920,7 +920,7 @@ void Editor::Run()
 
     ImGui::Begin("Control Panel");
 
-    ImGui::SliderFloat("a", &m_A, 0.0f, 2.0f);
+    ImGui::SliderFloat("a", &m_A, 0.0f, 20.0f);
     ImGui::SliderFloat("b", &m_B, 0.0f, 20.0f);
     ImGui::SliderFloat("p", &m_P, 0.0f, 1.0f);
     ImGui::SliderInt("Iterations", &m_NumIterations, 1, 100);
