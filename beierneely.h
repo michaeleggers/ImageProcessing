@@ -9,8 +9,8 @@
 #include "render_common.h"
 
 std::vector<Image> BeierNeely(
-	std::vector<Line>& sourceLines, std::vector<Line>& destLines, 
-	Image& sourceImage, Image& destImage, 
+	std::vector<Line> sourceLines, std::vector<Line> destLines, 
+	Image sourceImage, Image destImage, 
 	uint32_t iterations,
 	float a, float b, float p,
 	std::vector<Image>& out_result, float* pctDone, bool* done, bool* stop);

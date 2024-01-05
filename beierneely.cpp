@@ -33,7 +33,7 @@ Line InterpolateLinesLinear(Line& sourceLine, Line& destLine, float t) {
     return result;
 }
 
-std::vector<Image> BeierNeely(std::vector<Line>& sourceLines, std::vector<Line>& destLines, Image& sourceImage, Image& destImage, uint32_t iterations,
+std::vector<Image> BeierNeely(std::vector<Line> sourceLines, std::vector<Line> destLines, Image sourceImage, Image destImage, uint32_t iterations,
                                float a, float b, float p,
                                 std::vector<Image>& out_result, float* pctDone, bool* done, bool* stop)
 {
