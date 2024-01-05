@@ -4,7 +4,6 @@
 
 #include <vector>
 #include <algorithm>
-#include <thread>
 
 #include <glad/glad.h>
 

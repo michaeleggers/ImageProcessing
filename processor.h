@@ -14,6 +14,7 @@
 class Processor : public IEventSubscriber {
 public:
 	Processor(EventHandler* eventHandler);
+	Processor(Processor &&) = default;
 	virtual ~Processor();
 
 	virtual void Update(IEvent* event) override;

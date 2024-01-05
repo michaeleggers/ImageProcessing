@@ -42,23 +42,23 @@ ausprobieren. Beispielsweise haben sich die Werte
 a = 0, b = 3.1 und p = 0 fuer das Bilderset aus Abbildung
 \ref{fig:linepairsfinal} in unseren Tests bewaehrt.
 Die Linien koennen linear interpoliert werden, wie Abbildung \ref{fig:linearinterpolation}zeigt. 
-
-%\begin{figure}
-%	\centering
-%	\includegraphics[width=0.5\textwidth]{linearinterpolation.drawio.png}
-%	\caption{Lineare Interpolation zwischen Ziellinie $\overline{PQ}$ und Quelllinie $\overline{PQ'}$}
-%	\label{fig:linearinterpolation}
-%\end{figure}
-
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.5\textwidth]{linearinterpolation.drawio.png}
+	\caption{Lineare Interpolation zwischen Ziellinie $\overline{PQ}$ und Quelllinie $\overline{PQ'}$}
+	\label{fig:linearinterpolation}
+\end{figure}
 Durch diese Art der Interpolation entsteht jedoch bei
 Rotationen ein Fehler, wie man in \ref{fig:linearinterpolation} sehen kann: Die linear
 interpolierten Linien nehmen faelschlicherweise
 an Laenge ab. In unseren praktischen Tests hat sich
 dieses Problem als nicht gravierend herausgestellt.
-
 Fuer unsere Implementierung nutzen wir den von Beier und Neely
 mitgelieferten Pseudocode. Unsere Implementierung:
 
+\clearpage
+
+\begin{minipage}{\textwidth}
 \begin{lstlisting}[language=C++, caption=Beier-Neely in C++, label=bncode, xleftmargin=0.5cm]
 for (uint32_t y = 0; y < destImage.m_Height; y++) {
 	for (uint32_t x = 0; x < destImage.m_Width; x++) {
@@ -104,7 +104,7 @@ for (uint32_t y = 0; y < destImage.m_Height; y++) {
 	} // ! pixel row
 } // ! pixel col    
 \end{lstlisting}
-
+\end{minipage}
 
 
 
