@@ -23,6 +23,10 @@ if (WIN32)
 	SET(RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/res/app.rc)
 endif()
 
+if (MSVC)
+    add_compile_options(/W4)
+endif()
+
 add_subdirectory(dependencies/SDL2.28.4)
 
 # add_executable(DFT

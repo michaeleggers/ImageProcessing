@@ -19,12 +19,6 @@ static uint8_t* c;
 static uint32_t inputLength;
 static uint32_t cursor = 0;
 
-static uint32_t AdvanceToNextNonWhiteSpace(uint8_t* c) {
-    uint32_t advanced = 0;
-    
-    return advanced;
-}
-
 static uint32_t Advance(uint32_t count) {
     uint32_t i = 0;
     while (cursor + i < inputLength) {        

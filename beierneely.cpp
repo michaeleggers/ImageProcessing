@@ -41,7 +41,6 @@ std::vector<Image> BeierNeely(std::vector<Line> sourceLines, std::vector<Line> d
 
     for (uint32_t iter = 0; iter <= iterations; iter++) {
 
-
         float pct = (float)iter / (float)iterations;
         Image image(sourceImage.m_Width, sourceImage.m_Height, 3); // TODO: Check for channels and handle correctly
 
