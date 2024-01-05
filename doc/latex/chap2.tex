@@ -44,7 +44,7 @@ a = 0, b = 3.1 und p = 0 fuer das Bilderset aus Abbildung
 
 Die Linien koennen linear interpoliert werden, wie Abbildung \ref{fig:linearinterpolation}zeigt. 
 
-\begin{figure}[htbp]
+\begin{figure}
 	\centering
 	\includegraphics[width=0.5\textwidth]{linearinterpolation.drawio.png}
 	\caption{Lineare Interpolation zwischen Ziellinie $\overline{PQ}$ und Quelllinie $\overline{PQ'}$}
@@ -56,6 +56,59 @@ Rotationen ein Fehler, wie man in \ref{fig:linearinterpolation} sehen kann: Die 
 interpolierten Linien nehmen faelschlicherweise
 an Laenge ab. In unseren praktischen Tests hat sich
 dieses Problem als nicht gravierend herausgestellt.
+
+Fuer unsere Implementierung nutzen wir den von Beier und Neely
+mitgelieferten Pseudocode. Unsere Implementierung:
+
+\begin{lstlisting}[language=C++, caption=Beier-Neely in C++, label=bncode, xleftmargin=0.5cm]
+for (uint32_t y = 0; y < destImage.m_Height; y++) {
+	for (uint32_t x = 0; x < destImage.m_Width; x++) {
+		glm::vec2 X = glm::vec2(x, y);
+		glm::vec2 DSUM = glm::vec2(0.0, 0.0);
+		float weightsum = 0;     
+		for (uint32_t i = 0; i < destLines.size(); i++) {
+			
+			if (*stop) {
+				break; // received stop event.
+			}
+			
+			Line& destLine = destLines[i];
+			Line& srcLine = sourceLines[i];
+			Line interpolatedLine = InterpolateLinesLinear(destLine, srcLine, pct);
+			
+			glm::vec2 P = destLine.a.pos;
+			glm::vec2 Q = destLine.b.pos;
+			glm::vec2 srcP = interpolatedLine.a.pos;
+			glm::vec2 srcQ = interpolatedLine.b.pos;
+			glm::vec2 PX = X - P;
+			glm::vec2 PQ = Q - P;
+			float PQlength = glm::length(PQ);
+			float u = glm::dot(PX, PQ) / (PQlength * PQlength);
+			float v = glm::dot(PX, Perpendicular(PQ)) / PQlength;
+			glm::vec2 srcPQ = srcQ - srcP;
+			glm::vec2 srcX = srcP + u * srcPQ + (v * Perpendicular(srcPQ) / glm::length(srcPQ));
+			glm::vec2 D = srcX - X;
+			float dist = Distance(u, v, P, Q, X);
+			float weight = glm::pow(glm::pow(PQlength, p) / (a + dist), b);
+			DSUM += D * weight;
+			weightsum += weight;        
+		}                
+		glm::vec2 srcX = X + DSUM / weightsum;
+		if ((uint32_t)srcX.x > destImage.m_Width - 1) srcX.x = float(destImage.m_Width - 1);
+		if ((uint32_t)srcX.y > destImage.m_Height - 1) srcX.y = float(destImage.m_Height - 1);
+		if ((uint32_t)srcX.x < 0) srcX.x = 0.0f;
+		if ((uint32_t)srcX.y < 0) srcX.y = 0.0f;                
+		
+		glm::ivec3 sourcePixel = sourceImage((uint32_t)srcX.x, (uint32_t)srcX.y);                
+		
+		unsigned char* newPixel = image.m_Data + (image.m_Channels * (y * image.m_Width + x));
+		newPixel[0] = sourcePixel.r;
+		newPixel[1] = sourcePixel.g;
+		newPixel[2] = sourcePixel.b;
+		
+	} // ! pixel row
+} // ! pixel col    
+\end{lstlisting}
 
 
 

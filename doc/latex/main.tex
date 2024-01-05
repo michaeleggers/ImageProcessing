@@ -67,30 +67,33 @@
 %\DeclareCaptionType{mycapequ}[][List of equations]
 %\captionsetup[mycapequ]{labelformat=empty}
 
-\definecolor{mGreen}{rgb}{0,0.6,0}
-\definecolor{mGray}{rgb}{0.5,0.5,0.5}
-\definecolor{mPurple}{rgb}{0.58,0,0.82}
-\definecolor{backgroundColour}{rgb}{0.95,0.95,0.92}
-\lstdefinestyle{CStyle}{
-	backgroundcolor=\color{backgroundColour},   
-	commentstyle=\color{mGreen},
-	keywordstyle=\color{magenta},
-	morekeywords={VkDescriptorSetLayout}, 
-	numberstyle=\tiny\color{mGray},
-	stringstyle=\color{mPurple},
-	basicstyle=\ttfamily\footnotesize,
-	breakatwhitespace=false,         
-	breaklines=true,                 
-	captionpos=b,                    
-	keepspaces=true,                 
-	numbers=left,                    
-	numbersep=5pt,                  
-	showspaces=false,                
-	showstringspaces=false,
-	showtabs=false,                  
+
+% Define colors for syntax highlighting
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% Settings for C++ code
+\lstset{
+	language=C++,
+	basicstyle=\small\ttfamily,
+	keywordstyle=\color{blue},
+	stringstyle=\color{codepurple},
+	commentstyle=\color{codegreen},
+	backgroundcolor=\color{backcolour},
+	numbers=left,
+	numberstyle=\tiny\color{codegray},
+	stepnumber=1,
+	breaklines=true,
+	breakatwhitespace=false,
 	tabsize=2,
-	language=C++
+	showstringspaces=false,
+	captionpos=b,
+    columns=fullflexible % Allows the width to exceed the page width
 }
+
+
 
 \begin{document}
 \include{cover}
