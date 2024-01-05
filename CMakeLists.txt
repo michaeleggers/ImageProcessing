@@ -142,8 +142,10 @@ if (WIN32)
 
 	set(DEST_ASSETS_DIR_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug/assets")
 	set(DEST_ASSETS_DIR_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release/assets")
+	set(DEST_ASSETS_DIR_RELDEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/RelWithDebInfo/assets")
 	set(DEST_SHADERS_DIR_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug/shaders")
 	set(DEST_SHADERS_DIR_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release/shaders")
+	set(DEST_SHADERS_DIR_RELDEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/RelWithDebInfo/shaders")
 
 	add_custom_command(TARGET Morphing POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -166,6 +168,18 @@ if (WIN32)
 				${SHADERS_DIR}
 				${DEST_SHADERS_DIR_RELEASE}
 	)
+
+	add_custom_command(TARGET Morphing POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_directory
+					${ASSETS_DIR}
+					${DEST_ASSETS_DIR_RELDEBUG}
+	)
+	add_custom_command(TARGET Morphing POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+			${SHADERS_DIR}
+			${DEST_SHADERS_DIR_RELDEBUG}
+	)
+
 endif()
 
 # Is this needed???

@@ -1,13 +1,30 @@
-\chapter{Erstellen einer Visual Studio Solution des Vulkan Rahmenprogramms}
+\chapter{Software}
 
+Fuer den Kurs haben wir eine Beispielanwendung, PowerMorph, erstellt.
+Fuer das Bauen wird ein CMake file bereitgestellt. Die Software basiert
+auf OpenGL 3.0 und ist somit auch auf MacOS lauffaehig (zwar hat Apple
+den Support von OpenGL eingestellt, allerdings werden Anwendungen, welche bis
+einschl. maximal Version 4.1 von OpenGL verwenden, nach wie vor unterstuetzt).
+Ausserdem nutzen wir folgende externe Bibliotheken:
 
-\section{Download und Installation des Vulkan SDKs}
+\begin{itemize}
+	\item \textbf{SDL2} als Abstraktion zum Betriebssystem fuer Fenster und OpenGL context Erstellung.
+	\href{https://github.com/libsdl-org/SDL}{https://github.com/libsdl-org/SDL} 
+	\item \textbf{STB image/image write}: Lesen/Schreiben von Bilddateien.
+		\href{https://github.com/nothings/stb}{https://github.com/nothings/stb} 
+	\item \textbf{GLM}: Mathematik Bibliothek, die gut mit OpenGL zusammenarbeitet. 
+			\href{https://github.com/g-truc/glm}{https://github.com/g-truc/glm}
+	\item \textbf{Dear ImGUI}: Immediate Mode GUI Bibliothek fuer den Editor.
+	\item \textbf{tinyfiledialogs}: Betriebssystemunabhaengige Bibliothek fuer Window-Messages, Oeffnen/Speichern Dialoge.
+	\item \textbf{GIF writer by Charlie Tangora}: Speichern der gerenderten Sequenzen als GIF.
+				\href{https://github.com/charlietangora/gif-h}{https://github.com/charlietangora/gif-h} 
+\end{itemize}
 
+\section{Installation}
 
-\section{Download und Verwendung von CMake}
+Wir nutzen CMake, um Projektdateien
+fuer eine IDE bzw. Makefiles zu generieren. 
 
+Nach der Installation ist sollte die Software ohne weiteres Aufrufbar sein. Ein fertiges Binary fuer Windows 64 bit ist auf 
+www.nocheinfuegen.de herunterladbar.
 
-\subsection{Aktualisieren des Vulkan SDK}
-
-
-\section{GeForce-Treiber für RTX Extensions}
