@@ -44,9 +44,60 @@ generiert und danach ueberblendet werden. Je nach Aufloesung des Bilderpaares
 und der Anzahl der gesetzen Linien kann dieser Vorgang ein wenig
 dauern. Ist die Berechnung abgeschlossen, so wird ein
 neues \textbf{Result}-Fenster geoeffnet. Dort laesst sich das
-Resultat begutachten.
+Resultat begutachten. Die Parameter \textbf{a}, \textbf{b} und
+\textbf{p}, um das Gewicht einer Linie zu bestimmen, lassen
+sich mit den Slidern im \textbf{Control Panel} festlegen.
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=1.0\textwidth]{powermorph.png}
+	\caption{PowerMorph}
+	\label{fig:powermorph}
+\end{figure}
 
 \section{Ausblick}
+
+Die Interpolation der Linien erfolgt linear fuer die Start-
+und Endpunkte. Wie beschrieben werden Rotationen durch
+diese Weise skaliert, auch wenn die laenge des Linienpaares
+jeweils gleich bleibt. Beier und Neely beschreiben,
+dass eine weitere Moeglichkeit zur Interpolation folgendermassen
+aussieht:
+Die Mittelpunkte der beiden Linien und deren Orientierung
+werden interpoliert. Denkbar waere hierbei die Nutzung
+von Quaternions, welche die Orientierungen der beiden
+Linien repraesentieren. Das Erzeugen aus Winkel
+und Vektor wird durch \textbf{GLM} unterstuetzt:
+
+\begin{lstlisting}[language=C++, caption=Quaternions in GLM, label=quaternion, xleftmargin=0.5cm]
+
+glm::quat qSource = glm::angleAxis(theta, glm::vec3(0, 0, 1));
+\end{lstlisting}
+qSource repraesentiert nun eine Drehung um die Z-Achse
+(unsere Linien werden im R2 platziert, wodurch die
+3. Dimension hinzugezogen wird, um einen weiteren
+Freiheitsgrad zu erlangen).
+
+Den Winkel $\theta$ erhaelt man durch:
+
+$\theta = \arcsin \left(\frac{y}{\|\textbf{v}\|}\right)$
+
+wobei $y$ die 2. Komponente des Vektors $\textbf{v}$ ist, welcher die Linie in Ziel- bzw. Quellbild repraesentiert.
+Die Interpolation zwischen zwei Quaternions erfolgt schliesslich durch:
+\begin{lstlisting}[language=C++, caption=Spherical interpolation zwischen zwei Quaternions, label={lst:slerp}, xleftmargin=0.5cm]
+	
+	glm::quat qInterpolated = glm::slerp(qSource, qDest, 0.5);
+	
+\end{lstlisting}
+In Listing \ref{lst:slerp} wird die Sphaerische Interpolation
+zweier Quaternions bei $50\%$ berechnet.
+glm::slerp sorgt dafuer, dass der kuerzeste Pfad zwischen
+den beiden Orientierungen genommen wird. Um aus dem nun
+interpolierten Quaternion wieder einen Vektor (und damit
+eine Linie) zu erzeugen verdeutlicht man sich, dass
+ein Quaternion eine Rotation repraesentiert. Wir
+rotieren den Quellvektor (die Quelllinie)
+
 
 
 
