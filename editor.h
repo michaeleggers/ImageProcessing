@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include "imgui.h"
 
@@ -44,7 +45,7 @@ struct EditorMouseInfo {
 
 class Editor : public IEventSubscriber {
 public:
-	Editor(Image sourceImage, Image destImage, EventHandler* eventHandler);
+	Editor(Image sourceImage, Image destImage, EventHandler* eventHandler, GLFWwindow* window);
 	~Editor() override;
 
 	void ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::vector<Line>& lines, EditorWindowType windowType);
@@ -140,6 +141,8 @@ private:
 	bool m_destRenderDone;
 
 	bool m_isRendering;
+
+	GLFWwindow* m_Window;
 };
 
 #endif

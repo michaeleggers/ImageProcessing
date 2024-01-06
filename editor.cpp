@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include "imgui.h"
 #include "tinyfiledialogs.h"
@@ -176,6 +177,7 @@ void Editor::SaveProject()
     else {
         WriteProjectFile(retSaveFile, m_sourceLines, m_destLines, m_sourceImage.m_FilePath, m_destImage.m_FilePath, m_A, m_B, m_P);
         m_OpenedProject = GetProjectNameFromFilePath(retSaveFile);
+        glfwSetWindowTitle(m_Window, ("PowerMorph - " + m_OpenedProject).c_str());
     }
 }
 
@@ -196,6 +198,7 @@ void Editor::OpenProject()
     else {
         InitFromProjectFile(retOpenFile);
         m_OpenedProject = GetProjectNameFromFilePath(retOpenFile);
+        glfwSetWindowTitle(m_Window, ("PowerMorph - " + m_OpenedProject).c_str());
     }
 }
 
@@ -426,7 +429,7 @@ static ImVec2 MousePosToImageCoords(ImVec2 mousePos, ImVec2 widgetMins, ImVec2 w
     //fbo.Unbind();
 //}
 
-Editor::Editor(Image sourceImage, Image destImage, EventHandler* eventHandler)
+Editor::Editor(Image sourceImage, Image destImage, EventHandler* eventHandler, GLFWwindow* window)
 {
     // TODO: Should we allow source and destination images to be of different size?
     //       If yes, what is the size of the result image?
@@ -437,6 +440,8 @@ Editor::Editor(Image sourceImage, Image destImage, EventHandler* eventHandler)
 
     m_sourceImage = sourceImage;
     m_destImage = destImage;
+
+    m_Window = window;
 
     m_sourceImageTexture = Texture(m_sourceImage.m_Data, m_sourceImage.m_Width, m_sourceImage.m_Height);
     m_destImageTexture = Texture(m_destImage.m_Data, m_destImage.m_Width, m_destImage.m_Height);

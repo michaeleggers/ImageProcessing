@@ -18,6 +18,11 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+add_subdirectory(dependencies/glfw332src)
+	
 if (WIN32)
 	# res/app.rc
 	SET(RESOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/res/app.rc)
@@ -119,6 +124,8 @@ add_executable(Morphing
 	dependencies/imgui/backends/imgui_impl_opengl3.h
 	dependencies/imgui/backends/imgui_impl_sdl2.cpp
 	dependencies/imgui/backends/imgui_impl_sdl2.h
+	dependencies/imgui/backends/imgui_impl_glfw.h
+	dependencies/imgui/backends/imgui_impl_glfw.cpp
 
 	dependencies/tinyfiledialogs/tinyfiledialogs.h
 	dependencies/tinyfiledialogs/tinyfiledialogs.c
@@ -138,6 +145,7 @@ target_include_directories(Morphing
 target_link_libraries(Morphing PUBLIC
     PUBLIC SDL2
     PUBLIC SDL2main
+	PUBLIC glfw
 )
 
 if (WIN32)
