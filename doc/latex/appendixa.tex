@@ -1,6 +1,6 @@
 \chapter{Software}
 
-Fuer den Kurs haben wir eine Beispielanwendung, PowerMorph, erstellt.
+Fuer den Kurs haben wir eine Beispielanwendung, MagicMorph, erstellt.
 Fuer das Bauen wird ein CMake file bereitgestellt. Die Software basiert
 auf OpenGL 3.0 und ist somit auch auf MacOS lauffaehig (zwar hat Apple
 den Support von OpenGL eingestellt, allerdings werden Anwendungen, welche bis
@@ -9,15 +9,16 @@ Ausserdem nutzen wir folgende externe Bibliotheken:
 
 \begin{itemize}
 	\item \textbf{SDL2} als Abstraktion zum Betriebssystem fuer Fenster und OpenGL context Erstellung.
-	\href{https://github.com/libsdl-org/SDL}{https://github.com/libsdl-org/SDL} 
+	\\\href{https://github.com/libsdl-org/SDL}{https://github.com/libsdl-org/SDL} 
 	\item \textbf{STB image/image write}: Lesen/Schreiben von Bilddateien.
-		\href{https://github.com/nothings/stb}{https://github.com/nothings/stb} 
+		\\\href{https://github.com/nothings/stb}{https://github.com/nothings/stb} 
 	\item \textbf{GLM}: Mathematik Bibliothek, die gut mit OpenGL zusammenarbeitet. 
-			\href{https://github.com/g-truc/glm}{https://github.com/g-truc/glm}
-	\item \textbf{Dear ImGUI}: Immediate Mode GUI Bibliothek fuer den Editor.
-	\item \textbf{tinyfiledialogs}: Betriebssystemunabhaengige Bibliothek fuer Window-Messages, Oeffnen/Speichern Dialoge.
+			\\\href{https://github.com/g-truc/glm}{https://github.com/g-truc/glm}
+	\item \textbf{Dear ImGUI}: Immediate Mode GUI Bibliothek fuer den Editor. 
+	\\\href{https://github.com/ocornut/imgui}{https://github.com/ocornut/imgui}
+	\item \textbf{tinyfiledialogs}: Betriebssystemunabhaengige Bibliothek fuer Window-Messages, Oeffnen/Speichern Dialoge. 		\\\href{https://sourceforge.net/projects/tinyfiledialogs/}{https://sourceforge.net/projects/tinyfiledialogs/}
 	\item \textbf{GIF writer by Charlie Tangora}: Speichern der gerenderten Sequenzen als GIF.
-				\href{https://github.com/charlietangora/gif-h}{https://github.com/charlietangora/gif-h} 
+				\\\href{https://github.com/charlietangora/gif-h}{https://github.com/charlietangora/gif-h} 
 \end{itemize}
 
 \section{Installation}
@@ -28,7 +29,7 @@ fuer eine IDE bzw. Makefiles zu generieren.
 Nach der Installation ist sollte die Software ohne weiteres Aufrufbar sein. Ein fertiges Binary fuer Windows 64 bit ist auf 
 www.nocheinfuegen.de herunterladbar.
 
-\section{Verwenden von PowerMorph}
+\section{Verwenden von MagicMorph}
 
 Die Bedienung ist weitestgehend selbsterklaerend. Im \textbf{Source}-Fenster wird eine Linie fuer ein Feature gezogen. Per
 Mausklick wird der Fusspunkt der Linie gesetzt, ein weiterer
@@ -50,8 +51,8 @@ sich mit den Slidern im \textbf{Control Panel} festlegen.
 
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=1.0\textwidth]{powermorph.png}
-	\caption{PowerMorph}
+	\includegraphics[width=1.0\textwidth]{magicmorph.png}
+	\caption{MagicMorph}
 	\label{fig:powermorph}
 \end{figure}
 
@@ -89,14 +90,21 @@ Die Interpolation zwischen zwei Quaternions erfolgt schliesslich durch:
 	glm::quat qInterpolated = glm::slerp(qSource, qDest, 0.5);
 	
 \end{lstlisting}
-In Listing \ref{lst:slerp} wird die Sphaerische Interpolation
-zweier Quaternions bei $50\%$ berechnet.
+In Listing \ref{lst:slerp} wird die Sphaerische Interpolation zwischen
+zweie Quaternions bei $50\%$ berechnet.
 glm::slerp sorgt dafuer, dass der kuerzeste Pfad zwischen
-den beiden Orientierungen genommen wird. Um aus dem nun
-interpolierten Quaternion wieder einen Vektor (und damit
-eine Linie) zu erzeugen verdeutlicht man sich, dass
-ein Quaternion eine Rotation repraesentiert. Wir
-rotieren den Quellvektor (die Quelllinie)
+den beiden Orientierungen genommen wird. Um nun die rotierte (interpolierte)
+Linie zu bekommen, wendet man den Quaternion auf die Start- und Endpunkte der
+Linie an:
+\begin{lstlisting}[language=C++, caption=Rotation der Quelllinie durch einen Quaternion, label={lst:quattimespoint}, xleftmargin=0.5cm]
+	
+	glm::vec3 aInterpolated = qInterpolated * source.a;
+	glm::vec3 bInterpolated = qInterpolated * source.b;
+	Line interpolatedLine = Line(
+									aInterpolated.x, aInterpolated.y, 
+									bInterpolated.x, bInterpolated.y
+								 );	
+\end{lstlisting}
 
 
 

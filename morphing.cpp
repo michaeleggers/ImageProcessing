@@ -280,7 +280,7 @@ int main(int argc, char** argv)
 
         // Update Win32 Window title
 
-        SDL_SetWindowTitle(window, ("PowerMorph - " + editor.GetProjectName()).c_str());
+        SDL_SetWindowTitle(window, ("MagicMorph - " + editor.GetProjectName()).c_str());
 
         // Second pass
 
