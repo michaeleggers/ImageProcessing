@@ -3,14 +3,14 @@
 Sobald die Linienpaare gesetzt wurden, kann der eigentliche Algorithmus gestartet werden. Die Pixel
 des Quellbildes werden in Richtung der Linienpositionen des Zielbildes verschoben. Und die Pixel
 des Zielbildes wiederum werden in Richtung der Linienpositionen des Quellbildes verschoben.
-Dies ist ein iterativer Prozess. Je mehr Iterationen gewählt werden, desto flie \ss ender ist
+Dies ist ein iterativer Prozess. Je mehr Iterationen gewählt werden, desto flie\ss ender ist
 die Verzerrung.
-Fuer jeden Pixel im Bild wird jede Linie in Betracht gezogen. Alle Linien haben also einen gewissen Einfluss auf
-das Warping eines Pixels. Die Laufzeitkomplexitaet
+Für jeden Pixel im Bild wird jede Linie in Betracht gezogen. Alle Linien haben also einen gewissen Einfluss auf
+das Warping eines Pixels. Die Laufzeitkomplexität
 des Beier-Neely Algorithmus errechnet sich aus
 $\mathcal{O}(numPixels \cdot numLines)$.
 Der Einfluss einer Linie auf einen Pixel kann mit einem
-von Beier-Neely entwickelten Gewicht festgelegt werden
+von Beier und Neely entwickelten Gewicht festgelegt werden
 \cite{beierneely}:
 
 \begin{equation}
@@ -28,21 +28,21 @@ a, b, p sind Konstanten, die einmalig gesetzt werden.
 	Linie liegen mit einem Gewicht von nahezu $\infty$ beeinflusst.
 	\item \textbf{b}: Kontrolliert den Fall-Off der Linien. Ist b
 	nahe 0, tragen alle Linien, gleich Ihrer senkrechten Distanz zum
-	Pixel, gleichmaessig zur Verzerrung des jenes Pixels bei.
-	Grosse Werte (es wird nicht erwaehnt, was gross ist), fuehren
-	zu einem hoeheren Gewicht, je naeher der Pixel sich an
+	Pixel, gleichmä\ss ig zur Verzerrung des jenes Pixels bei.
+	gro\ss e Werte (es wird nicht erwähnt, was \emph{gro\ss} ist), führen
+	zu einem höheren Gewicht, je näher der Pixel sich an
 	der jeweiligen Linie befindet.
-	\item \textbf{p}: Regelt, ob sich die Linienlaenge auf das Gewicht
+	\item \textbf{p}: Regelt, ob sich die Linienlänge auf das Gewicht
 	auswirkt. Bei einem Wert von 0 wird $length^{p}$ offensichtlich 1
-	und das Gewicht ist unabhaengig zur Linienlaenge.
+	und das Gewicht ist unabhängig zur Linienlänge.
 \end{itemize}
 
 Wie die Parameter festgelegt werden kommt auf die in den Bildern
 vorhandenen Features an und erfordert in der Regel ein wenig
 ausprobieren. Beispielsweise haben sich die Werte 
-a = 0, b = 3.045 und p = 0 fuer das Bilderset aus Abbildung
-\ref{fig:linepairsfinal} in unseren Tests bewaehrt.
-Die Linien koennen linear interpoliert werden, wie Abbildung \ref{fig:linearinterpolation}zeigt. 
+a = 0, b = 3.045 und p = 0 für das Bilderset aus Abbildung
+\ref{fig:linepairsfinal} in unseren Tests bewährt.
+Die Linien können linear interpoliert werden, wie Abbildung \ref{fig:linearinterpolation}zeigt. 
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.8\textwidth]{linearinterpolation.drawio.png}
@@ -51,13 +51,13 @@ Die Linien koennen linear interpoliert werden, wie Abbildung \ref{fig:linearinte
 \end{figure}
 Durch diese Art der Interpolation entsteht jedoch bei
 Rotationen ein Fehler, wie man in \ref{fig:linearinterpolation} sehen kann: Die linear
-interpolierten Linien nehmen faelschlicherweise
-an Laenge ab. In unseren praktischen Tests hat sich
+interpolierten Linien nehmen fälschlicherweise
+an Länge ab. In unseren praktischen Tests hat sich
 dieses Problem als nicht gravierend herausgestellt. Durch die Linienpaare
-laesst sich ein Pixel $\textbf{X}$ im Zielbild einem Pixel $\textbf{X'}$ zuordnen
+lässt sich ein Pixel $\textbf{X}$ im Zielbild einem Pixel $\textbf{X'}$ zuordnen
 (\ref{fig:xtoxprime}),
 da durch das Paar eine Transformation festgelegt werden kann \cite{beierneely}.
-Fuer unsere Implementierung nutzen wir den von Beier und Neely
+Für unsere Implementierung nutzen wir den von Beier und Neely
 mitgelieferten Pseudocode.
 
 \begin{figure}[htb]
