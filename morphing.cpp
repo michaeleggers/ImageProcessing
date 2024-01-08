@@ -261,7 +261,6 @@ int main(int argc, char** argv)
         ImGui_ImplSDL2_NewFrame();
         ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         ImGui::NewFrame();
-        ImGui::ShowDemoWindow();
 
         int windowWidth, windowHeight;
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
