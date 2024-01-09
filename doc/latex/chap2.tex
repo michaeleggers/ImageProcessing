@@ -56,7 +56,23 @@ an Länge ab. In unseren praktischen Tests hat sich
 dieses Problem als nicht gravierend herausgestellt. Durch die Linienpaare
 lässt sich ein Pixel $\textbf{X}$ im Zielbild einem Pixel $\textbf{X'}$ zuordnen
 (\ref{fig:xtoxprime}),
-da durch das Paar eine Transformation festgelegt werden kann \cite{beierneely}.
+da durch das Paar eine Transformation festgelegt und 
+somit berechnet werden kann, wo der Pixel $\textbf{X}$ im Zielbild
+landet \cite{beierneely}. Abbildung \ref{fig:xprimecomp} zeigt das
+Vorgehen. Die Funktion \textbf{Perpendicular} gibt einen
+Vektor zurueck, welcher senkrecht auf den uebergebenen Vektor steht:
+
+\begin{equation}
+	Perpendicular(v) = \begin{bmatrix}-v_y\\v_x\end{bmatrix}
+\end{equation}
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.8\textwidth]{xprimecomputation.png}
+	\caption{Berechnung der Position des Zielpixels $\textbf{X'}$ relativ
+		zur Ziellinie  $\textbf{X}$ nach $\textbf{X'}$}
+	\label{fig:xprimecomp}
+\end{figure}
 Für unsere Implementierung nutzen wir den von Beier und Neely
 mitgelieferten Pseudocode.
 
