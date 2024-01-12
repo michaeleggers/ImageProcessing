@@ -138,6 +138,8 @@ target_include_directories(Morphing
 target_link_libraries(Morphing PUBLIC
     PUBLIC SDL2
     PUBLIC SDL2main
+	PUBLIC dl
+	PUBLIC pthread
 )
 
 if (WIN32)

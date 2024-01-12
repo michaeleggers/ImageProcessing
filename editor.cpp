@@ -461,7 +461,7 @@ Editor::Editor(Image sourceImage, Image destImage, EventHandler* eventHandler)
         SDL_Log("Could not load shaders!\n");
         exit(-1);
     }   
-#elif __APPLE__
+#elif __APPLE__ || __linux__
     if (!m_imageShader.Load(exePath + "/../shaders/basic.vert", exePath + "/../shaders/basic.frag")) {
         SDL_Log("Could not load shaders!\n");
         exit(-1);
@@ -504,7 +504,7 @@ void Editor::ShowWindow(const char* title, Image& image, Framebuffer* fbo, std::
         }
         else if (windowType == ED_WINDOW_TYPE_DEST) {
             if (OpenImage(pathAndFilename)) {
-                m_destImage = Image(pathAndFilename);
+                m_destImage = Image(pathAndFilename);                
             }
         }
     }

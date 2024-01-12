@@ -57,6 +57,26 @@ std::string com_GetExePath(void)
 	return std::string(out_buffer);
 }
 
+#elif __linux__
+
+#include <unistd.h>
+#include <string.h>
+
+std::string com_GetExePath()
+{
+	char out_buffer[256];
+	uint32_t buffer_size = 256;
+
+	readlink("/proc/self/exe", out_buffer, buffer_size);
+	int len = strlen(out_buffer);
+	char * slash = out_buffer + len + 1;
+	while (len >= 0 && *slash != '/') { slash--; len--; }
+	out_buffer[len + 1] = '\0';
+	//printf("%s\n", out_buffer);
+
+	return std::string(out_buffer);
+}
+
 #endif
 
 

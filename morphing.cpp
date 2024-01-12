@@ -203,7 +203,7 @@ int main(int argc, char** argv)
         SDL_Log("Could not load shaders!\n");
         exit(-1);
     }
-#elif __APPLE__
+#elif __APPLE__ || __linux__
     if (!finalShader.Load(exePath + "/../shaders/final.vert", exePath + "/../shaders/final.frag")) {
         SDL_Log("Could not load shaders!\n");
         exit(-1);
@@ -220,7 +220,7 @@ int main(int argc, char** argv)
 #ifdef WIN32
     Image sourceImage(exePath + "assets/guy_squared.bmp");
     Image destImage(exePath + "assets/gal_squared.bmp");
-#elif __APPLE__
+#elif __APPLE__ || __linux__
     Image sourceImage(exePath + "/../assets/guy_squared.bmp");
     Image destImage(exePath + "/../assets/gal_squared.bmp");
 #endif
