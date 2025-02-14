@@ -1,6 +1,10 @@
-# Image Processing
+# PowerMorph
 
-## Morphing
+Implementation of the morphing algorithm used in Michael Jackson's Black or White music video.
+
+This is what this software can produce:
+![test2](https://github.com/user-attachments/assets/9da7c779-6c6f-4c20-b1f6-ce3ca59ab7a1)
+
 
 ### Build
 
